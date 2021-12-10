@@ -11,7 +11,8 @@
 class Server {
 
 public:
-    void Work();
+    void work(int ls);
+    void setClient(Client &client);
 private:
     std::vector<Client *> arr_client;
 

@@ -24,6 +24,9 @@
 #include <iostream>
 #include <string>
 
+#define BUFLEN 512
+#define PORT 5555
+
 
 class Client {
 public:

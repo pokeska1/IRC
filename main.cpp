@@ -5,7 +5,7 @@
 
 //номер порта и константа
 #define PORT 5555
-#define BUFLEN 512
+
 
 //тестовые функции
 int readFromClient(int fd, char *buf);
@@ -14,23 +14,24 @@ void writeToClient(int fd, char *buf);
 
 int main() {
 
-    int i , err, opt = 1;
-    int sock, new_sock;
-    fd_set activ_set, read_set;
-    struct sockaddr_in addr;
+
     struct sockaddr_in client;
     char buf[BUFLEN];
+    int i , err, opt = 1;
+    int sock, new_sock;
+   fd_set activ_set, read_set;
+    struct sockaddr_in addr;
+
     socklen_t size;
 
     //создаем  TCP сокет приема запроссов на соединение
-    sock = socket (PF_INET, SOCK_STREAM, 0);
+    sock = socket(PF_INET, SOCK_STREAM, 0);
     if (sock < 0)
     {
         perror("Server: cannot creat socket");
         exit(EXIT_FAILURE);
     }
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
-
     //заполняем адресную структуру
     // связываем сокет с любым портом
     addr.sin_family = AF_INET;
@@ -50,17 +51,26 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+//    Client client(sock);
+    Server serv;
+//    serv.setClient(client);
+    serv.work(sock);
     /*
      * подготавливаем множество дискрипторов каналов ввода-вывода
      * Для простоты не вычисляем макс значение дискриптора
      * а далее будем вычислять все дискрипторы вплоть до максималь ного
      * возможного значения FD_SETSIZE
      */
+    /*
     FD_ZERO(&activ_set);
     FD_SET(sock, &activ_set);
 
     // бескконечный цикл проверки состояния сокетов
-    while (1) {
+    for(;;) {
+        // указаваем максимальный номер дискриптора среди всех что подлежат проверке
+        int max_d = sock;
+
+
         //проверим появились ли данные в каком либо сокете .
         //В нашем варианте ждем до фактического появления данных
         read_set = activ_set;
@@ -68,6 +78,7 @@ int main() {
             perror("Server: select failure");
             exit(EXIT_FAILURE);
         }
+
 
         //данные появились. Проверим в каком сокете
         for (i = 0; i < FD_SETSIZE; i++) {
@@ -104,10 +115,10 @@ int main() {
                 }
             }
         }
-
+*/
 //    Server Serv;
-//    Serv.Work();
-    }
+//
+//    }
     return 0;
 }
 
