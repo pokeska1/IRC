@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 
 #include <sys/types.h>
@@ -23,6 +24,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+
 
 #define BUFLEN 512
 #define PORT 5555

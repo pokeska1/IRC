@@ -3,6 +3,13 @@
 //
 
 #include "Client.hpp"
-Client::Client(int fd):fd(fd){}
-int const &Client::getFd() {return(this->fd);}
+Client::Client(int fd)
+{
+   this->fd = fd;
+}
+
+int const &Client::getFd()
+{
+    return(this->fd);
+}
 std::string const &Client::getMassage(){return(this->massage);}

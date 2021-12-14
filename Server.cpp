@@ -21,6 +21,7 @@ void Server::work(int ls)
     struct sockaddr_in clientfd;
     char buf[BUFLEN];
     socklen_t size;
+    //int fcntl_ret = fcntl(ls, F_SETFL, O_NONBLOCK);
 //    struct sockaddr_in addr;
 //    addr.sin_family = AF_INET;
 //    addr.sin_port = htons(PORT);
@@ -40,22 +41,35 @@ void Server::work(int ls)
         FD_SET(ls, &readfds); //вводим fd слушашего сокета в множество
 
 
-
         std::vector<Client *>::iterator it_begin = arr_client.begin();
         std::vector<Client *>::iterator it_end = arr_client.end();
-        // а теперь цикл по сокетам
-        if (arr_client.begin() != arr_client.end()) {
 
-            for (fd = (*it_begin)->getFd(); it_begin != it_end; it_begin++) {
+        // а теперь цикл по сокетам
+       // if (arr_client.begin() != arr_client.end()) {
+        if (it_begin !=  it_end) {
+            std::vector<Client *>::iterator it_endrr = arr_client.end();
+            fd = (*it_begin)->getFd();
+            while (it_begin != it_end)
+            {
+                fd = (*it_begin)->getFd();
                 FD_SET(fd, &readfds);
-                // if (&writefds)// здесь нужно проверить есть ли этому клиенту сообщение
-                //FD_SET(fd, &writefds);
+
+               // fprintf(stdout, "Server:fd =%d\n", fd);
                 if (fd > max_d)
                     max_d = fd;
+
+                it_begin++;
             }
+//            for (fd = (*it_begin)->getFd(); *it_begin != *it_end; ++it_begin) {
+//                FD_SET(fd, &readfds);
+//
+//                fprintf(stdout, "Server:fd =%d\n", fd);
+//                if (fd > max_d)
+//                    max_d = fd;
+//            }
         }
 
-        int res = select(max_d + 1, &readfds, NULL, NULL, NULL);
+        int res = select(FD_SETSIZE, &readfds, NULL, NULL, NULL);
 
         if(res < 1)
             if (errno != EINTR){
@@ -65,8 +79,8 @@ void Server::work(int ls)
 //        else {
 //                //perror("Server: meh");
 //            }
-        for(int i = 0 ; i < max_d; i++) {
-            if (i = ls) {
+        for(int i = 0 ; i <= max_d; i++) {
+            if (i == ls) {
                 if (FD_ISSET(ls, &readfds)) {
                     size = sizeof(clientfd);
                     fd = accept(ls, (struct sockaddr *) &clientfd, &size);
@@ -76,21 +90,46 @@ void Server::work(int ls)
                     }
                     fprintf(stdout, "Server: connect from host %s, port %hu.\n",
                             inet_ntoa(clientfd.sin_addr), ntohs(clientfd.sin_port));
-                    Client new_client(fd);
-                    this->setClient(new_client);
+                    FD_SET(fd, &readfds);
+                    Client *new_client = new Client(fd);
+                    this->setClient(*new_client);
+                }
+            }
+             else {
+                if (FD_ISSET(i, &readfds))
+                {
+                    int nbytes;
+
+                   // nbytes = read(fd, buf, 512);
+                    nbytes = recv(i, buf, 512, 0);
+
+
+                    if (nbytes < 0)
+                    {
+                        perror("Server: meh nbytes < 0");
+                    }
+                    else if (nbytes == 0){
+                        perror("Server: meh nbytes == 0");
+                    }
+                    else{
+                        fprintf(stdout, "Serv got massage: %s/n", buf);
+                    }
                 }
             }
         }
 
         std::vector<Client *>::iterator it_begin_new = arr_client.begin();
         std::vector<Client *>::iterator it_end_new = arr_client.end();
-        for (fd = (* it_begin_new)->getFd() ; it_begin_new != it_end_new; it_begin_new++)
-       {
+      //  for (fd = (* it_begin_new)->getFd() ; it_begin_new != it_end_new; it_begin_new++)// переделать в вайл
+      fd = (* it_begin_new)->getFd();
+        while (it_begin_new != it_end_new)
+            {
            if (FD_ISSET(fd, &readfds))
            {
                int nbytes;
 
-               nbytes = read(fd, buf, 512);
+            //   nbytes = read(fd, buf, 512);
+                nbytes = recv(fd, buf, 512, 0);
                if (nbytes < 0)
                {
                    perror("Server: meh nbytes < 0");
@@ -100,6 +139,7 @@ void Server::work(int ls)
                }
                else{
                    fprintf(stdout, "Serv got massage: %s/n", buf);
+                  // buf = null;
                }
            }
            if (FD_ISSET(fd, &writefds))
@@ -115,7 +155,8 @@ void Server::work(int ls)
                    perror("Server: write failure");
                }
            }
+                it_begin_new++;
+                //fd = (* it_begin_new)->getFd();
        }
-
     }
 }

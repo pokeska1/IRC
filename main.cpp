@@ -31,7 +31,7 @@ int main() {
         perror("Server: cannot creat socket");
         exit(EXIT_FAILURE);
     }
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(int));
     //заполняем адресную структуру
     // связываем сокет с любым портом
     addr.sin_family = AF_INET;
