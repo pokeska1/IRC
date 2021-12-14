@@ -45,28 +45,17 @@ void Server::work(int ls)
         std::vector<Client *>::iterator it_end = arr_client.end();
 
         // а теперь цикл по сокетам
-       // if (arr_client.begin() != arr_client.end()) {
         if (it_begin !=  it_end) {
-            std::vector<Client *>::iterator it_endrr = arr_client.end();
             fd = (*it_begin)->getFd();
             while (it_begin != it_end)
             {
                 fd = (*it_begin)->getFd();
                 FD_SET(fd, &readfds);
-
-               // fprintf(stdout, "Server:fd =%d\n", fd);
                 if (fd > max_d)
                     max_d = fd;
 
                 it_begin++;
             }
-//            for (fd = (*it_begin)->getFd(); *it_begin != *it_end; ++it_begin) {
-//                FD_SET(fd, &readfds);
-//
-//                fprintf(stdout, "Server:fd =%d\n", fd);
-//                if (fd > max_d)
-//                    max_d = fd;
-//            }
         }
 
         int res = select(FD_SETSIZE, &readfds, NULL, NULL, NULL);
@@ -88,8 +77,8 @@ void Server::work(int ls)
                         perror("accept");
                         exit(EXIT_FAILURE);
                     }
-                    fprintf(stdout, "Server: connect from host %s, port %hu.\n",
-                            inet_ntoa(clientfd.sin_addr), ntohs(clientfd.sin_port));
+                    std::cout << "\"Server: connect from host " << inet_ntoa(clientfd.sin_addr)
+                    << ", port " << ntohs(clientfd.sin_port) <<"." << std::endl;
                     FD_SET(fd, &readfds);
                     Client *new_client = new Client(fd);
                     this->setClient(*new_client);
@@ -100,10 +89,8 @@ void Server::work(int ls)
                 {
                     int nbytes;
 
-                   // nbytes = read(fd, buf, 512);
+                   //nbytes = read(fd, buf, 512);
                     nbytes = recv(i, buf, 512, 0);
-
-
                     if (nbytes < 0)
                     {
                         perror("Server: meh nbytes < 0");
@@ -112,7 +99,10 @@ void Server::work(int ls)
                         perror("Server: meh nbytes == 0");
                     }
                     else{
-                        fprintf(stdout, "Serv got massage: %s/n", buf);
+                        std::cout << "Serv got massage: " << buf << std::endl;
+                        for(int i = 0; i != BUFLEN; ++i)
+                            buf[i] = '\0';
+                        FD_CLR(i, &readfds);
                     }
                 }
             }
@@ -120,10 +110,10 @@ void Server::work(int ls)
 
         std::vector<Client *>::iterator it_begin_new = arr_client.begin();
         std::vector<Client *>::iterator it_end_new = arr_client.end();
-      //  for (fd = (* it_begin_new)->getFd() ; it_begin_new != it_end_new; it_begin_new++)// переделать в вайл
-      fd = (* it_begin_new)->getFd();
+        //fd = (* it_begin_new)->getFd();
         while (it_begin_new != it_end_new)
             {
+                fd = (*it_begin_new)->getFd();
            if (FD_ISSET(fd, &readfds))
            {
                int nbytes;
@@ -138,8 +128,11 @@ void Server::work(int ls)
                    perror("Server: meh nbytes == 0");
                }
                else{
-                   fprintf(stdout, "Serv got massage: %s/n", buf);
-                  // buf = null;
+                   std::cout << "Serv got massage: " << buf << std::endl;
+                   //fprintf(stdout, "Serv got massage: %s/n", buf);
+                   for(int i = 0; i != BUFLEN; ++i)
+                    buf[i] = '\0';
+                   FD_CLR(fd, &readfds);
                }
            }
            if (FD_ISSET(fd, &writefds))
@@ -150,13 +143,13 @@ void Server::work(int ls)
                for (s = (unsigned char *)buf; *s ;s++) *s = toupper(*s);
                nbytes = write(fd, buf, strlen(buf) + 1);
                fprintf(stdout, "Write back: %s/nbytes=%d/n", buf, nbytes);
-
+               for(int i = 0; i != BUFLEN; ++i)
+                   buf[i] = '\0';
                if(nbytes < 0){
                    perror("Server: write failure");
                }
            }
                 it_begin_new++;
-                //fd = (* it_begin_new)->getFd();
        }
     }
 }
