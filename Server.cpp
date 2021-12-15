@@ -47,6 +47,7 @@ void Server::work(int ls)
         // а теперь цикл по сокетам
         if (it_begin !=  it_end) {
             fd = (*it_begin)->getFd();
+
             while (it_begin != it_end)
             {
                 fd = (*it_begin)->getFd();
@@ -55,6 +56,7 @@ void Server::work(int ls)
                     max_d = fd;
 
                 it_begin++;
+                fcntl(fd, F_SETFL, O_NONBLOCK);
             }
         }
 
@@ -100,9 +102,10 @@ void Server::work(int ls)
                     }
                     else{
                         std::cout << "Serv got massage: " << buf << std::endl;
-                        for(int i = 0; i != BUFLEN; ++i)
-                            buf[i] = '\0';
+//                        for(int i = 0; i != BUFLEN; ++i)
+//                            buf[i] = '\0';
                         FD_CLR(i, &readfds);
+                        FD_SET(i, &writefds);
                     }
                 }
             }
@@ -130,19 +133,23 @@ void Server::work(int ls)
                else{
                    std::cout << "Serv got massage: " << buf << std::endl;
                    //fprintf(stdout, "Serv got massage: %s/n", buf);
-                   for(int i = 0; i != BUFLEN; ++i)
-                    buf[i] = '\0';
+//                   for(int i = 0; i != BUFLEN; ++i)
+//                    buf[i] = '\0';
                    FD_CLR(fd, &readfds);
                }
            }
            if (FD_ISSET(fd, &writefds))
            {
                int nbytes;
+               int offical;
                unsigned char *s;
 
-               for (s = (unsigned char *)buf; *s ;s++) *s = toupper(*s);
+               //for (s = (unsigned char *)buf; *s ;s++) *s = toupper(*s);
+               offical = write(fd, "Server say:", 11 + 1);
+               std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
                nbytes = write(fd, buf, strlen(buf) + 1);
-               fprintf(stdout, "Write back: %s/nbytes=%d/n", buf, nbytes);
+               std::cout << "Write back: " << buf << std::endl << "bytes=" << nbytes << std::endl;
+             //  fprintf(stdout, "Write back: %s/nbytes=%d/n", buf, nbytes);
                for(int i = 0; i != BUFLEN; ++i)
                    buf[i] = '\0';
                if(nbytes < 0){
@@ -151,5 +158,8 @@ void Server::work(int ls)
            }
                 it_begin_new++;
        }
+        for(int i = 0; i != BUFLEN; ++i)
+                                        buf[i] = '\0';
     }
+
 }
