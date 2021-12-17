@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     //заполняем адресную структуру
     // связываем сокет с любым портом
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
+    addr.sin_port = htons(serv.getPort(0));
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     err = bind(sock, (struct sockaddr*)&addr, sizeof(addr));
     if(err < 0){

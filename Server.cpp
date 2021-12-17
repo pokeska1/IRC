@@ -45,7 +45,21 @@ void Server::setPort(int port)
         it_begin++;
     }
     arr_port.push_back(port);
+}
 
+int &Server::getPort(int i)
+{
+    std::vector<int>::iterator it_begin = arr_port.begin();
+    std::vector<int>::iterator it_end = arr_port.end();
+    int j = 0;
+
+    while (it_begin != it_end && j < i)
+    {
+        if (j == i)
+            return(this->arr_port[j]);
+        it_begin++;
+    }
+    return(this->arr_port[j]);
 }
 
 
@@ -79,7 +93,6 @@ void Server::setAccess(int fd)
 {
     std::vector<Client *>::iterator it_begin = arr_client.begin();
     std::vector<Client *>::iterator it_end = arr_client.end();
-    int j;
 
     while (it_begin != it_end )
     {
@@ -93,7 +106,6 @@ bool Server::getAccess(int fd)
 {
     std::vector<Client *>::iterator it_begin = arr_client.begin();
     std::vector<Client *>::iterator it_end = arr_client.end();
-    int j;
 
     while (it_begin != it_end )
     {
@@ -142,7 +154,6 @@ void Server::create_many_active_fd(int &fd, fd_set &activfds, int &max_d)
         }
     }
 }
-
 
 //при появлении нового клиента создаем его объект и запоминаем его адрес, а после закидываем его фд в список активистов.
 void Server::get_new_client(int &ls, int &fd, fd_set &activfds)
@@ -197,7 +208,6 @@ void Server::get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, 
     }
 }
 
-//
 void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 {
     std::vector<Client *>::iterator it_begin_new = arr_client.begin();
@@ -237,7 +247,7 @@ void Server::work(int ls) {
 
     for (;;) {
         int fd;
-        char *buf = (char *)calloc(sizeof(char), BUFLEN + 1);
+        char *buf = (char *) calloc(sizeof(char), BUFLEN + 1);
 
         FD_ZERO(&writefds);
         FD_ZERO(&activfds);
@@ -245,14 +255,13 @@ void Server::work(int ls) {
         // а теперь цикл по сокетам заносим все fd из списка клиентов в множество;
         create_many_active_fd(fd, activfds, max_d);
         int res = select(FD_SETSIZE, &activfds, NULL, NULL, NULL);// проверяем на активность
-        if (res < 1)
-        {
-            if (errno != EINTR)
-            {
+        if (res < 1) {
+            if (errno != EINTR) {
                 perror("Server: cannot creat socket");
                 exit(EXIT_FAILURE);
             }
         }
+
         for (int i = 0; i <= max_d; i++)
         { //поочереди проверим все айди
             if (i == ls)
@@ -267,5 +276,4 @@ void Server::work(int ls) {
         write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
         free(buf);
     }
-
 }
