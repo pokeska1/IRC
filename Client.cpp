@@ -6,7 +6,7 @@
 Client::Client(int fd)
 {
    this->fd = fd;
-   this->name = "Test";
+   this->name = "";
     password = false;
     access = false;
     name_init = false;
