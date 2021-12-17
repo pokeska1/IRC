@@ -55,6 +55,4 @@ std::string const &Client::getName()
     return(this->name);
 }
 
-
-
 std::string const &Client::getMassage(){return(this->massage);}
