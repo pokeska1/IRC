@@ -36,6 +36,7 @@ public:
     Client(int fd, std::string &name);
     int const &getFd();
     std::string const &getName();
+    void setName(std::string const &name);
     std::string const &getMassage();
     bool const &getAccess();
     void setAccess(bool access);

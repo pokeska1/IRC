@@ -117,21 +117,49 @@ bool Server::getAccess(int fd)
 }
 
 
-int Server::password_verification(std::string &buf, int fd)
+int Server::password_verification(std::string &buf, int fd, int num)
 {
     if (buf != this->getPassword(0) ) {
+        int offical;
+        offical = write(fd, "Server say: Wrong password\n", 27 + 1);
         perror("Wrong password");
         return (-1);
     }
     else
     {
-        this->setAccess(fd);
+        this->arr_client[num]->setPassword_init(true);
     }
 
     return (0);
     //PRIVMSG приватное сообщение
     //  Parameters: <receiver>{,<receiver>} <text to be sent>
 }
+
+int Server::name_verification(std::string &buf, int ls)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+    int fd;
+
+    if (it_begin != it_end)  // идем по массиву указателей клиентов с помощью итераторов
+    {
+        fd = (*it_begin)->getFd();  // вытаскием по адресу определенного клиента его фд
+        while (it_begin != it_end)
+        {
+            fd = (*it_begin)->getFd();
+            if (buf == (*it_begin)->getName())
+            {
+                int offical;
+                offical = write(ls, "Server say: This name is taken\n", 31 + 1);
+                return (-1);
+            }
+            it_begin++;
+        }
+    }
+
+    return(1);
+}
+
 
 // здесь мы создаем "список" fd которые будет проверять на активность
 void Server::create_many_active_fd(int &fd, fd_set &activfds, int &max_d)
@@ -176,36 +204,80 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds)
     }
 }
 
+int Server::find_numb_iter(int fd)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+    int j = 0;
+
+    while (it_begin != it_end)
+    {
+        if (fd == (*it_begin)->getFd())
+            return(j);
+        it_begin++;
+        j++;
+    }
+    return(j);
+}
+
+
 
 // ловим что написал старый клиент , проверяем на доступ и распределяем, что с ним делать.
-void Server::get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, char **buf)
+void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, char **buf)
 {
-    if (FD_ISSET(i, &activfds))//если фд есть в списке акитвистов то начнем с ним работать
+    int num = find_numb_iter(fd); // найдем порядковый номер этого клиента в массиве
+    if (FD_ISSET(fd, &activfds))//если фд есть в списке акитвистов то начнем с ним работать
     {
         int nbytes;
 
-        nbytes = recv(i, *buf, 512, 0); // прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
+        nbytes = recv(fd, *buf, 512, 0); // прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
         if (nbytes < 0){ perror("Server: meh nbytes < 0");}
         else if (nbytes == 0){ perror("Server: meh nbytes == 0");}
         else
         {
-            std::cout << "Serv got massage: " << *buf << std::endl; // для удобства пусть сервер отобразит что поймал
-            if(getAccess(i))// если у клиента есть дотуп , то вносим его в список "дозволяющие писать"
+            std::cout << "Serv got massage: " << *buf << std::endl;
+            // для удобства пусть сервер отобразит что поймал
+            if(getAccess(fd) == true)// если у клиента есть дотуп , то вносим его в список "дозволяющие писать"
             {
-                FD_SET(i, &writefds);
+                FD_SET(fd, &writefds);
             }
             else // иначе проверяем что он там наколякал
             {
                 std::string buf_str = *buf;
-                if (password_verification(buf_str, i) == -1) //и если он ошибся хоть раз сжигаем все его данные =^_^=
+                if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
                 {
-                    FD_CLR(i, &writefds);
-                    FD_CLR(i, &activfds);
-                    deleteClient(i);
+                    if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
+                        return;
+                }
+                else if (this->arr_client[num]->getName_init() == false) // проверяем вводил ли он ник
+                {
+                    if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
+                        return;
+                    else
+                    {
+                        this->arr_client[num]->setName_init(true);
+                        this->arr_client[num]->setName(buf_str); // вносим в объект имя
+                    }
                 }
             }
         }
     }
+}
+
+int Server::find_who_talk(fd_set &writefds)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+    int j = 0;
+
+    while (it_begin != it_end)
+    {
+        if (FD_ISSET((*it_begin)->getFd(),&writefds))
+            return(j);
+        it_begin++;
+        j++;
+    }
+    return(-1);
 }
 
 void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
@@ -215,8 +287,11 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 
     while (it_begin_new != it_end_new) // идем по всему списку клиентов
     {
+
         fd = (*it_begin_new)->getFd();// достаем фд нужного клиента по адресу его объекта
-        if (getAccess(fd))  // проверяем на наличие допуска
+        int num = find_who_talk(writefds);// находим кто у нас отправляет письма дабы использовать его имя
+        int num_it = find_numb_iter(fd);// находим порядковый номер в векторном массиве данного фд
+        if (num != -1 && getAccess(fd))  // проверяем на наличие допуска и что кто то вообще писал
         {
             if (!FD_ISSET(fd, &writefds)) // мы будем отправлять сообщение всем , кроме того кто написал.
             {
@@ -225,7 +300,8 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 
                 if (*buf[0] != '\0' || *buf[0] != '\n') // не уверен что это нужно , не дает спамить
                 {
-                    offical = write(fd, "Server say:", 11 + 1); // отправляем сообщеньку по фд
+                    offical = write(fd, this->arr_client[num]->getName().c_str(), this->arr_client[num]->getName().length() - 1); // отправляем сообщеньку по фд
+                   offical = write(fd, " say: ", 6 + 1);
 //                    std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
                     nbytes = write(fd, *buf, strlen(*buf) + 1);
                     std::cout << "Write back: " << *buf << "bytes=" << nbytes << std::endl;
@@ -235,6 +311,11 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
                     }
                 }
             }
+        }
+        // выдаем разрешение на получение и отправку писем .
+        if (this->arr_client[num_it]->getPassword_init() == true && this->arr_client[num_it]->getName_init() == true)
+        {
+            this->setAccess(fd);
         }
         it_begin_new++; // двигаемся далее по списку клиентов
     }

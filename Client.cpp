@@ -8,6 +8,8 @@ Client::Client(int fd)
    this->fd = fd;
    this->name = "Test";
     password = false;
+    access = false;
+    name_init = false;
 }
 
 Client::Client(int fd, std::string &name)
@@ -55,6 +57,9 @@ std::string const &Client::getName()
     return(this->name);
 }
 
-
+void Client::setName(std::string const &name)
+{
+    this->name = name;
+}
 
 std::string const &Client::getMassage(){return(this->massage);}
