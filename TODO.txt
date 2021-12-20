@@ -1,1 +1,22 @@
-1. 
+MANDATORY:
+1. Communication between client and server must be done via TCP/IP(v4) or (v6) - show this
+2. To verify that your server correctly uses everything you send, 
+an initial test can be done with nc (Use ctrl+d to send parts of the command):
+\$> nc 127.0.0.1 6667
+com^Dman^Dd
+\$>
+This will allow you to first send the letters com, man, d\n.
+ You must first aggregate the packets to rebuild the command command to handle it.
+3. Choose IRC client as a reference
+4. You must be able to:
+	4a. authenticate,
+	4b. set a nickname,
+	4c. a username,
+	4d. join a channel,
+	4e. send and receive private messages using this client
+5. You must have operators and regular users
+6. Some operator’s specific actions/commands
+
+BONUS:
+1. File transfer
+2. A bot
