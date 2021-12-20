@@ -20,3 +20,6 @@ This will allow you to first send the letters com, man, d\n.
 BONUS:
 1. File transfer
 2. A bot
+
+CHECKLIST:
+1. poll (or equivalent) must be only one
