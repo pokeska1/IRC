@@ -16,6 +16,26 @@ This will allow you to first send the letters com, man, d\n.
 	4e. send and receive private messages using this client	PRIVMSG
 5. You must have operators and regular users
 6. Some operator’s specific actions/commands
+7. Commands TODO:
+	PASS, +
+	NICK, +
+	USER, +
+	OPER, +
+	PRIVMSG, +
+	NOTICE, + (нужно по чек листу, почти как PRIVMSG)
+	JOIN, +
+	MODE, + (оператор канала, нуже по сабджекту)
+	TOPIC, + (оператор канала, нуже по сабджекту)
+	INVITE, + (оператор канала, нуже по сабджекту)
+	KICK,	+ ((оператор канала, нуже по сабджекту, демонстрация кик заходит на проверке;) )
+	PART,	+
+	NAMES, LIST, - (не интересно)
+	RESTART, - (не стоит, т.к. рестарт должен кикнуть и обнулить всех)
+	KILL, + (желательно, интересная)
+	REHASH, - (не понятно для чего в нашем проекте, также требует конфиг файл)
+	WALLOPS, PING, ISON, USERHOST, ADMIN, TIME - (не нужно, не интересно)
+	VERSION, INFO (интересно, несложно и для демонстрации на проверке зайдет)
+
 
 BONUS:
 1. File transfer
