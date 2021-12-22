@@ -1,0 +1,45 @@
+MANDATORY:
+1. Communication between client and server must be done via TCP/IP(v4) or (v6) - show this
+2. To verify that your server correctly uses everything you send, 
+an initial test can be done with nc (Use ctrl+d to send parts of the command):
+\$> nc 127.0.0.1 6667
+com^Dman^Dd
+\$>
+This will allow you to first send the letters com, man, d\n.
+ You must first aggregate the packets to rebuild the command command to handle it.
+3. Choose IRC client as a reference
+4. You must be able to:
+	4a. authenticate,	PASS
+	4b. set a nickname,	NICK
+	4c. a username,		USER
+	4d. join a channel,	JOIN
+	4e. send and receive private messages using this client	PRIVMSG
+5. You must have operators and regular users
+6. Some operator’s specific actions/commands
+7. Commands TODO:
+	PASS, +
+	NICK, +
+	USER, +
+	OPER, +
+	PRIVMSG, +
+	NOTICE, + (нужно по чек листу, почти как PRIVMSG)
+	JOIN, +
+	MODE, + (оператор канала, нуже по сабджекту)
+	TOPIC, + (оператор канала, нуже по сабджекту)
+	INVITE, + (оператор канала, нуже по сабджекту)
+	KICK,	+ ((оператор канала, нуже по сабджекту, демонстрация кик заходит на проверке;) )
+	PART,	+
+	NAMES, LIST, - (не интересно)
+	RESTART, - (не стоит, т.к. рестарт должен кикнуть и обнулить всех)
+	KILL, + (желательно, интересная)
+	REHASH, - (не понятно для чего в нашем проекте, также требует конфиг файл)
+	WALLOPS, PING, ISON, USERHOST, ADMIN, TIME - (не нужно, не интересно)
+	VERSION, INFO (интересно, несложно и для демонстрации на проверке зайдет)
+
+
+BONUS:
+1. File transfer
+2. A bot
+
+CHECKLIST:
+1. poll (or equivalent) must be only one
