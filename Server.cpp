@@ -4,6 +4,8 @@
 
 #include "Server.hpp"
 
+
+
 void Server::setHost(std::string &host)
 {
     this->host = host;
@@ -241,7 +243,6 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
             else // иначе проверяем что он там наколякал
             {
                 std::string buf_str = *buf;
-
                 if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
                 {
                     if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
@@ -261,6 +262,7 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
         }
     }
 }
+
 
 int Server::find_who_talk(fd_set &writefds)
 {
@@ -318,6 +320,121 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
         it_begin_new++; // двигаемся далее по списку клиентов
     }
 }
+
+enum    forms
+{
+    NOT_DEFINED,
+    USER,
+    OPER,
+    PRIVMSG,
+    NOTICE,
+    JOIN,
+    MODE,
+    TOPIC,
+    INVITE,
+    KICK,
+    PART,
+    KILL,
+    VERSION,
+    INFO
+};
+
+void Server::privmisg_work(int num)
+{
+    size_t pos = this->arr_client[num]->getMassage().find_first_of(' ');
+    std::string name = this->arr_client[num]->getMassage().substr(-1, pos);
+    std::string massage = this->arr_client[num]->getMassage().substr(pos + 2);
+
+    int i = 0;
+    while (this->arr_client[i]->getName() != name)
+        i++;
+
+    int nbytes;
+    int offical;
+    offical = write(this->arr_client[i]->getFd(), this->arr_client[num]->getName().c_str(), this->arr_client[num]->getName().length() - 1); // отправляем сообщеньку по фд
+    offical = write(this->arr_client[i]->getFd(), " say: ", 6 + 1);
+    nbytes = write(this->arr_client[i]->getFd(), this->arr_client[num]->getMassage().c_str(),
+                   strlen(this->arr_client[num]->getMassage().c_str()) + 1);
+    std::cout << "Write back: " << this->arr_client[num]->getMassage().c_str() << "bytes=" << nbytes << std::endl;
+    if (offical < 0)
+    {
+        perror("Server: write failure");
+    }
+}
+
+void Server::parser(int num , std::string buf_str, int fd, std::string command, std::string massage)
+{
+    if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
+    {
+        if(command == "PASS")
+            if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
+                return;
+    }
+    else if (this->arr_client[num]->getName_init() == false) // проверяем вводил ли он ник
+    {
+        if (command == "NICK") {
+            if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
+            {
+                return;
+            } else {
+                this->arr_client[num]->setName_init(true);
+                this->arr_client[num]->setName(buf_str); // вносим в объект имя
+            }
+        }
+    }
+    else if(getAccess(fd) == true)
+    {
+        std::map<std::string, forms> map_forms;
+        map_forms["USER"] = USER;
+        map_forms["OPER"] = OPER;
+        map_forms["PRIVMSG"] = PRIVMSG;
+        map_forms["NOTICE"] = NOTICE;
+        map_forms["JOIN"] = JOIN;
+        map_forms["MODE"] = MODE;
+        map_forms["TOPIC"] = TOPIC;
+        map_forms["INVITE"] = INVITE;
+        map_forms["KICK"] = KICK;
+        map_forms["PART"] = PART;
+        map_forms["KILL"] = KILL;
+        map_forms["VERSION"] = VERSION;
+        map_forms["INFO"] = INFO;
+
+
+        switch (map_forms[command]) {
+            case USER:
+                break;
+            case OPER:
+                break;
+            case PRIVMSG:
+                privmisg_work(num);
+                break;
+            case NOTICE:
+                break;
+            case JOIN:
+                break;
+            case MODE:
+                break;
+            case TOPIC:
+                break;
+            case INVITE:
+                break;
+            case KICK:
+                break;
+            case PART:
+                break;
+            case KILL:
+                break;
+            case VERSION:
+                break;
+            case INFO:
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
 
 void Server::work(int ls) {
     fd_set writefds, activfds;
