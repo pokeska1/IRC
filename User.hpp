@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <stdio.h>
 #include <errno.h>
@@ -14,15 +15,10 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <sys/select.h>
-#include <vector>
-#include <iostream>
-#include <string>
-
 
 #define BUFLEN 512
 #define PORT 5555
@@ -41,6 +37,14 @@ private:
 	bool			name_init;
 	bool			access;
 
+	std::string		msg_from;
+	std::string		msg_com;
+	std::string		msg_args;
+	std::string		curr_buf;
+
+	const std::string	com_array[15] { "PASS", "NICK", "USER", "OPER", "PRIVMSG",
+	"NOTICE", "JOIN", "MODE", "TOPIC", "INVITE", "KICK", "PART", "KILL",
+	"VERSION", "INFO" };
 	User(const User &cp);
 	void	operator=(const User &cp);
 public:
@@ -67,4 +71,6 @@ public:
 	void		setPassword_init(bool password);
 	void		setName_init(bool name_init);
 	void		setAccess(bool access);
+
+	void		make_msg(std::string str_buf);
 };
