@@ -34,16 +34,21 @@ class Client {
 public:
     Client(int fd);
     Client(int fd, std::string &name);
+
+
     int const &getFd();
     std::string const &getName();
-    void setName(std::string const &name);
     std::string const &getMassage();
     bool const &getAccess();
-    void setAccess(bool access);
     bool const &getPassword_init();
-    void setPassword_init(bool password);
     bool const &getName_init();
+
+
+    void setName(std::string const &name);
+    void setAccess(bool access);
+    void setPassword_init(bool password);
     void setName_init(bool name_init);
+
 private:
     int fd;
     std::string massage;
@@ -51,8 +56,6 @@ private:
     bool password;
     bool name_init;
     bool access;
-
-
 };
 
 

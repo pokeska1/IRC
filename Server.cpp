@@ -21,6 +21,42 @@ void Server::setPassword(std::string &password)
 
 }
 
+void Server::setPort(int port)
+{
+    std::vector<int>::iterator it_begin = arr_port.begin();
+    std::vector<int>::iterator it_end = arr_port.end();
+    while (it_begin != it_end)
+    {
+        it_begin++;
+    }
+    arr_port.push_back(port);
+}
+
+void Server::setClient(Client &client)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+    while (it_begin != it_end)
+    {
+        it_begin++;
+    }
+    arr_client.push_back(&client);
+}
+
+void Server::setAccess(int fd)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+
+    while (it_begin != it_end )
+    {
+        if (fd == (*it_begin)->getFd())
+            (*it_begin)->setAccess(true);
+        it_begin++;
+    }
+}
+
+
 std::string const &Server::getPassword(int i)
 {
     int j = 0;
@@ -34,17 +70,6 @@ std::string const &Server::getPassword(int i)
     }
     std::string *mimic = (*it_begin);
     return(*mimic);
-}
-
-void Server::setPort(int port)
-{
-    std::vector<int>::iterator it_begin = arr_port.begin();
-    std::vector<int>::iterator it_end = arr_port.end();
-    while (it_begin != it_end)
-    {
-        it_begin++;
-    }
-    arr_port.push_back(port);
 }
 
 int &Server::getPort(int i)
@@ -62,46 +87,6 @@ int &Server::getPort(int i)
     return(this->arr_port[j]);
 }
 
-
-void Server::deleteClient(int fd)
-{
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
-    while (it_begin != it_end)
-    {
-        if (fd == (*it_begin)->getFd()) {
-            arr_client.erase(it_begin);
-            return;
-        }
-        it_begin++;
-    }
-}
-
-void Server::setClient(Client &client)
-{
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
-    while (it_begin != it_end)
-    {
-        it_begin++;
-    }
-    arr_client.push_back(&client);
-}
-
-
-void Server::setAccess(int fd)
-{
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
-
-    while (it_begin != it_end )
-    {
-        if (fd == (*it_begin)->getFd())
-           (*it_begin)->setAccess(true);
-        it_begin++;
-    }
-}
-
 bool Server::getAccess(int fd)
 {
     std::vector<Client *>::iterator it_begin = arr_client.begin();
@@ -116,6 +101,20 @@ bool Server::getAccess(int fd)
     return(false);
 }
 
+
+void Server::deleteClient(int fd)
+{
+    std::vector<Client *>::iterator it_begin = arr_client.begin();
+    std::vector<Client *>::iterator it_end = arr_client.end();
+    while (it_begin != it_end)
+    {
+        if (fd == (*it_begin)->getFd()) {
+            arr_client.erase(it_begin);
+            return;
+        }
+        it_begin++;
+    }
+}
 
 int Server::password_verification(std::string &buf, int fd, int num)
 {
@@ -220,8 +219,6 @@ int Server::find_numb_iter(int fd)
     return(j);
 }
 
-
-
 // ловим что написал старый клиент , проверяем на доступ и распределяем, что с ним делать.
 void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, char **buf)
 {
@@ -244,6 +241,7 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
             else // иначе проверяем что он там наколякал
             {
                 std::string buf_str = *buf;
+
                 if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
                 {
                     if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
