@@ -1,14 +1,15 @@
 CC		= clang++ -std=c++98
 
-FLAG	= -g -Wall -Wextra -Werror
+FLAG	= -g #-Wall -Wextra -Werror
 
 OBJC =		$(SRCS:.cpp=.o)
 
 NAME	= ircserv
 
 SRCS	=	main.cpp \
- 			Client.cpp \
- 			Server.cpp
+ 			Server.cpp \
+ 			Channel.cpp \
+ 			User.cpp
 
 
 RM		= rm -f
@@ -18,7 +19,7 @@ all:		$(NAME)
 $(NAME) : $(OBJC)
 			$(CC) $(FLAG) $(OBJC) -o $(NAME)
 
-%.o:	%.cpp Client.hpp Server.hpp
+%.o:	%.cpp
 			$(CC) -c $(FLAG) $< -o $@
 
 clean:
