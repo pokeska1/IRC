@@ -43,6 +43,4 @@ public: //rmerrie
 	}
 };
 
-
-
 #endif //IRC_SERVER_HPP
