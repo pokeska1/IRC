@@ -486,8 +486,6 @@ void Server::work(int ls) {
         write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
         free(buf);
     }
-<<<<<<< HEAD
-=======
 
 }
 
@@ -509,5 +507,4 @@ std::vector<std::string>	Server::splitStr(std::string str)
 	tmp = str.substr(0, pos);
 	res.push_back(tmp); //action
 	return res;
->>>>>>> rmerrie-tests
 }
