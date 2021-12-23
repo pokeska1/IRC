@@ -79,22 +79,9 @@ CMakeFiles/IRC_git.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/IRC_git.dir/main.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp -o CMakeFiles/IRC_git.dir/main.cpp.s
 
-CMakeFiles/IRC_git.dir/Client.cpp.o: CMakeFiles/IRC_git.dir/flags.make
-CMakeFiles/IRC_git.dir/Client.cpp.o: ../Client.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/IRC_git.dir/Client.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/IRC_git.dir/Client.cpp.o -c /Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp
-
-CMakeFiles/IRC_git.dir/Client.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/IRC_git.dir/Client.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp > CMakeFiles/IRC_git.dir/Client.cpp.i
-
-CMakeFiles/IRC_git.dir/Client.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/IRC_git.dir/Client.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp -o CMakeFiles/IRC_git.dir/Client.cpp.s
-
 CMakeFiles/IRC_git.dir/Server.cpp.o: CMakeFiles/IRC_git.dir/flags.make
 CMakeFiles/IRC_git.dir/Server.cpp.o: ../Server.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/IRC_git.dir/Server.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/IRC_git.dir/Server.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/IRC_git.dir/Server.cpp.o -c /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp
 
 CMakeFiles/IRC_git.dir/Server.cpp.i: cmake_force
@@ -105,21 +92,49 @@ CMakeFiles/IRC_git.dir/Server.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/IRC_git.dir/Server.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp -o CMakeFiles/IRC_git.dir/Server.cpp.s
 
+CMakeFiles/IRC_git.dir/User.cpp.o: CMakeFiles/IRC_git.dir/flags.make
+CMakeFiles/IRC_git.dir/User.cpp.o: ../User.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/IRC_git.dir/User.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/IRC_git.dir/User.cpp.o -c /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
+
+CMakeFiles/IRC_git.dir/User.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/IRC_git.dir/User.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp > CMakeFiles/IRC_git.dir/User.cpp.i
+
+CMakeFiles/IRC_git.dir/User.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/IRC_git.dir/User.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp -o CMakeFiles/IRC_git.dir/User.cpp.s
+
+CMakeFiles/IRC_git.dir/Channel.cpp.o: CMakeFiles/IRC_git.dir/flags.make
+CMakeFiles/IRC_git.dir/Channel.cpp.o: ../Channel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/IRC_git.dir/Channel.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/IRC_git.dir/Channel.cpp.o -c /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp
+
+CMakeFiles/IRC_git.dir/Channel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/IRC_git.dir/Channel.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp > CMakeFiles/IRC_git.dir/Channel.cpp.i
+
+CMakeFiles/IRC_git.dir/Channel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/IRC_git.dir/Channel.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp -o CMakeFiles/IRC_git.dir/Channel.cpp.s
+
 # Object files for target IRC_git
 IRC_git_OBJECTS = \
 "CMakeFiles/IRC_git.dir/main.cpp.o" \
-"CMakeFiles/IRC_git.dir/Client.cpp.o" \
-"CMakeFiles/IRC_git.dir/Server.cpp.o"
+"CMakeFiles/IRC_git.dir/Server.cpp.o" \
+"CMakeFiles/IRC_git.dir/User.cpp.o" \
+"CMakeFiles/IRC_git.dir/Channel.cpp.o"
 
 # External object files for target IRC_git
 IRC_git_EXTERNAL_OBJECTS =
 
 IRC_git: CMakeFiles/IRC_git.dir/main.cpp.o
-IRC_git: CMakeFiles/IRC_git.dir/Client.cpp.o
 IRC_git: CMakeFiles/IRC_git.dir/Server.cpp.o
+IRC_git: CMakeFiles/IRC_git.dir/User.cpp.o
+IRC_git: CMakeFiles/IRC_git.dir/Channel.cpp.o
 IRC_git: CMakeFiles/IRC_git.dir/build.make
 IRC_git: CMakeFiles/IRC_git.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable IRC_git"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable IRC_git"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/IRC_git.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
