@@ -22,7 +22,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
-
+#include <map>
 
 #define BUFLEN 512
 #define PORT 5555
@@ -44,27 +44,28 @@ private:
 	User(const User &cp);
 	void	operator=(const User &cp);
 public:
+    User(int            fd);
 	User(std::string	str);
 	~User();
 	//Getters
-	int	const	&getFd() const;
-	std::string	getNickname() const;
-	std::string	getPassword_network() const;
-	std::string	getUsername() const;
-	std::string	getHostname() const;
-	std::string	getServername() const;
-	std::string	getRealname() const;
-	bool const	&getPassword_init() const;
-	bool const	&getName_init() const;
-	bool const	&getAccess() const;
+	int	const	&getFd()                const;
+	std::string	getNickname()           const;
+	std::string	getPassword_network()   const;
+	std::string	getUsername()           const;
+	std::string	getHostname()           const;
+	std::string	getServername()         const;
+	std::string	getRealname()           const;
+	bool const	&getPassword_init()     const;
+	bool const	&getName_init()         const;
+	bool const	&getAccess()            const;
 	//Setters
-	void		setNickname(std::string str);
+	void		setNickname(std::string         str);
 	void		setPassword_network(std::string str);
-	void		setUsername(std::string str);
-	void		setHostname(std::string str);
-	void		setServername(std::string str);
-	void		setRealname(std::string str);
-	void		setPassword_init(bool password);
-	void		setName_init(bool name_init);
-	void		setAccess(bool access);
+	void		setUsername(std::string         str);
+	void		setHostname(std::string         str);
+	void		setServername(std::string       str);
+	void		setRealname(std::string         str);
+	void		setPassword_init(bool           password);
+	void		setName_init(bool               name_init);
+	void		setAccess(bool                  access);
 };

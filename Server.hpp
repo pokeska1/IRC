@@ -5,7 +5,7 @@
 #ifndef IRC_SERVER_HPP
 #define IRC_SERVER_HPP
 
-#include "Client.hpp"
+#include "User.hpp"
 
 
 class Server {
@@ -22,7 +22,7 @@ public:
 
 
     //сеторы
-    void setClient(Client &client);
+    void setUser(User &user);
     void setPassword(std::string &password);
     void setHost(std::string &host);
     void setPort(int port);
@@ -42,7 +42,7 @@ public:
     int find_numb_iter(int fd);
 
 private:
-    std::vector<Client *> arr_client;
+    std::vector<User *> arr_user;
     std::vector<int> arr_port;
     std::vector<std::string *> arr_password;
     std::string host;

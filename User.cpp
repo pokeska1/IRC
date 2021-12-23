@@ -1,6 +1,7 @@
 #include "User.hpp"
 
-User::User(std::string	str):nickname(str) {}
+User::User(int fd):fd(fd) {this->name = name; password = false; access = false; name_init = false; }
+User::User(std::string	str):nickname(str) { this->fd = fd; password = false; access = false; name_init = false; }
 User::~User() {}
 //Getters
 int const		&User::getFd() const { return(this->fd); }
