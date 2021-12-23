@@ -8,8 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp" "/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles/IRC_git.dir/Client.cpp.o"
+  "/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp" "/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles/IRC_git.dir/Channel.cpp.o"
   "/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp" "/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles/IRC_git.dir/Server.cpp.o"
+  "/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp" "/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles/IRC_git.dir/User.cpp.o"
   "/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp" "/Users/jmarian/Desktop/21/5_lvl/IRC_git/cmake-build-debug/CMakeFiles/IRC_git.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")

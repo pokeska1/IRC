@@ -129,29 +129,29 @@ IRC_git/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/build
 .PHONY : IRC_git/fast
 
-Client.o: Client.cpp.o
-.PHONY : Client.o
+Channel.o: Channel.cpp.o
+.PHONY : Channel.o
 
 # target to build an object file
-Client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Client.cpp.o
-.PHONY : Client.cpp.o
+Channel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Channel.cpp.o
+.PHONY : Channel.cpp.o
 
-Client.i: Client.cpp.i
-.PHONY : Client.i
+Channel.i: Channel.cpp.i
+.PHONY : Channel.i
 
 # target to preprocess a source file
-Client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Client.cpp.i
-.PHONY : Client.cpp.i
+Channel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Channel.cpp.i
+.PHONY : Channel.cpp.i
 
-Client.s: Client.cpp.s
-.PHONY : Client.s
+Channel.s: Channel.cpp.s
+.PHONY : Channel.s
 
 # target to generate assembly for a file
-Client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Client.cpp.s
-.PHONY : Client.cpp.s
+Channel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Channel.cpp.s
+.PHONY : Channel.cpp.s
 
 Server.o: Server.cpp.o
 .PHONY : Server.o
@@ -176,6 +176,30 @@ Server.s: Server.cpp.s
 Server.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/Server.cpp.s
 .PHONY : Server.cpp.s
+
+User.o: User.cpp.o
+.PHONY : User.o
+
+# target to build an object file
+User.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/User.cpp.o
+.PHONY : User.cpp.o
+
+User.i: User.cpp.i
+.PHONY : User.i
+
+# target to preprocess a source file
+User.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/User.cpp.i
+.PHONY : User.cpp.i
+
+User.s: User.cpp.s
+.PHONY : User.s
+
+# target to generate assembly for a file
+User.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IRC_git.dir/build.make CMakeFiles/IRC_git.dir/User.cpp.s
+.PHONY : User.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -210,12 +234,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... IRC_git"
-	@echo "... Client.o"
-	@echo "... Client.i"
-	@echo "... Client.s"
+	@echo "... Channel.o"
+	@echo "... Channel.i"
+	@echo "... Channel.s"
 	@echo "... Server.o"
 	@echo "... Server.i"
 	@echo "... Server.s"
+	@echo "... User.o"
+	@echo "... User.i"
+	@echo "... User.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

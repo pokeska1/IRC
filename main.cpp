@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Server.hpp"
-#include "Client.hpp"
+#include "User.hpp"
 
 
 //номер порта и константа
@@ -63,10 +63,9 @@ int main(int argc, char **argv) {
     }
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(int));
     //заполняем адресную структуру
-    // связываем сокет с любым портом
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_port = htons(serv.getPort(0));
+    addr.sin_addr.s_addr = htonl(INADDR_ANY); // связываем сокет с любым портом
     err = bind(sock, (struct sockaddr*)&addr, sizeof(addr));
     if(err < 0){
         perror("Server: cannot creat socket");

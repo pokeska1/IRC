@@ -25,7 +25,7 @@ private:
 	std::string			name;
 	std::string			password;
 	User				*operModer;
-	ModeChan			&modeParams;
+	//ModeChan			&modeParams;
 	std::vector<User *>	users;
 	std::vector<User *>	voteUsers;
 
@@ -43,7 +43,7 @@ public:
 	void		setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
-	void		eraseUser(User* usr);
+//	void		eraseUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 };
