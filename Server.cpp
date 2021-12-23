@@ -251,7 +251,7 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
             else // иначе проверяем что он там наколякал
             {
                 std::string buf_str = *buf;
-                if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
+                /*if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
                 {
                     if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
                         return;
@@ -268,7 +268,9 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
                         this->arr_user[num]->setName_init(true);
                         this->arr_user[num]->setNickname(buf_str); // вносим в объект имя
                     }
-                }
+                }*/
+                arr_user[num]->make_msg(buf_str);
+                parser(num , buf_str,  fd);
             }
         }
     }
@@ -378,20 +380,31 @@ void Server::parser(int num , std::string buf_str, int fd)
     std::string command = this->arr_user[num]->getMsgArgs();
     if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
     {
-        if(command == "PASS")
-            if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
+        if(command == "PASS") {
+            if (password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
                 return;
+        }
+        else {
+            perror("Wrong password");
+            write(fd,
+                  "Enter the command <PASS> and enter the password to connect to the server\n",
+                  73 + 1);
+        }
     }
     else if (this->arr_user[num]->getName_init() == false) // проверяем вводил ли он ник
     {
         if (command == "NICK") {
             if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
-            {
+                 {
                 return;
             } else {
                 this->arr_user[num]->setName_init(true);
                 this->arr_user[num]->setNickname(buf_str); // вносим в объект имя
             }
+        } else{
+            write(fd,
+                  "now enter the command <NICK> and enter your nickname\n",
+                  53 + 1);
         }
     }
     else if(getAccess(fd) == true)
