@@ -25,7 +25,7 @@ private:
 	std::string			name;
 	std::string			password;
 	User				*operModer;
-	ModeChan			&modeParams;
+	//ModeChan			&modeParams;
 	std::vector<User *>	users;
 	std::vector<User *>	voteUsers;
 

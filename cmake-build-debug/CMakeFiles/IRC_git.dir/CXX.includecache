@@ -6,7 +6,19 @@
 
 #IncludeRegexTransform: 
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
+
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
+User.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
+
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
+iostream
+-
+vector
+-
+string
+-
 stdio.h
 -
 errno.h
@@ -35,20 +47,8 @@ sys/poll.h
 -
 sys/select.h
 -
-vector
--
-iostream
--
-string
--
 map
 -
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp
-Server.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-Client.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
+Defines.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
 

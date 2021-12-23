@@ -89,7 +89,6 @@ int &Server::getPort(int i)
     return(this->arr_port[j]);
 }
 
-/// ttyftyftyutyutyutyutyutyutyutyu
 bool Server::getAccess(int fd)
 {
     std::vector<User *>::iterator it_begin = arr_user.begin();
@@ -209,8 +208,8 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds)
               73 + 1);
 
         FD_SET(fd, &activfds);// добавляем новичка к активным портам которые мы будем слушать
-        User *new_client = new User(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
-        this->setUser(*new_client); // запоминаем его адрес в массив указателей
+        User *arr_user = new User(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
+        this->setUser(*arr_user); // запоминаем его адрес в массив указателей
     }
 }
 
@@ -267,7 +266,7 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
                               "Welcome to the club buddy\n",
                               26 + 1);
                         this->arr_user[num]->setName_init(true);
-                        this->arr_user[num]->setName(buf_str); // вносим в объект имя
+                        this->arr_user[num]->setNickname(buf_str); // вносим в объект имя
                     }
                 }
             }
@@ -312,7 +311,7 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 
                 if (*buf[0] != '\0' || *buf[0] != '\n') // не уверен что это нужно , не дает спамить
                 {
-                    offical = write(fd, this->arr_user[num]->getNickname().c_str(), this->arr_user[num]->getName().length() - 1); // отправляем сообщеньку по фд
+                    offical = write(fd, this->arr_user[num]->getNickname().c_str(), this->arr_user[num]->getNickname().length() - 1); // отправляем сообщеньку по фд
                    offical = write(fd, " say: ", 6 + 1);
 //                    std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
                     nbytes = write(fd, *buf, strlen(*buf) + 1);
@@ -353,9 +352,9 @@ enum    forms
 
 void Server::privmisg_work(int num)
 {
-    size_t pos = this->arr_user[num]->getMassage().find_first_of(' ');
-    std::string name = this->arr_user[num]->getMassage().substr(-1, pos);
-    std::string massage = this->arr_user[num]->getMassage().substr(pos + 2);
+    size_t pos = this->arr_user[num]->getMsgArgs().find_first_of(' ');
+    std::string name = this->arr_user[num]->getMsgArgs().substr(-1, pos);
+    std::string massage = this->arr_user[num]->getMsgArgs().substr(pos + 2);
 
     int i = 0;
     while (this->arr_user[i]->getNickname() != name)
@@ -365,33 +364,33 @@ void Server::privmisg_work(int num)
     int offical;
     offical = write(this->arr_user[i]->getFd(), this->arr_user[num]->getNickname().c_str(), this->arr_user[num]->getNickname().length() - 1); // отправляем сообщеньку по фд
     offical = write(this->arr_user[i]->getFd(), " say: ", 6 + 1);
-    nbytes = write(this->arr_user[i]->getFd(), this->arr_user[num]->getMassage().c_str(),
-                   strlen(this->arr_user[num]->getMassage().c_str()) + 1);
-    std::cout << "Write back: " << this->arr_user[num]->getMassage().c_str() << "bytes=" << nbytes << std::endl;
+    nbytes = write(this->arr_user[i]->getFd(), this->arr_user[num]->getMsgArgs().c_str(),
+                   strlen(this->arr_user[num]->getMsgArgs().c_str()) + 1);
+    std::cout << "Write back: " << this->arr_user[num]->getMsgArgs().c_str() << "bytes=" << nbytes << std::endl;
     if (offical < 0)
     {
         perror("Server: write failure");
     }
 }
 
-/*void Server::parser(int num , std::string buf_str, int fd)
+void Server::parser(int num , std::string buf_str, int fd)
 {
-    std::string command = this->arr_client.msg_frags;
-    if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
+    std::string command = this->arr_user[num]->getMsgArgs();
+    if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
     {
         if(command == "PASS")
             if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
                 return;
     }
-    else if (this->arr_client[num]->getName_init() == false) // проверяем вводил ли он ник
+    else if (this->arr_user[num]->getName_init() == false) // проверяем вводил ли он ник
     {
         if (command == "NICK") {
             if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
             {
                 return;
             } else {
-                this->arr_client[num]->setName_init(true);
-                this->arr_client[num]->setName(buf_str); // вносим в объект имя
+                this->arr_user[num]->setName_init(true);
+                this->arr_user[num]->setNickname(buf_str); // вносим в объект имя
             }
         }
     }
@@ -446,7 +445,7 @@ void Server::privmisg_work(int num)
                 break;
         }
     }
-}*/
+}
 
 
 
