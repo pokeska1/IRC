@@ -292,6 +292,20 @@ void Server::privmisg_work(int num)
     }
 }
 
+void Server::info_work(int num)
+{
+    std::string timeee = std::to_string(start_time);
+    write(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21); // отправляем сообщеньку по фд
+    write(this->arr_user[num]->getFd(),"time start server =",21);
+    write(this->arr_user[num]->getFd(),timeee.c_str(), 6 + 1);
+//    write(this->arr_user[num]->getFd(), , );
+    write(this->arr_user[num]->getFd(), "\n",  1);
+    std::cout << "info massage: " << std::endl;
+
+
+}
+
+
 void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds)
 {
     std::string command = this->arr_user[num]->getMsgCom();
@@ -373,6 +387,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds)
             case VERSION:
                 break;
             case INFO:
+                info_work(num);
                 break;
             default:
                 FD_SET(fd, &writefds);
@@ -476,6 +491,7 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 
 
 void Server::work(int ls) {
+
     fd_set writefds, activfds;
 
     int max_d = ls; // считаем что макс сокет это нынешний слушающий

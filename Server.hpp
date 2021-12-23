@@ -19,6 +19,7 @@ public:
     void write_massage_to_client(int &fd, fd_set &writefds, char **buf);
     //команды реализация
     void privmisg_work(int num);
+    void info_work(int num);
 
 
     //сеторы
@@ -41,7 +42,7 @@ public:
     void deleteClient(int fd);
     int find_numb_iter(int fd);
     int find_num_by_nickname(std::string const &nick);
-
+    unsigned int start_time;
 
 private:
     std::vector<User *> arr_user;
