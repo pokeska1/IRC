@@ -43,7 +43,7 @@ public:
 	void		setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
-	//void		eraseUser(User* usr);
+//	void		eraseUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 };

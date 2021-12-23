@@ -46,8 +46,17 @@ private:
     std::vector<int> arr_port;
     std::vector<std::string *> arr_password;
     std::string host;
+	std::string msgForClient;
+
+public: //rmerrie
+	void	setMsgForClient(std::string str) { msgForClient = str; }
+	std::vector<std::string>	splitStr(std::string str);
+	int		version() const
+	{
+		//TODO How to send msg to client?
+		//setMsgForClient("Server vesion: v1.0");
+		return 0;
+	}
 };
-
-
 
 #endif //IRC_SERVER_HPP
