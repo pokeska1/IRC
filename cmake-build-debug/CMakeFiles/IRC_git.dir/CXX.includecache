@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp
-Client.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
-
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
 stdio.h
 -
@@ -45,19 +41,13 @@ iostream
 -
 string
 -
+map
+-
 
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp
 Server.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-Client.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp
-iostream
--
-Server.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
 Client.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp
