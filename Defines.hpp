@@ -1,5 +1,6 @@
 #pragma once
 
+
 #define ERR_NOSUCHNICK "401"
 #define ERR_NOSUCHSERVER "401"
 #define ERR_NOSUCHCHANNEL "403"

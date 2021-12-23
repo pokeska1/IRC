@@ -44,6 +44,7 @@ private:
 	std::string		msg_args;
 	std::string		curr_buf;
 
+
 	User(const User &cp);
 	void	operator=(const User &cp);
 public:

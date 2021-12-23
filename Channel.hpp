@@ -19,6 +19,7 @@ struct ModeChan
 };
 
 
+
 class Channel
 {
 private:

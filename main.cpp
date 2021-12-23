@@ -26,7 +26,6 @@ void gatekeeper(int argc, char **argv, Server &serv)
         serv.setPort(atoi(mimic));
         mimic =  strtok(NULL, ":");
         std::string *password = new std::string(mimic);
-        *password = *password + "\n";
         serv.setPassword(*password);
     }
     else if (argc == 3){

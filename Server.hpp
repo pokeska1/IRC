@@ -6,7 +6,7 @@
 #define IRC_SERVER_HPP
 
 #include "User.hpp"
-
+#include "Channel.hpp"
 
 class Server {
 public:
@@ -34,15 +34,18 @@ public:
     // до-подобный парсер
     int password_verification(std::string &buf, int fd, int num);
     int name_verification(std::string &buf, int fd);
-    void parser(int num , std::string buf_str, int fd);
+    void parser(int num , std::string buf_str, int fd, fd_set &writefds);
 
     // функуии упрощающие жизнь и код
     int find_who_talk(fd_set &writefds);
     void deleteClient(int fd);
     int find_numb_iter(int fd);
+    int find_num_by_nickname(std::string const &nick);
+
 
 private:
     std::vector<User *> arr_user;
+    std::vector<Channel *> arr_channel; // скорее всего так будем хранить комнаты
     std::vector<int> arr_port;
     std::vector<std::string *> arr_password;
     std::string host;
