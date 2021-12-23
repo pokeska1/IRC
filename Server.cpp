@@ -89,6 +89,7 @@ int &Server::getPort(int i)
     return(this->arr_port[j]);
 }
 
+/// ttyftyftyutyutyutyutyutyutyutyu
 bool Server::getAccess(int fd)
 {
     std::vector<User *>::iterator it_begin = arr_user.begin();
