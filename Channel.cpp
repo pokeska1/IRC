@@ -20,10 +20,10 @@ void		Channel::eraseUser(User* usr)
 }
 void		Channel::setOper(User* usr)
 {
-	oper_moder = usr;
+	operModer = usr;
 }
 void		Channel::removeOper(User*)
 {
 	//TODO set another oper
-	oper_moder = NULL;
+	operModer = NULL;
 }
