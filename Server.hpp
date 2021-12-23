@@ -30,6 +30,15 @@ private:
     std::vector<int> arr_port;
     std::vector<std::string *> arr_password;
     std::string host;
+
+public: //rmerrie
+	std::vector<std::string>	splitStr(std::string str);
+	int		version() const
+	{
+		//TODO How to send msg to client?
+		std::string
+		return 0;
+	}
 };
 
 

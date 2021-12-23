@@ -269,3 +269,23 @@ void Server::work(int ls) {
     }
 
 }
+
+std::vector<std::string>	Server::splitStr(std::string str)
+{
+	std::vector<std::string>	res;
+	std::string delimiter = " ";
+	size_t pos = 0;
+	std::string tmp;
+
+	while ((pos = str.find(delimiter)) != std::string::npos)
+	{
+		tmp = str.substr(0, pos);
+		res.push_back(tmp); //action
+		str.erase(0, pos + delimiter.length());
+		while (str.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
+			str.erase(0,1);
+	}
+	tmp = str.substr(0, pos);
+	res.push_back(tmp); //action
+	return res;
+}
