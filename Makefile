@@ -8,8 +8,8 @@ NAME	= ircserv
 
 SRCS	=	main.cpp \
  			Server.cpp \
- 			Channel.cpp \
- 			User.cpp
+			User.cpp \
+			Channel.cpp
 
 
 RM		= rm -f
@@ -19,7 +19,7 @@ all:		$(NAME)
 $(NAME) : $(OBJC)
 			$(CC) $(FLAG) $(OBJC) -o $(NAME)
 
-%.o:	%.cpp
+%.o:	%.cpp #Server.hpp
 			$(CC) -c $(FLAG) $< -o $@
 
 clean:

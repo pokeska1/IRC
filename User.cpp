@@ -7,6 +7,7 @@ User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
 User::User(int fd):fd(fd){
     nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
     password = false; name_init = false; access = false;
+
 }
 User::~User(){}
 //Getters
@@ -51,17 +52,28 @@ void		User::make_msg(std::string str_buf)
 	}
 	size_t	pos = curr_buf.find_first_of(' ');
 	std::string tmp = curr_buf.substr(0, pos); //записываем имя команды для проверки
+	if (matchCommand(tmp) == true)
+	{
+		msg_com = tmp;
+		curr_buf = curr_buf.substr(pos + 1);
+		while (curr_buf.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
+			curr_buf.erase(0,1);
+	}
+	else
+		msg_com = "";
+	msg_args = curr_buf; //записываем все аргументы
+}
+
+bool		User::matchCommand(std::string str)
+{
+	std::string		com_array[] = { "PASS", "NICK", "USER", "OPER", "PRIVMSG",
+	"NOTICE", "JOIN", "MODE", "TOPIC", "INVITE", "KICK", "PART", "KILL",
+	"VERSION", "INFO" };
 	unsigned len = sizeof(com_array) / sizeof(com_array[0]);
 	for (unsigned i = 0; i < len; ++i)
 	{
-		if (msg_com == com_array[i]) //команда валидна
-		{
-			msg_com = tmp;
-			curr_buf = curr_buf.substr(pos + 1);
-			while (curr_buf.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
-				curr_buf.erase(0,1);
-			break ;
-		}
+		if (str == com_array[i]) //команда валидна
+			return true;
 	}
-	msg_args = curr_buf; //записываем все аргументы
+	return false;
 }
