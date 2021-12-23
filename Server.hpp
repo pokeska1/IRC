@@ -46,15 +46,18 @@ private:
     std::vector<int> arr_port;
     std::vector<std::string *> arr_password;
     std::string host;
-	std::string msgForClient;
+	//*//std::string msgForClient;
 
 public: //rmerrie
-	void	setMsgForClient(std::string str) { msgForClient = str; }
+	//void	setMsgForClient(std::string str) { msgForClient = str; }
 	std::vector<std::string>	splitStr(std::string str);
 	int		version() const
 	{
 		//TODO How to send msg to client?
 		//setMsgForClient("Server vesion: v1.0");
+		std::string msg = "Server vesion: v1.0\n";
+		//arr_client[num]
+		//write(fd, "Server vesion: v1.0\n", msg.length() + 1); // change to msg
 		return 0;
 	}
 };
