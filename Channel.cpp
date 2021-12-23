@@ -1,6 +1,7 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string	str):name(str) {}
+Channel::Channel(std::string	str):name(str){}
+
 Channel::~Channel() {}
 //Getters
 std::string	Channel::getName() const { return name; }
@@ -13,11 +14,11 @@ void		Channel::addUser(User* usr)
 	//TODO if
 	users.push_back(usr);
 }
-void		Channel::eraseUser(User* usr)
+/*void		Channel::eraseUser(User* usr)
 {
 	//TODO if, iterator
 	users.erase(usr);
-}
+}*/
 void		Channel::setOper(User* usr)
 {
 	operModer = usr;

@@ -19,7 +19,9 @@
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <sys/select.h>
+#include <map>
 
+#include "Defines.hpp"
 #define BUFLEN 512
 #define PORT 5555
 
@@ -42,13 +44,12 @@ private:
 	std::string		msg_args;
 	std::string		curr_buf;
 
-	const std::string	com_array[15] { "PASS", "NICK", "USER", "OPER", "PRIVMSG",
-	"NOTICE", "JOIN", "MODE", "TOPIC", "INVITE", "KICK", "PART", "KILL",
-	"VERSION", "INFO" };
+    std::string	*com_array;
 	User(const User &cp);
 	void	operator=(const User &cp);
 public:
 	User(std::string	str);
+    User(int fd);
 	~User();
 	//Getters
 	int	const	&getFd() const;
