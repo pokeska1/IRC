@@ -1,9 +1,7 @@
 #include "User.hpp"
 
-User::User(std::string	str):nickname(str)
-{
-	msg_from = msg_com = msg_args = curr_buf = NULL;
-}
+User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
+	msg_args(NULL), curr_buf(NULL) {}
 User::~User() {}
 //Getters
 int const		&User::getFd() const { return(this->fd); }
@@ -16,6 +14,9 @@ std::string	User::getRealname() const { return realname; }
 bool const	&User::getPassword_init() const { return(this->password); }
 bool const	&User::getName_init() const { return(this->name_init); }
 bool const	&User::getAccess() const { return(this->access); }
+std::string	User::getMsgFrom() const { return msg_from; }
+std::string	User::getMsgCom() const { return msg_com; }
+std::string	User::getMsgArgs() const { return msg_args; }
 
 //Setters
 void		User::setNickname(std::string str) { nickname = str; }
@@ -27,6 +28,9 @@ void		User::setRealname(std::string str) { realname = str; }
 void		User::setPassword_init(bool password) { this->password = password; }
 void		User::setName_init(bool name_init) { this->name_init = name_init; }
 void		User::setAccess(bool access) { this->access = access; }
+void		User::setMsgFrom(std::string str) { msg_from = str; }
+void		User::setMsgCom(std::string str) { msg_com = str; }
+void		User::setMsgArgs(std::string str) { msg_args = str; }
 
 void		User::make_msg(std::string str_buf)
 {
@@ -40,18 +44,18 @@ void		User::make_msg(std::string str_buf)
 			curr_buf.erase(0,1);
 	}
 	size_t	pos = curr_buf.find_first_of(' ');
-	msg_com = curr_buf.substr(0, pos); //записываем имя команды
+	std::string tmp = curr_buf.substr(0, pos); //записываем имя команды для проверки
 	unsigned len = sizeof(com_array) / sizeof(com_array[0]);
-	bool flag = false;
 	for (unsigned i = 0; i < len; ++i)
 	{
-		if (msg_com == com_array[i])
-			flag = true;
+		if (msg_com == com_array[i]) //команда валидна
+		{
+			msg_com = tmp;
+			curr_buf = curr_buf.substr(pos + 1);
+			while (curr_buf.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
+				curr_buf.erase(0,1);
+			break ;
+		}
 	}
-	if (flag == false)
-		return; //нет валидной команды: чистим сообщения, выдаем ошибку в клиент
-	curr_buf = curr_buf.substr(pos + 1);
-	while (curr_buf.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
-			curr_buf.erase(0,1);
 	msg_args = curr_buf; //записываем все аргументы
 }
