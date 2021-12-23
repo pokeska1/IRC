@@ -50,7 +50,6 @@ private:
 public:
     User(int            fd);
 	User(std::string	str);
-    User(int fd);
 	~User();
 	//Getters
 	int	const	&getFd()                const;
@@ -63,6 +62,9 @@ public:
 	bool const	&getPassword_init()     const;
 	bool const	&getName_init()         const;
 	bool const	&getAccess()            const;
+    std::string	getMsgFrom() const;
+    std::string	getMsgCom() const;
+    std::string	getMsgArgs() const;
 	//Setters
 	void		setNickname(std::string         str);
 	void		setPassword_network(std::string str);
@@ -73,4 +75,9 @@ public:
 	void		setPassword_init(bool           password);
 	void		setName_init(bool               name_init);
 	void		setAccess(bool                  access);
+    void		setMsgFrom(std::string str);
+    void		setMsgCom(std::string str);
+    void		setMsgArgs(std::string str);
+
+    void		make_msg(std::string str_buf);
 };
