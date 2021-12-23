@@ -4,6 +4,8 @@
 
 #include "Server.hpp"
 
+
+
 void Server::setHost(std::string &host)
 {
     this->host = host;
@@ -32,21 +34,21 @@ void Server::setPort(int port)
     arr_port.push_back(port);
 }
 
-void Server::setClient(Client &client)
+void Server::setUser(User &user)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
     while (it_begin != it_end)
     {
         it_begin++;
     }
-    arr_client.push_back(&client);
+    arr_user.push_back(&user);
 }
 
 void Server::setAccess(int fd)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
 
     while (it_begin != it_end )
     {
@@ -87,10 +89,11 @@ int &Server::getPort(int i)
     return(this->arr_port[j]);
 }
 
+/// ttyftyftyutyutyutyutyutyutyutyu
 bool Server::getAccess(int fd)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
 
     while (it_begin != it_end )
     {
@@ -104,12 +107,12 @@ bool Server::getAccess(int fd)
 
 void Server::deleteClient(int fd)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
     while (it_begin != it_end)
     {
         if (fd == (*it_begin)->getFd()) {
-            arr_client.erase(it_begin);
+            arr_user.erase(it_begin);
             return;
         }
         it_begin++;
@@ -126,7 +129,10 @@ int Server::password_verification(std::string &buf, int fd, int num)
     }
     else
     {
-        this->arr_client[num]->setPassword_init(true);
+        write(fd,
+              "Ok, now enter the command <NICK> and enter your nickname\n",
+              57 + 1);
+        this->arr_user[num]->setPassword_init(true);
     }
 
     return (0);
@@ -136,8 +142,8 @@ int Server::password_verification(std::string &buf, int fd, int num)
 
 int Server::name_verification(std::string &buf, int ls)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
     int fd;
 
     if (it_begin != it_end)  // идем по массиву указателей клиентов с помощью итераторов
@@ -146,7 +152,7 @@ int Server::name_verification(std::string &buf, int ls)
         while (it_begin != it_end)
         {
             fd = (*it_begin)->getFd();
-            if (buf == (*it_begin)->getName())
+            if (buf == (*it_begin)->getNickname())
             {
                 int offical;
                 offical = write(ls, "Server say: This name is taken\n", 31 + 1);
@@ -163,8 +169,8 @@ int Server::name_verification(std::string &buf, int ls)
 // здесь мы создаем "список" fd которые будет проверять на активность
 void Server::create_many_active_fd(int &fd, fd_set &activfds, int &max_d)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
 
     if (it_begin != it_end)  // идем по массиву указателей клиентов с помощью итераторов
     {
@@ -197,16 +203,21 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds)
         }
         std::cout << "\"Server: connect from host " << inet_ntoa(clientfd.sin_addr)
                   << ", port " << ntohs(clientfd.sin_port) << "." << std::endl;
+
+        write(fd,
+              "Enter the command <PASS> and enter the password to connect to the server\n",
+              73 + 1);
+
         FD_SET(fd, &activfds);// добавляем новичка к активным портам которые мы будем слушать
-        Client *new_client = new Client(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
-        this->setClient(*new_client); // запоминаем его адрес в массив указателей
+        User *new_client = new User(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
+        this->setUser(*new_client); // запоминаем его адрес в массив указателей
     }
 }
 
 int Server::find_numb_iter(int fd)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
     int j = 0;
 
     while (it_begin != it_end)
@@ -241,20 +252,22 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
             else // иначе проверяем что он там наколякал
             {
                 std::string buf_str = *buf;
-
-                if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
+                if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
                 {
                     if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
                         return;
                 }
-                else if (this->arr_client[num]->getName_init() == false) // проверяем вводил ли он ник
+                else if (this->arr_user[num]->getName_init() == false) // проверяем вводил ли он ник
                 {
                     if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
                         return;
                     else
                     {
-                        this->arr_client[num]->setName_init(true);
-                        this->arr_client[num]->setName(buf_str); // вносим в объект имя
+                        write(fd,
+                              "Welcome to the club buddy\n",
+                              26 + 1);
+                        this->arr_user[num]->setName_init(true);
+                        this->arr_user[num]->setName(buf_str); // вносим в объект имя
                     }
                 }
             }
@@ -262,10 +275,11 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
     }
 }
 
+
 int Server::find_who_talk(fd_set &writefds)
 {
-    std::vector<Client *>::iterator it_begin = arr_client.begin();
-    std::vector<Client *>::iterator it_end = arr_client.end();
+    std::vector<User *>::iterator it_begin = arr_user.begin();
+    std::vector<User *>::iterator it_end = arr_user.end();
     int j = 0;
 
     while (it_begin != it_end)
@@ -280,8 +294,8 @@ int Server::find_who_talk(fd_set &writefds)
 
 void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 {
-    std::vector<Client *>::iterator it_begin_new = arr_client.begin();
-    std::vector<Client *>::iterator it_end_new = arr_client.end();
+    std::vector<User *>::iterator it_begin_new = arr_user.begin();
+    std::vector<User *>::iterator it_end_new = arr_user.end();
 
     while (it_begin_new != it_end_new) // идем по всему списку клиентов
     {
@@ -298,7 +312,7 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 
                 if (*buf[0] != '\0' || *buf[0] != '\n') // не уверен что это нужно , не дает спамить
                 {
-                    offical = write(fd, this->arr_client[num]->getName().c_str(), this->arr_client[num]->getName().length() - 1); // отправляем сообщеньку по фд
+                    offical = write(fd, this->arr_user[num]->getNickname().c_str(), this->arr_user[num]->getName().length() - 1); // отправляем сообщеньку по фд
                    offical = write(fd, " say: ", 6 + 1);
 //                    std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
                     nbytes = write(fd, *buf, strlen(*buf) + 1);
@@ -311,13 +325,130 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
             }
         }
         // выдаем разрешение на получение и отправку писем .
-        if (this->arr_client[num_it]->getPassword_init() == true && this->arr_client[num_it]->getName_init() == true)
+        if (this->arr_user[num_it]->getPassword_init() == true && this->arr_user[num_it]->getName_init() == true)
         {
             this->setAccess(fd);
         }
         it_begin_new++; // двигаемся далее по списку клиентов
     }
 }
+
+enum    forms
+{
+    NOT_DEFINED,
+    USER,
+    OPER,
+    PRIVMSG,
+    NOTICE,
+    JOIN,
+    MODE,
+    TOPIC,
+    INVITE,
+    KICK,
+    PART,
+    KILL,
+    VERSION,
+    INFO
+};
+
+void Server::privmisg_work(int num)
+{
+    size_t pos = this->arr_user[num]->getMassage().find_first_of(' ');
+    std::string name = this->arr_user[num]->getMassage().substr(-1, pos);
+    std::string massage = this->arr_user[num]->getMassage().substr(pos + 2);
+
+    int i = 0;
+    while (this->arr_user[i]->getNickname() != name)
+        i++;
+
+    int nbytes;
+    int offical;
+    offical = write(this->arr_user[i]->getFd(), this->arr_user[num]->getNickname().c_str(), this->arr_user[num]->getNickname().length() - 1); // отправляем сообщеньку по фд
+    offical = write(this->arr_user[i]->getFd(), " say: ", 6 + 1);
+    nbytes = write(this->arr_user[i]->getFd(), this->arr_user[num]->getMassage().c_str(),
+                   strlen(this->arr_user[num]->getMassage().c_str()) + 1);
+    std::cout << "Write back: " << this->arr_user[num]->getMassage().c_str() << "bytes=" << nbytes << std::endl;
+    if (offical < 0)
+    {
+        perror("Server: write failure");
+    }
+}
+
+/*void Server::parser(int num , std::string buf_str, int fd)
+{
+    std::string command = this->arr_client.msg_frags;
+    if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
+    {
+        if(command == "PASS")
+            if(password_verification(buf_str, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
+                return;
+    }
+    else if (this->arr_client[num]->getName_init() == false) // проверяем вводил ли он ник
+    {
+        if (command == "NICK") {
+            if (name_verification(buf_str, fd) == -1)//проверяем вводил ли он не занятый ник
+            {
+                return;
+            } else {
+                this->arr_client[num]->setName_init(true);
+                this->arr_client[num]->setName(buf_str); // вносим в объект имя
+            }
+        }
+    }
+    else if(getAccess(fd) == true)
+    {
+
+        std::map<std::string, forms> map_forms;
+        map_forms["USER"] = USER;
+        map_forms["OPER"] = OPER;
+        map_forms["PRIVMSG"] = PRIVMSG;
+        map_forms["NOTICE"] = NOTICE;
+        map_forms["JOIN"] = JOIN;
+        map_forms["MODE"] = MODE;
+        map_forms["TOPIC"] = TOPIC;
+        map_forms["INVITE"] = INVITE;
+        map_forms["KICK"] = KICK;
+        map_forms["PART"] = PART;
+        map_forms["KILL"] = KILL;
+        map_forms["VERSION"] = VERSION;
+        map_forms["INFO"] = INFO;
+
+
+        switch (map_forms[command]) {
+            case USER:
+                break;
+            case OPER:
+                break;
+            case PRIVMSG:
+                privmisg_work(num);
+                break;
+            case NOTICE:
+                break;
+            case JOIN:
+                break;
+            case MODE:
+                break;
+            case TOPIC:
+                break;
+            case INVITE:
+                break;
+            case KICK:
+                break;
+            case PART:
+                break;
+            case KILL:
+                break;
+            case VERSION:
+                break;
+            case INFO:
+                break;
+            default:
+                break;
+        }
+    }
+}*/
+
+
 
 void Server::work(int ls) {
     fd_set writefds, activfds;

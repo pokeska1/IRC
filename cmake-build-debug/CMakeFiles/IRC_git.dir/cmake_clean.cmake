@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/IRC_git.dir/Client.cpp.o"
+  "CMakeFiles/IRC_git.dir/Channel.cpp.o"
   "CMakeFiles/IRC_git.dir/Server.cpp.o"
+  "CMakeFiles/IRC_git.dir/User.cpp.o"
   "CMakeFiles/IRC_git.dir/main.cpp.o"
   "IRC_git"
   "IRC_git.pdb"

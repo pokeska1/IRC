@@ -3,4 +3,4 @@ project(IRC_git)
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_executable(IRC_git main.cpp Client.cpp Server.cpp Client.hpp Server.hpp)
+add_executable(IRC_git main.cpp Server.cpp User.cpp Server.hpp User.hpp Defines.hpp Channel.cpp Channel.hpp)
