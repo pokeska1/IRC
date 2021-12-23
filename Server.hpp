@@ -57,7 +57,7 @@ public: //rmerrie
 		//setMsgForClient("Server vesion: v1.0");
 		std::string msg = "Server vesion: v1.0\n";
 		//arr_client[num]
-		write(fd, "Server vesion: v1.0\n", msg.length() + 1); // change to msg
+		//write(fd, "Server vesion: v1.0\n", msg.length() + 1); // change to msg
 		return 0;
 	}
 };

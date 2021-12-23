@@ -44,7 +44,6 @@ private:
 	std::string		msg_args;
 	std::string		curr_buf;
 
-    std::string	*com_array;
 	User(const User &cp);
 	void	operator=(const User &cp);
 public:
@@ -80,4 +79,5 @@ public:
     void		setMsgArgs(std::string str);
 
     void		make_msg(std::string str_buf);
+	bool		matchCommand(std::string str);
 };
