@@ -17,6 +17,7 @@ public:
     void get_new_client(int &ls, int &fd, fd_set &activfds);
     void get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, char **buf);
     void write_massage_to_client(int &fd, fd_set &writefds, char **buf);
+    //команды реализация
     void privmisg_work(int num);
 
 
@@ -33,8 +34,7 @@ public:
     // до-подобный парсер
     int password_verification(std::string &buf, int fd, int num);
     int name_verification(std::string &buf, int fd);
-    //реалтзация команд
-    void parser(int num , std::string buf_str, int fd, std::string command, std::string massage);
+    void parser(int num , std::string buf_str, int fd);
 
     // функуии упрощающие жизнь и код
     int find_who_talk(fd_set &writefds);

@@ -128,6 +128,9 @@ int Server::password_verification(std::string &buf, int fd, int num)
     }
     else
     {
+        write(fd,
+              "Ok, now enter the command <NICK> and enter your nickname\n",
+              57 + 1);
         this->arr_client[num]->setPassword_init(true);
     }
 
@@ -199,6 +202,11 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds)
         }
         std::cout << "\"Server: connect from host " << inet_ntoa(clientfd.sin_addr)
                   << ", port " << ntohs(clientfd.sin_port) << "." << std::endl;
+
+        write(fd,
+              "Enter the command <PASS> and enter the password to connect to the server\n",
+              73 + 1);
+
         FD_SET(fd, &activfds);// добавляем новичка к активным портам которые мы будем слушать
         Client *new_client = new Client(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
         this->setClient(*new_client); // запоминаем его адрес в массив указателей
@@ -254,6 +262,9 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
                         return;
                     else
                     {
+                        write(fd,
+                              "Welcome to the club buddy\n",
+                              26 + 1);
                         this->arr_client[num]->setName_init(true);
                         this->arr_client[num]->setName(buf_str); // вносим в объект имя
                     }
@@ -362,8 +373,9 @@ void Server::privmisg_work(int num)
     }
 }
 
-void Server::parser(int num , std::string buf_str, int fd, std::string command, std::string massage)
+/*void Server::parser(int num , std::string buf_str, int fd)
 {
+    std::string command = this->arr_client.msg_frags;
     if (this->arr_client[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
     {
         if(command == "PASS")
@@ -384,6 +396,7 @@ void Server::parser(int num , std::string buf_str, int fd, std::string command, 
     }
     else if(getAccess(fd) == true)
     {
+
         std::map<std::string, forms> map_forms;
         map_forms["USER"] = USER;
         map_forms["OPER"] = OPER;
@@ -432,7 +445,7 @@ void Server::parser(int num , std::string buf_str, int fd, std::string command, 
                 break;
         }
     }
-}
+}*/
 
 
 
