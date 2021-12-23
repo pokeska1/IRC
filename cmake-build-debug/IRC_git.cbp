@@ -80,16 +80,25 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.cpp">
+		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp">
 			<Option target="IRC_git"/>
 		</Unit>
-		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Client.hpp">
+		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp">
+			<Option target="IRC_git"/>
+		</Unit>
+		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp">
 			<Option target="IRC_git"/>
 		</Unit>
 		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp">
 			<Option target="IRC_git"/>
 		</Unit>
 		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp">
+			<Option target="IRC_git"/>
+		</Unit>
+		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp">
+			<Option target="IRC_git"/>
+		</Unit>
+		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp">
 			<Option target="IRC_git"/>
 		</Unit>
 		<Unit filename="/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp">

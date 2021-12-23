@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Server.hpp"
-#include "Client.hpp"
+#include "User.hpp"
 
 
 //номер порта и константа
