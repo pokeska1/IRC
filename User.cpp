@@ -61,8 +61,8 @@ void		User::make_msg(std::string str_buf)
 	}
 	else
 		msg_com = "";
-	msg_args = curr_buf; //записываем все аргументы
-
+	if (msg_com != curr_buf)
+		msg_args = curr_buf; //записываем все аргументы
 }
 
 bool		User::matchCommand(std::string str)
@@ -77,4 +77,12 @@ bool		User::matchCommand(std::string str)
 			return true;
 	}
 	return false;
+}
+
+void	User::cleaner()
+{
+	setMsgFrom("");
+	setMsgCom("");
+	setMsgArgs("");
+	curr_buf = "";
 }

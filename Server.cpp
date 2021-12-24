@@ -371,6 +371,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds)
             case JOIN:
                 break;
             case MODE:
+				mode_chan(num);
                 break;
             case TOPIC:
                 break;
@@ -383,6 +384,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds)
             case KILL:
                 break;
             case VERSION:
+				version(num);
                 break;
             case INFO:
                 info_work(num);
@@ -395,11 +397,12 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds)
 }
 
 // ловим что написал старый клиент , проверяем на доступ и распределяем, что с ним делать.
-void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, char **buf)
+int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, char **buf)
 {
     int num = find_numb_iter(fd); // найдем порядковый номер этого клиента в массиве
     if (FD_ISSET(fd, &activfds))//если фд есть в списке акитвистов то начнем с ним работать
     {
+
         int nbytes;
         int num = find_numb_iter(fd);
         nbytes = recv(fd, *buf, 512, 0); // прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
@@ -407,23 +410,26 @@ void Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds,
         else if (nbytes == 0){ perror("Server: meh nbytes == 0");}
         else
         {
+			std::string buf_str_bad = *buf;
+            size_t pos =  buf_str_bad.find_first_of('\n');
+            buf_str_bad.erase(pos, 1);
+            std::string buf_str = buf_str_bad;
+                    arr_user[num]->make_msg(buf_str);
             std::cout << "Serv got massage: " << *buf << std::endl;
             // для удобства пусть сервер отобразит что поймал
             if(getAccess(fd) == true && arr_user[num]->getMsgCom() == "")// если у клиента есть дотуп , то вносим его в список "дозволяющие писать"
             {
                 FD_SET(fd, &writefds);
+				return fd;
             }
             else // иначе проверяем что он там наколякал
             {
-                std::string buf_str_bad = *buf;
-                size_t pos =  buf_str_bad.find_first_of('\n');
-                buf_str_bad.erase(pos, 1);
-                std::string buf_str = buf_str_bad;
-                        arr_user[num]->make_msg(buf_str);
                 parser(num , buf_str,  fd, writefds);
+				return fd;
             }
         }
     }
+	return fd;
 }
 
 
@@ -491,7 +497,7 @@ void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
 void Server::work(int ls) {
 
     fd_set writefds, activfds;
-
+	int work_fd;
     int max_d = ls; // считаем что макс сокет это нынешний слушающий
 
     for (;;) {
@@ -519,14 +525,30 @@ void Server::work(int ls) {
             }
             else
             {  // если с любого другого , то это уже старечки что то пишут и нужно посмотреть что там
-                get_old_client_massage(i, activfds, writefds, &buf);
+                work_fd = get_old_client_massage(i, activfds, writefds, &buf);
             }
         }
         write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
+		if (FD_ISSET(work_fd, &activfds))
+		{
+			int num = find_numb_iter(work_fd);
+			this->arr_user[num]->cleaner();
+		}
         free(buf);
+	
     }
 
 }
+
+
+//		########  ##     ## ######## ########  ########  #### ######## 
+//		##     ## ###   ### ##       ##     ## ##     ##  ##  ##       
+//		##     ## #### #### ##       ##     ## ##     ##  ##  ##       
+//		########  ## ### ## ######   ########  ########   ##  ######   
+//		##   ##   ##     ## ##       ##   ##   ##   ##    ##  ##       
+//		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##       
+//		##     ## ##     ## ######## ##     ## ##     ## #### ######## 
+
 
 std::vector<std::string>	Server::splitStr(std::string str)
 {
@@ -547,3 +569,98 @@ std::vector<std::string>	Server::splitStr(std::string str)
 	res.push_back(tmp); //action
 	return res;
 }
+
+int		Server::version(int num)
+	{
+		std::string msg = "Server vesion: v1.0\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		std::cout << "version massage: " << msg;
+		return 0;
+	}
+
+bool	Server::is_chan(std::string str)
+	{
+		if (str[0] != '#' && str[0] != '&') //проверка: не канал
+			return false;
+		return true;
+	}
+bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return true;
+	}
+	return false;
+}
+Channel	*Server::find_chan(std::string str)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return *it_chan;
+	}
+	return *it_chan;
+}
+int		Server::mode_chan(int num)
+{
+	Channel *test = new Channel("test"); //default channel - delete on production
+	arr_channel.push_back(test);
+	std::cout << "arr_channel.size()=" << arr_channel.size() << std::endl;
+	// this->arr_user[num] - обращение к классу User
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::cout << this->arr_user[num]->getMsgArgs() << "   |" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "")
+	//if (args.size() == 0) //проверка нет аргументов
+	{
+		std::string msg = "<command> :Not enough parameters\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	if (is_chan(args[0]) == false) //проверка: не канал
+	{
+		std::string msg = "<channel name> :No such channel\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = "<channel 2name> :No such channel\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	Channel *cur_chan = find_chan(args[0]);
+	if ((args[1])[0] == '+') //флаги в true
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnml");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		if (args.size() > 2)
+			cur_chan->setParamTrue(args[1], args[2]);
+		else
+			cur_chan->setParamTrue(args[1]);
+	}
+	if ((args[1])[0] == '-') //флаги в false
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnm");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		cur_chan->setParamFalse(args[1]);
+	}
+	return 0;
+}
+
+// THE END

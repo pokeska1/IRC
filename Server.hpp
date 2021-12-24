@@ -15,7 +15,7 @@ public:
      // разбивка основного цикла
     void create_many_active_fd(int &fd, fd_set &activfds, int &max_d);
     void get_new_client(int &ls, int &fd, fd_set &activfds);
-    void get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, char **buf);
+    int	 get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, char **buf);
     void write_massage_to_client(int &fd, fd_set &writefds, char **buf);
     //команды реализация
     void privmisg_work(int num);
@@ -53,17 +53,13 @@ private:
 	//*//std::string msgForClient;
 
 public: //rmerrie
-	//void	setMsgForClient(std::string str) { msgForClient = str; }
 	std::vector<std::string>	splitStr(std::string str);
-	int		version() const
-	{
-		//TODO How to send msg to client?
-		//setMsgForClient("Server vesion: v1.0");
-		std::string msg = "Server vesion: v1.0\n";
-		//arr_client[num]
-		//write(fd, "Server vesion: v1.0\n", msg.length() + 1); // change to msg
-		return 0;
-	}
+	Channel						*find_chan(std::string str);
+	int		version(int num);
+	bool	is_chan(std::string str);
+	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
+	int		mode_chan(int num);
+	
 };
 
 #endif //IRC_SERVER_HPP

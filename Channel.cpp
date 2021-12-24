@@ -1,8 +1,14 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string	str):name(str){}
+Channel::Channel(std::string	str):name(str)
+{
+	modeParams = new ModeChan();
+}
 
-Channel::~Channel() {}
+Channel::~Channel()
+{
+	delete modeParams;
+}
 //Getters
 std::string	Channel::getName() const { return name; }
 std::string	Channel::getPassword() const { return password; }

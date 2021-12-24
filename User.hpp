@@ -81,4 +81,5 @@ public:
 
     void		make_msg(std::string str_buf);
 	bool		matchCommand(std::string str);
+	void		cleaner();
 };

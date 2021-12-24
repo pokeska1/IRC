@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 std::vector<std::string>	splitStr(std::string str)
 {
@@ -31,5 +32,6 @@ int	main()
 	{
 		std::cout << splited[i] << std::endl;
 	}
+	write(1, str.c_str(), str.length());
 	return 0;
 }
