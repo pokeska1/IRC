@@ -594,9 +594,21 @@ bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
 	}
 	return false;
 }
-
+Channel	*Server::find_chan(std::string str)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return *it_chan;
+	}
+	return *it_chan;
+}
 int		Server::mode_chan(int num)
 {
+	Channel *test = new Channel("test"); //default channel - delete on production
+	arr_channel.push_back(test);
+	std::cout << "arr_channel.size()=" << arr_channel.size() << std::endl;
 	// this->arr_user[num] - обращение к классу User
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "   |" << args.size() << std::endl;
@@ -619,6 +631,34 @@ int		Server::mode_chan(int num)
 		std::string msg = "<channel 2name> :No such channel\n";
 		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
 		return 1;
+	}
+	Channel *cur_chan = find_chan(args[0]);
+	if ((args[1])[0] == '+') //флаги в true
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnml");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		if (args.size() > 2)
+			cur_chan->setParamTrue(args[1], args[2]);
+		else
+			cur_chan->setParamTrue(args[1]);
+	}
+	if ((args[1])[0] == '-') //флаги в false
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnm");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		cur_chan->setParamFalse(args[1]);
 	}
 	return 0;
 }

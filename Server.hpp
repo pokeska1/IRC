@@ -54,10 +54,12 @@ private:
 
 public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str);
+	Channel						*find_chan(std::string str);
 	int		version(int num);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
 	int		mode_chan(int num);
+	
 };
 
 #endif //IRC_SERVER_HPP
