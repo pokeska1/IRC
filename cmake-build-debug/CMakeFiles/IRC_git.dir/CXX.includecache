@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.cpp
-Channel.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
-
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
 iostream
 -
@@ -27,10 +23,8 @@ Server.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
 User.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
-User.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
+Channel.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
 
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
 iostream
@@ -69,12 +63,4 @@ map
 -
 Defines.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp
-iostream
--
-Server.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-User.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
 

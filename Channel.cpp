@@ -11,6 +11,7 @@ void		Channel::setName(std::string str) { name = str; }
 void		Channel::setPassword(std::string str) { password = str; }
 void		Channel::addUser(User* usr)
 {
+
 	//TODO if
 	users.push_back(usr);
 }

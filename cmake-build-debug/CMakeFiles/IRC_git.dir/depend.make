@@ -7,6 +7,7 @@ CMakeFiles/IRC_git.dir/Channel.cpp.o: \
  ../Defines.hpp \
  ../User.hpp
 CMakeFiles/IRC_git.dir/Server.cpp.o: \
+ ../Channel.hpp \
  ../Defines.hpp \
  ../Server.cpp \
  ../Server.hpp \
@@ -16,6 +17,7 @@ CMakeFiles/IRC_git.dir/User.cpp.o: \
  ../User.cpp \
  ../User.hpp
 CMakeFiles/IRC_git.dir/main.cpp.o: \
+ ../Channel.hpp \
  ../Defines.hpp \
  ../Server.hpp \
  ../User.hpp \

@@ -26,7 +26,6 @@ void gatekeeper(int argc, char **argv, Server &serv)
         serv.setPort(atoi(mimic));
         mimic =  strtok(NULL, ":");
         std::string *password = new std::string(mimic);
-        *password = *password + "\n";
         serv.setPassword(*password);
     }
     else if (argc == 3){
@@ -45,10 +44,10 @@ void gatekeeper(int argc, char **argv, Server &serv)
 
 
 int main(int argc, char **argv) {
-
     Server serv;
     gatekeeper(argc, argv, serv);    //проверка запуска
 
+    serv.start_time = clock() / 1000.0;
     int err, opt = 1;
     int sock;
     struct sockaddr_in addr;
