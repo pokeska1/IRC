@@ -296,13 +296,11 @@ void Server::info_work(int num)
 {
     std::string timeee = std::to_string(start_time);
     write(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21); // отправляем сообщеньку по фд
-    write(this->arr_user[num]->getFd(),"time start server =",21);
-    write(this->arr_user[num]->getFd(),timeee.c_str(), 6 + 1);
-//    write(this->arr_user[num]->getFd(), , );
+    write(this->arr_user[num]->getFd(),"\ntime start server = ",22);
+    write(this->arr_user[num]->getFd(),timeee.c_str(), timeee.length());
+    write(this->arr_user[num]->getFd()," second",7);
     write(this->arr_user[num]->getFd(), "\n",  1);
-    std::cout << "info massage: " << std::endl;
-
-
+    std::cout << "info massage: " << "Server vesion: v1.0, " << "time =" << timeee.c_str() << std::endl;
 }
 
 

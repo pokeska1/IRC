@@ -42,7 +42,7 @@ public:
     void deleteClient(int fd);
     int find_numb_iter(int fd);
     int find_num_by_nickname(std::string const &nick);
-    unsigned int start_time;
+    float start_time;
 
 private:
     std::vector<User *> arr_user;

@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     Server serv;
     gatekeeper(argc, argv, serv);    //проверка запуска
 
-    serv.start_time = clock();
+    serv.start_time = clock() / 1000.0;
     int err, opt = 1;
     int sock;
     struct sockaddr_in addr;
