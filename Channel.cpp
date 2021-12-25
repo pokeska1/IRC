@@ -1,13 +1,16 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string	str):name(str){}
+Channel::Channel(std::string	str):topic(str){}
 
 Channel::~Channel() {}
 //Getters
-std::string	Channel::getName() const { return name; }
+std::string	Channel::getTopic() const { return topic; }
 std::string	Channel::getPassword() const { return password; }
+std::string Channel::getNickname_by_it(int it) const { return this->users[it]->getNickname(); }
+std::vector<User *> const &Channel::getUsersVector() const { return this->users; }
+std::vector<User *>   &Channel::getUsersVector_red(){ return(this->users);}
 //Setters
-void		Channel::setName(std::string str) { name = str; }
+void		Channel::setTopic(std::string str) { topic = str; }
 void		Channel::setPassword(std::string str) { password = str; }
 void		Channel::addUser(User* usr)
 {
@@ -29,3 +32,4 @@ void		Channel::removeOper(User*)
 	//TODO set another oper
 	operModer = NULL;
 }
+

@@ -13,6 +13,7 @@ CMakeFiles/IRC_git.dir/Server.cpp.o: \
  ../Server.hpp \
  ../User.hpp
 CMakeFiles/IRC_git.dir/User.cpp.o: \
+ ../Channel.hpp \
  ../Defines.hpp \
  ../User.cpp \
  ../User.hpp

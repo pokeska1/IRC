@@ -21,9 +21,10 @@ std::string	User::getRealname() const { return realname; }
 bool const	&User::getPassword_init() const { return(this->password); }
 bool const	&User::getName_init() const { return(this->name_init); }
 bool const	&User::getAccess() const { return(this->access); }
-std::string	User::getMsgFrom() const { return msg_from; }
-std::string	User::getMsgCom() const { return msg_com; }
-std::string	User::getMsgArgs() const { return msg_args; }
+std::string	&User::getMsgFrom()  { return msg_from; }
+std::string	&User::getMsgCom()  { return msg_com; }
+std::string	&User::getMsgArgs()  { return msg_args; }
+std::vector<Channel *>  &User::getVecChannel()  { return arr_channel; }
 
 //Setters
 void		User::setNickname(std::string str) { nickname = str; }
@@ -38,6 +39,13 @@ void		User::setAccess(bool access) { this->access = access; }
 void		User::setMsgFrom(std::string str) { msg_from = str; }
 void		User::setMsgCom(std::string str) { msg_com = str; }
 void		User::setMsgArgs(std::string str) { msg_args = str; }
+void        User::setVecChannel(Channel  &channel)
+{
+    std::vector<Channel *>::iterator it_begin = arr_channel.begin();
+    std::vector<Channel *>::iterator it_end = arr_channel.end();
+    while (it_begin != it_end) { it_begin++; }
+    arr_channel.push_back(&channel);
+}
 
 void		User::make_msg(std::string str_buf)
 {
@@ -77,4 +85,12 @@ bool		User::matchCommand(std::string str)
 			return true;
 	}
 	return false;
+}
+
+void	User::cleaner()
+{
+    setMsgFrom("");
+    setMsgCom("");
+    setMsgArgs("");
+    curr_buf = "";
 }

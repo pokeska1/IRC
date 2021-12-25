@@ -61,6 +61,10 @@ sys/select.h
 -
 map
 -
+vector
+-
 Defines.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
+Channel.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
 
