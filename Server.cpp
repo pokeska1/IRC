@@ -105,14 +105,18 @@ void Server::deleteChannel(std::string topic){
 int Server::password_verification(std::string &buf, int fd, int num){
     if (buf != this->getPassword(0) ) {
         int offical;
-        offical = write(fd, "Server say: Wrong password\n", 27 + 1);
-        perror("Wrong password");
+//        offical = send(fd, "Server say: Wrong password\n", 27 + 1, 0);
+            std::cout << "Wrong password\n";
+        //perror("Wrong password");
         return (-1);
     }else{
-        write(fd,
-              "Ok, now enter the command <NICK> and enter your nickname\n",
-              57 + 1);
+            std::cout << "OK password\n";
+
+//        send(fd,
+//              "Ok, now enter the command <NICK> and enter your nickname\n",
+//              57 + 1, 0);
         this->arr_user[num]->setPassword_init(true);
+
     }
     return (0);
 }
@@ -128,7 +132,8 @@ int Server::name_verification(std::string &buf, int ls)
             fd = (*it_begin)->getFd();
             if (buf == (*it_begin)->getNickname()){
                 int offical;
-                offical = write(ls, "Server say: This name is taken\n", 31 + 1);
+                std::cout << "This name is taken\n";
+//                offical = send(ls, "Server say: This name is taken\n", 31 + 1, 0);
                 return (-1);
             }
             it_begin++;
@@ -167,10 +172,11 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds){
             exit(EXIT_FAILURE);
         }
         std::cout << "\"Server: connect from host " << inet_ntoa(clientfd.sin_addr)
-                  << ", port " << ntohs(clientfd.sin_port) << "." << std::endl;
-        write(fd,
-              "Enter the command <PASS> and enter the password to connect to the server\n",
-              73 + 1);
+                                                                                           << ", port " << ntohs(clientfd.sin_port) << "." << std::endl;
+//        send(fd,
+//              "Enter the command <PASS> and enter the password to connect to the server\n",
+//              73 + 1, 0);
+        std::cout << "Client mast write command <PASS> and enter the password to connect to the server\n";
         FD_SET(fd, &activfds);// добавляем новичка к активным портам которые мы будем слушать
         User *arr_user = new User(fd); // создаем для этого клиента объект  класса со своим блэк-джеком и fd
         this->setUser(*arr_user); // запоминаем его адрес в массив указателей
@@ -223,33 +229,44 @@ int Server::find_num_by_nickname(std::string const &nick){
 }
 
 // не работает
-void Server::privmisg_work(int num)
-{
+void Server::privmisg_work(int num) {
     size_t pos = this->arr_user[num]->getMsgArgs().find_first_of(' ');
-    std::string name = this->arr_user[num]->getMsgArgs().substr( 0, pos);
+    std::string name = this->arr_user[num]->getMsgArgs().substr(0, pos);
     pos = this->arr_user[num]->getMsgArgs().find_first_of(':');
     std::string massage = this->arr_user[num]->getMsgArgs().substr(pos + 1);
     //удаление лишних пробелов в начале строки
     while (massage.find_first_not_of(" ") > 0)
-        massage.erase(0,1);
+        massage.erase(0, 1);
 
-    int num_friend = find_num_by_nickname(name);
-    if (num_friend < 0) {
-        perror("НЕТ СОВПОДЕНИЙ ПО НИКУ !");
-    }
-    int nbytes;
-    int offical;
-    // отправляем сообщеньку по фд
-    write(this->arr_user[num_friend]->getFd(),
-          this->arr_user[num]->getNickname().c_str(),
-          this->arr_user[num]->getNickname().length());
-    write(this->arr_user[num_friend]->getFd(), " say: ", 6 + 1);
-    write(this->arr_user[num_friend]->getFd(), massage.c_str(), massage.length());
-    write(this->arr_user[num_friend]->getFd(), "\n",  1);
-    std::cout << "Private massage: " << this->arr_user[num]->getMsgArgs().c_str() << "bytes=" << nbytes << std::endl;
-    if (offical < 0)
-    {
-        perror("Server: write failure");
+    if ((pos = this->arr_user[num]->getMsgArgs().find_first_of("#&")) != std::string::npos) {
+        int pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
+        std::string channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+        pos = this->arr_user[num]->getMsgArgs().find_first_of(':');
+        std::string massage = arr_user[num]->getMsgArgs().substr(pos + 1,arr_user[num]->getMsgArgs().length() - pos);
+        std::cout << "channel topic =" << channel << "|massage =" << massage << "|" << "\n";
+//        int num_channel = find_chanel_by_topic
+
+
+    }else {
+
+
+        int num_friend = find_num_by_nickname(name);
+        if (num_friend < 0) {
+            std::cout << "Нет такого челика\n";
+            return;
+        }
+        int nbytes;
+        int offical;
+        // отправляем сообщеньку по фд
+        std::string msg = ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() +
+                          "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " +
+                          arr_user[num_friend]->getNickname() + ":" + arr_user[num]->getMsgArgs() + "\r\n";
+        nbytes = send(this->arr_user[num_friend]->getFd(), msg.c_str(), msg.length(), 0);
+        std::cout << "Private massage: " << msg.c_str() << "bytes=" << nbytes
+                  << std::endl;
+        if (offical < 0) {
+            perror("Server: write failure");
+        }
     }
 }
 
@@ -259,11 +276,11 @@ void Server::info_work(int num)
 
     std::string timeee = std::to_string( clock() / 1000 - start_time);
     // отправляем сообщеньку по фд
-    write(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21);
-    write(this->arr_user[num]->getFd(),"\ntime start server = ",22);
-    write(this->arr_user[num]->getFd(),timeee.c_str(), timeee.length());
-    write(this->arr_user[num]->getFd()," second",7);
-    write(this->arr_user[num]->getFd(), "\n",  1);
+    send(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21, 0);
+    send(this->arr_user[num]->getFd(),"\ntime start server = ",22, 0);
+    send(this->arr_user[num]->getFd(),timeee.c_str(), timeee.length(), 0);
+    send(this->arr_user[num]->getFd()," second",7, 0);
+    send(this->arr_user[num]->getFd(), "\n",  1, 0);
     std::cout << "info massage: " << "Server vesion: v1.0, " << "time =" << timeee.c_str() << std::endl;
 }
 
@@ -290,8 +307,8 @@ void Server::join_work(int num) {
     int pos = msg.find_first_of(" ");
     int pos2 = 0;
     if ((pos2 = msg.find_first_of(" ", pos +1)) != std::string::npos) {
-        write(arr_user[num]->getFd(), "JOIN [channel] [key], joins the channel with the key if provided, reconnects"
-                                      " to the current channel if no channel is specified.\n\r", 76+54);
+        std::cout << "JOIN [channel] [key], joins the channel with the key if provided, reconnects"
+                                      " to the current channel if no channel is specified.\n";
         return;
     }
     std::string topic = msg.substr(0, pos);
@@ -319,8 +336,10 @@ void Server::join_work(int num) {
                 while (it_b_u_channel != it_e_u_channel){
                     if ((*it_b_u_channel)->getTopic() == topic){//3.1.1
                         //3.1.1.1
-                        write(arr_user[num]->getFd(), "What are you doing here ? don't you know? You are"
-                                                      " already in the channel ...\n\r", 49+30);
+                        std::cout << "What are you doing here ? don't you know? You are"
+                                     " already in the channel ...\n";
+//                        send(arr_user[num]->getFd(), "What are you doing here ? don't you know? You are"
+//                                                      " already in the channel ...\n\r", 49+30, 0);
                     }
                     it_b_u_channel++;
                 }
@@ -330,8 +349,10 @@ void Server::join_work(int num) {
                    this->arr_user[num]->setVecChannel(*(*it_b_channel));
                } else{
                    // 3.1.1.2.2
-                   write(arr_user[num]->getFd(), "Lebowski where is the key ?!"
-                                                 " You need a password to enter the channel!\n\r", 43+30);
+                   std::cout << "Lebowski where is the key ?!"
+                                " You need a password to enter the channel!\n";
+//                   send(arr_user[num]->getFd(), "Lebowski where is the key ?!"
+//                                                 " You need a password to enter the channel!\n\r", 43+30, 0);
                }
             }else {// точная копия 2*  3.2
                 Channel *channel = new Channel(topic);
@@ -346,139 +367,6 @@ void Server::join_work(int num) {
             it_b_channel++;
         }
     }
-
-
-
-
-
-    /*std::vector<std::string> topic;
-    std::vector<std::string> password;
-    std::vector<std::string>::iterator it_begin = topic.begin();
-    std::vector<std::string>::iterator it_end = topic.end();
-
-    std::string grate_mimic = this->arr_user[num]->getMsgArgs();
-    int i = 0;
-    int j = 0;
-    int pos = 0;
-    int pos2 = 0;
-    std::string mimic;
-    //выделяем из общей строки все названия "тайтл"  каналов и пихаем их в массив
-    // pos это там где нашли #или & в строке
-    while ((pos = grate_mimic.find_first_of("#&", i)) != std::string::npos) {
-        //pos 2 это ближайшая запятая или прабел если других тайтлов нет
-        pos2 = grate_mimic.find_first_of(" ,", j);
-        //выделяем нужный кусочек из строки и копируем в mimic  + 1 нужен так как pos цказывает на # или  &
-        //-1 нужен в противовес предыдущему +1
-        mimic = grate_mimic.substr(pos + 1, pos2 - pos - 1);
-        while (it_begin != it_end)
-        {
-
-            it_begin++;
-        }
-        topic.push_back(mimic);
-        grate_mimic.erase(0, mimic.length() + 2);
-        while (grate_mimic.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
-            grate_mimic.erase(0,1);
-        //обязательно делать +1 дабы двигаться по строке
-       // i = pos + 1;
-       // j = pos2 + 1 ;
-    }
-
-    while ((pos = grate_mimic.find(" ")) !=  std::string::npos) //удаление лишних пробелов в начале строки
-        grate_mimic.erase(pos,1);
-    it_begin = password.begin();
-    it_end = password.end();
-    i = 0;
-    j = 0;
-    pos = 0;
-    pos2 = 0;
-    //выделяем в векторный массив парроли к названиям тайтлов
-    //pos это ближай
-    while ((pos = grate_mimic.find_first_of(" ,", i)) != std::string::npos) {
-       // int pos2 = grate_mimic.find_first_of(" ,", pos);
-//        if (pos2 == std::string::npos)
-//            pos2 = grate_mimic.length();
-        mimic = grate_mimic.substr(pos2, pos);
-        while (it_begin != it_end)
-        {
-            it_begin++;
-        }
-        password.push_back(mimic);
-        grate_mimic.erase(0, mimic.length() + 1);
-        while (grate_mimic.find_first_not_of(",") > 0) //удаление лишних пробелов в начале строки
-            grate_mimic.erase(0,1);
-//        pos2 = pos;
-//        i = pos + 1;
-
-    }
-    if (grate_mimic.size() != 0)
-        while (it_begin != it_end)
-        {
-            it_begin++;
-        }
-    password.push_back(grate_mimic);
-    std::vector<std::string>::iterator it_begin_topic = topic.begin();
-    std::vector<std::string>::iterator it_end_topic = topic.end();
-    std::vector<std::string>::iterator it_begin_pas = password.begin();
-    std::vector<std::string>::iterator it_end_pas = password.end();
-    std::vector<Channel *>::iterator it_begin_channel= this->arr_channel.begin();
-    std::vector<Channel *>::iterator it_end_channel = this->arr_channel.end();
-
-    // движемся по массиву с наименованиями топиков
-    while (it_begin_topic != it_end_topic){
-        // движемся по массиву созданных каналов
-        while (it_begin_channel != it_end_channel) {
-            //  если их никнеймы совподают то заходим
-            if ((*it_begin_channel)->getTopic() == (*it_begin_topic)) {
-                //делаем итераторы для движения по массиву адресов узеров зареганых на канале
-                std::vector<User *>::iterator it_begin_user = (*it_begin_channel)->getUsersVector_red().begin();
-                std::vector<User *>::iterator it_end_user = (*it_begin_channel)->getUsersVector_red().end();
-                //если ник юзера написавшего JOIN уже есть в списке , то гони его ссаными тряпками
-                if ((*it_begin_user)->getNickname() == this->arr_user[num]->getNickname()) {
-                    write(this->arr_user[num]->getFd(), "you are already in this channel", 31 + 1);
-                    break;
-                }
-                //пишем какой конал подключен
-                write(this->arr_user[num]->getFd(), "Welcome to the channel ", 22 + 1);
-                write(this->arr_user[num]->getFd(), (*it_begin_channel)->getTopic().c_str(),
-                      (*it_begin_channel)->getTopic().length());
-                write(this->arr_user[num]->getFd(), "\n", 1 + 1);
-                // пишем кто еще в этом канале
-                while (it_begin_user != it_end_user) {
-                    write(this->arr_user[num]->getFd(), (*it_begin_user)->getNickname().c_str(),
-                          (*it_begin_user)->getNickname().length());
-                    write(this->arr_user[num]->getFd(), "\n", 2);
-                    it_begin_user++;
-                }
-                //добавляем  юзера в "векторный массив адресов юзеров"  кнала
-                (*it_begin_channel)->addUser((this->arr_user[num]));
-                //удаляем совпадения
-                topic.erase( it_begin_topic);
-                it_begin_topic = topic.begin();
-                it_end_topic = topic.end();
-                break;
-            }
-            it_begin_channel++;
-        }
-            if (it_begin_channel == it_end_channel || this->arr_channel.size() == 0) {
-                // если массив каналов пуст то сразу создаем
-                Channel *channel = new Channel((*it_begin_topic));
-                // если есть пароль вставляем
-                if (it_begin_pas != it_end_pas)
-                    channel->setPassword((*it_begin_pas));
-                //также заполняем закидываем юзера в список и делаем его царем канала
-                channel->addUser((this->arr_user[num]));
-                channel->setOper((this->arr_user[num]));
-                // закидываем канал в список каналов на сервере
-                this->setChannel(*channel);
-            }
-        // обнуляем итераторы и двигаем тайтоловский и пасвордский
-        it_begin_channel = this->arr_channel.begin();
-        it_end_channel = this->arr_channel.end();
-        it_begin_topic++;
-        it_begin_pas++;
-    }
-*/
 }
 
 void    Server::user_work(std::string &arg, int num)
@@ -498,75 +386,56 @@ void    Server::user_work(std::string &arg, int num)
     this->arr_user[num]->setHostname(host_name);
     this->arr_user[num]->setServername(server_name);
     this->arr_user[num]->setRealname(real_name);
+    std::cout << "OK useraname" << std::endl;
 }
 
 
 void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
 
+//    printf("|%s|%s|\n" ,this->arr_user[num]->getMsgCom().c_str(), this->arr_user[num]->getMsgArgs().c_str());
+//    std::string plz = "getMsgCom |" + this->arr_user[num]->getMsgCom() + "| getMsgArgs|" + this->arr_user[num]->getMsgArgs()
+//            + "| buf_str|" + buf_str;
+//    std::cout  << plz << std::endl;
+    arr_user[num]->make_msg(buf_str);
     std::string command = "";
     std::string arg = "";
-    int pos = 0;
-    if(getAccess(fd) != true) {
-        if (this->arr_user[num]->getPassword_init() == false) // проверяем вводил ли он корректный пароль
-        {
-            pos = buf_str.find_first_of(" ");
-            command =  buf_str.substr(0, pos);
-            buf_str.erase(0, pos + 1);
-            pos = buf_str.find_first_of("\r");
-            arg = buf_str.substr(0, pos);
-            buf_str.erase(0, pos + 1);
-            if (command == "PASS") {
-                if (password_verification(arg, fd, num) == -1) // проверяем ввел ли сейчас он корректный пароль
+    int pos_n = 0;
+    int pos_r = 0;
+    if (getAccess(fd) != true) {
+//        arr_user[num]->make_msg(buf_str);
+        if (this->arr_user[num]->getPassword_init() == false) {
+            if (arr_user[num]->getMsgCom() == "PASS") {
+                std::string arg;
+                // проверяем ввел ли сейчас он корректный пароль
+                if (password_verification(arr_user[num]->getMsgArgs(), fd, num) == -1)
                     return;
-            } else {
-                perror("Wrong password");
-                write(fd,
-                      "Enter the command <PASS> and enter the password to connect to the server\n",
-                      73 + 1);
-            }
-        }
-        if (this->arr_user[num]->getName_init() == false) // проверяем вводил ли он ник
-        {
-            if ((pos = buf_str.find_first_of(' ')) != std::string::npos)
-                if (buf_str.size() != 0) {
-                    command = buf_str.substr(0, pos);
-                    this->arr_user[num]->setMsgCom(command);
-                    buf_str.erase(0, pos + 1);
-                    pos = buf_str.find_first_of("\r");
-                    arg = buf_str.substr(0, pos);
-                    buf_str.erase(0, pos + 2);
-                    if (command == "NICK") {
-                        if (name_verification(arg, fd) == -1)//проверяем вводил ли он не занятый ник
-                        {
-                            return;
-                        } else {
-                            this->arr_user[num]->setName_init(true);
-                            this->arr_user[num]->setNickname(arg); // вносим в объект имя
-                            write(fd, "Welcome to the club buddy\r\n", 27 + 1);
-                        }
-                    } else {
-                        write(fd,
-                              "now enter the command <NICK> and enter your nickname\n",
-                              53 + 1);
-                    }
+            } else
+                return;
+        } else if (this->arr_user[num]->getName_init() == false) {
+            if (arr_user[num]->getMsgCom() == "NICK") {
+                if (name_verification(arr_user[num]->getMsgArgs(), fd) == -1)//проверяем вводил ли он не занятый ник
+                {
+                    return;
+                } else {
+                    this->arr_user[num]->setName_init(true);
+                    this->arr_user[num]->setNickname(arr_user[num]->getMsgArgs()); // вносим в объект имя
+//                            send(fd, "Welcome to the club buddy\r\n", 27 + 1, 0);
+                            std::cout << "OK nickname " << std::endl;
                 }
-        }
-        if ((pos = buf_str.find_first_of(' ')) != std::string::npos)
-            if (buf_str.size() != 0) {
-                command = buf_str.substr(0, pos);
-                this->arr_user[num]->setMsgCom(command);
-                command = this->arr_user[num]->getMsgCom();
-                buf_str.erase(0, pos + 1);
-                pos = buf_str.find_first_of("\r");
-                if (pos != -1) {
-                    buf_str.erase(pos, 2);
-                }
-                this->arr_user[num]->setAccess(true);
             }
+        } else if (arr_user[num]->getMsgCom() == "USER") {
+            user_work(arr_user[num]->getMsgArgs(), num);
+            std::string send_msg = ":localhost 001 " + this->arr_user[num]->getNickname() +
+                                   " :Welcome to the Internet Relay Network " +
+                                   this->arr_user[num]->getNickname() +
+                                   "!" + this->arr_user[num]->getUsername() + "@" +
+                                   this->arr_user[num]->getHostname() + "\r\n";
+            send(fd, send_msg.c_str(), send_msg.length(), 0);
+            this->arr_user[num]->setAccess(true);
+        } else
+            return;
     }
-    if (getAccess(fd) == true) {
-        arg = buf_str;
-        command = this->arr_user[num]->getMsgCom();
+    else if (getAccess(fd) == true) {
         std::map<std::string, forms> map_forms;
         map_forms["USER"] = USER;
         map_forms["OPER"] = OPER;
@@ -582,13 +451,15 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
         map_forms["VERSION"] = VERSION;
         map_forms["INFO"] = INFO;
 
-        switch (map_forms[command]) {
+        std::cout << "Switch" << "\n";
+        switch (map_forms[arr_user[num]->getMsgCom()]) {
             case USER:
-                user_work(arg, num);
+//                user_work(arg, num);
                 break;
             case OPER:
                 break;
             case PRIVMSG:
+                std::cout << "privmisg_work" << "\n";
                 privmisg_work(num);//* доделать, отправка множеству юзеров
                 break;
             case NOTICE:
@@ -629,14 +500,12 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
         int num = find_numb_iter(fd);
         nbytes = recv(fd, *buf, 512, 0); // прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
         std::string buf_str_bad = *buf;
-        size_t pos =  buf_str_bad.find_first_of('\n');
-        buf_str_bad.erase(pos, 1);
-        std::string buf_str = buf_str_bad;
-        arr_user[num]->make_msg(buf_str);
+        size_t pos = buf_str_bad.find_first_of("\r\n");
+        std::string buf_str = buf_str_bad.substr(0, pos);
         if (nbytes < 0){ perror("Server: meh nbytes < 0");}
         else if (nbytes == 0){ perror("Server: meh nbytes == 0");}
         else{
-            std::cout << "Serv got massage: " << *buf << std::endl;
+            std::cout << "Serv got massage: |" << buf_str << "|" << std::endl;
             parser(num , buf_str,  fd, writefds);
         }
         return (fd);
@@ -661,39 +530,39 @@ int Server::find_who_talk(fd_set &writefds)
     return(-1);
 }
 
-void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
-{
-    std::vector<User *>::iterator it_begin_new = arr_user.begin();
-    std::vector<User *>::iterator it_end_new = arr_user.end();
-    while (it_begin_new != it_end_new){ // идем по всему списку клиентов
-        fd = (*it_begin_new)->getFd();// достаем фд нужного клиента по адресу его объекта
-        int num = find_who_talk(writefds);// находим кто у нас отправляет письма дабы использовать его имя
-        int num_it = find_numb_iter(fd);// находим порядковый номер в векторном массиве данного фд
-        if (num != -1 && getAccess(fd)){  // проверяем на наличие допуска и что кто то вообще писал
-                    if (!FD_ISSET(fd, &writefds)){
-                        int nbytes;
-                        int offical;
-
-                        if (*buf[0] != '\0' || *buf[0] != '\n'){ // не уверен что это нужно , не дает спамить
-                            offical = write(fd, this->arr_user[num]->getNickname().c_str(),
-                                            this->arr_user[num]->getNickname().length()); // отправляем сообщеньку по фд
-                            offical = write(fd, " say: ", 6 + 1);
-//                    std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
-                            nbytes = write(fd, *buf, strlen(*buf) + 1);
-                            std::cout << "Write back: " << *buf << "bytes=" << nbytes << std::endl;
-                            if (offical < 0) {
-                                perror("Server: write failure");
-                            }
-                        }
-                    }
-        }
-        // выдаем разрешение на получение и отправку писем .
-        if (this->arr_user[num_it]->getPassword_init() == true && this->arr_user[num_it]->getName_init() == true){
-            this->setAccess(fd);
-        }
-        it_begin_new++; // двигаемся далее по списку клиентов
-    }
-}
+//void Server::write_massage_to_client(int &fd, fd_set &writefds, char **buf)
+//{
+//    std::vector<User *>::iterator it_begin_new = arr_user.begin();
+//    std::vector<User *>::iterator it_end_new = arr_user.end();
+//    while (it_begin_new != it_end_new){ // идем по всему списку клиентов
+//        fd = (*it_begin_new)->getFd();// достаем фд нужного клиента по адресу его объекта
+//        int num = find_who_talk(writefds);// находим кто у нас отправляет письма дабы использовать его имя
+//        int num_it = find_numb_iter(fd);// находим порядковый номер в векторном массиве данного фд
+//        if (num != -1 && getAccess(fd)){  // проверяем на наличие допуска и что кто то вообще писал
+//                    if (!FD_ISSET(fd, &writefds)){
+//                        int nbytes;
+//                        int offical;
+//
+//                        if (*buf[0] != '\0' || *buf[0] != '\n'){ // не уверен что это нужно , не дает спамить
+//                            offical = send(fd, this->arr_user[num]->getNickname().c_str(),
+//                                            this->arr_user[num]->getNickname().length(), 0); // отправляем сообщеньку по фд
+//                            offical = send(fd, " say: ", 6 + 1, 0);
+////                    std::cout << "Write back: " << "Server: say" << std::endl << "bytes=" << offical << std::endl;
+//                            nbytes = send(fd, *buf, strlen(*buf) + 1, 0);
+//                            std::cout << "Write back: " << *buf << "bytes=" << nbytes << std::endl;
+//                            if (offical < 0) {
+//                                perror("Server: write failure");
+//                            }
+//                        }
+//                    }
+//        }
+//        // выдаем разрешение на получение и отправку писем .
+////        if (this->arr_user[num_it]->getPassword_init() == true && this->arr_user[num_it]->getName_init() == true){
+////            this->setAccess(fd);
+////        }
+//        it_begin_new++; // двигаемся далее по списку клиентов
+//    }
+//}
 
 void Server::work(int ls) {
 
@@ -724,7 +593,7 @@ void Server::work(int ls) {
                 work_fd = get_old_client_massage(i, activfds, writefds, &buf);
             }
         }
-        write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
+       // write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
         if (FD_ISSET(work_fd, &activfds)) {
             int num = find_numb_iter(work_fd);
             this->arr_user[num]->cleaner();
