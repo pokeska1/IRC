@@ -61,17 +61,13 @@ private:
 	//*//std::string msgForClient;
 
 public: //rmerrie
-	//void	setMsgForClient(std::string str) { msgForClient = str; }
 	std::vector<std::string>	splitStr(std::string str);
-	int		version() const
-	{
-		//TODO How to send msg to client?
-		//setMsgForClient("Server vesion: v1.0");
-		std::string msg = "Server vesion: v1.0\n";
-		//arr_client[num]
-		//write(fd, "Server vesion: v1.0\n", msg.length() + 1); // change to msg
-		return 0;
-	}
+	Channel						*find_chan(std::string str);
+	int		version(int num);
+	bool	is_chan(std::string str);
+	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
+	int		mode_chan(int num);
+
 };
 
 #endif //IRC_SERVER_HPP

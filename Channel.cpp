@@ -1,8 +1,15 @@
 #include "Channel.hpp"
 
 Channel::Channel(std::string	str):topic(str){}
+Channel::Channel(std::string	str):name(str)
+{
+	modeParams = new ModeChan();
+}
 
-Channel::~Channel() {}
+Channel::~Channel()
+{
+	delete modeParams;
+}
 //Getters
 std::string	Channel::getTopic() const { return topic; }
 std::string	Channel::getPassword() const { return password; }
@@ -32,4 +39,3 @@ void		Channel::removeOper(User*)
 	//TODO set another oper
 	operModer = NULL;
 }
-

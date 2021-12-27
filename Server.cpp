@@ -116,8 +116,8 @@ int Server::password_verification(std::string &buf, int fd, int num){
 //              "Ok, now enter the command <NICK> and enter your nickname\n",
 //              57 + 1, 0);
         this->arr_user[num]->setPassword_init(true);
-
     }
+
     return (0);
 }
 
@@ -553,6 +553,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 join_work(num);
                 break;
             case MODE:
+				mode_chan(num);
                 break;
             case TOPIC:
                 break;
@@ -565,6 +566,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             case KILL:
                 break;
             case VERSION:
+				version(num);
                 break;
             case INFO:
                 info_work(num);
@@ -684,8 +686,19 @@ void Server::work(int ls) {
             this->arr_user[num]->cleaner();
         }
         free(buf);
+
     }
 }
+
+
+//		########  ##     ## ######## ########  ########  #### ########
+//		##     ## ###   ### ##       ##     ## ##     ##  ##  ##
+//		##     ## #### #### ##       ##     ## ##     ##  ##  ##
+//		########  ## ### ## ######   ########  ########   ##  ######
+//		##   ##   ##     ## ##       ##   ##   ##   ##    ##  ##
+//		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
+//		##     ## ##     ## ######## ##     ## ##     ## #### ########
+
 
 std::vector<std::string>	Server::splitStr(std::string str)
 {
@@ -705,3 +718,98 @@ std::vector<std::string>	Server::splitStr(std::string str)
 	res.push_back(tmp); //action
 	return res;
 }
+
+int		Server::version(int num)
+	{
+		std::string msg = "Server vesion: v1.0\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		std::cout << "version massage: " << msg;
+		return 0;
+	}
+
+bool	Server::is_chan(std::string str)
+	{
+		if (str[0] != '#' && str[0] != '&') //проверка: не канал
+			return false;
+		return true;
+	}
+bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return true;
+	}
+	return false;
+}
+Channel	*Server::find_chan(std::string str)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return *it_chan;
+	}
+	return *it_chan;
+}
+int		Server::mode_chan(int num)
+{
+	Channel *test = new Channel("test"); //default channel - delete on production
+	arr_channel.push_back(test);
+	std::cout << "arr_channel.size()=" << arr_channel.size() << std::endl;
+	// this->arr_user[num] - обращение к классу User
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::cout << this->arr_user[num]->getMsgArgs() << "   |" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "")
+	//if (args.size() == 0) //проверка нет аргументов
+	{
+		std::string msg = "<command> :Not enough parameters\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	if (is_chan(args[0]) == false) //проверка: не канал
+	{
+		std::string msg = "<channel name> :No such channel\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = "<channel 2name> :No such channel\n";
+		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+		return 1;
+	}
+	Channel *cur_chan = find_chan(args[0]);
+	if ((args[1])[0] == '+') //флаги в true
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnml");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		if (args.size() > 2)
+			cur_chan->setParamTrue(args[1], args[2]);
+		else
+			cur_chan->setParamTrue(args[1]);
+	}
+	if ((args[1])[0] == '-') //флаги в false
+	{
+		(args[1]).erase(0,1);
+		std::size_t found = (args[1]).find_first_not_of("psitnm");
+		if (found!=std::string::npos)
+		{
+			std::string msg = ":Unknown MODE flag\n";
+			write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+			return 1;
+		}
+		cur_chan->setParamFalse(args[1]);
+	}
+	return 0;
+}
+
+// THE END
