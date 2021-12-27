@@ -199,6 +199,7 @@ int Server::find_numb_iter(int fd){
 
 enum    forms{
     NOT_DEFINED,
+    NICK,
     USER, // workv
     OPER,
     PRIVMSG,//work
@@ -522,6 +523,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
     }
     else if (getAccess(fd) == true) {
         std::map<std::string, forms> map_forms;
+        map_forms["NICK"] = NICK;
         map_forms["USER"] = USER;
         map_forms["OPER"] = OPER;
         map_forms["PRIVMSG"] = PRIVMSG;
@@ -538,6 +540,8 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
 
         std::cout << "Switch" << "\n";
         switch (map_forms[arr_user[num]->getMsgCom()]) {
+            case NICK:
+                break;
             case USER:
 //                user_work(arg, num);
                 break;
