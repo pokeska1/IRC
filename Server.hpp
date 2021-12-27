@@ -35,6 +35,7 @@ public:
     bool                    getAccess(int fd);
     std::vector<Channel *>  &getChannel(){return (this->arr_channel);}
     std::string const       &getPassword(int i);
+    std::string             &getHost(){ return host; }
 
     // до-подобный парсер
     int     password_verification(std::string &buf, int fd, int num);
@@ -47,6 +48,8 @@ public:
     void    deleteChannel(std::string topic);
     int     find_numb_iter(int fd);
     int     find_num_by_nickname(std::string const &nick);
+    int     find_num_chan_by_topic(std::string const &topic);
+    void    say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic);
     float   start_time;
 
 private:
