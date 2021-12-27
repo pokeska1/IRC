@@ -94,7 +94,7 @@ void Server::deleteChannel(std::string topic){
     std::vector<Channel *>::iterator it_begin = arr_channel.begin();
     std::vector<Channel *>::iterator it_end = arr_channel.end();
     while (it_begin != it_end){
-        if (topic == (*it_begin)->getTopic()) {
+        if (topic == (*it_begin)->getName()) {
             arr_channel.erase(it_begin);
             return;
         }
@@ -214,13 +214,13 @@ enum    forms{
     INFO // work , but mast upgrade
 };
 
-int Server::find_num_chan_by_topic(std::string const &topic) {
+int Server::find_num_chan_by_name(std::string const &topic) {
     std::vector<Channel *>::iterator it_begin = arr_channel.begin();
     std::vector<Channel *>::iterator it_end = arr_channel.end();
 
     int i = 0;
     while (it_begin != it_end){
-        if ((*it_begin)->getTopic() == topic)
+        if ((*it_begin)->getName() == topic)
             return(i);
         i++;
         it_begin++;
@@ -259,7 +259,7 @@ void Server::privmisg_work(int num) {
         std::string channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
         pos = this->arr_user[num]->getMsgArgs().find_first_of(':');
         std::cout << "channel topic =" << channel << "|massage =|" << massage << "|" << "\n";
-        int num_channel = find_num_chan_by_topic(channel);
+        int num_channel = find_num_chan_by_name(channel);
         std::vector<User *>::iterator it_begin = arr_channel[num_channel]->getUsersVector_red().begin();
         std::vector<User *>::iterator it_end = arr_channel[num_channel]->getUsersVector_red().end();
 
@@ -390,12 +390,12 @@ void Server::join_work(int num) {
         say_hello_to_new_in_channel(num, it_b_channel, topic);
     } else {//3*
         while (it_b_channel != it_e_channel) {
-            if ((*it_b_channel)->getTopic() == topic)//3.1
+            if ((*it_b_channel)->getName() == topic)//3.1
             {
                 std::vector<Channel *>::iterator it_b_u_channel = this->arr_user[num]->getVecChannel().begin();
                 std::vector<Channel *>::iterator it_e_u_channel = this->arr_user[num]->getVecChannel().end();
                 while (it_b_u_channel != it_e_u_channel) {
-                    if ((*it_b_u_channel)->getTopic() == topic) {//3.1.1
+                    if ((*it_b_u_channel)->getName() == topic) {//3.1.1
                         //3.1.1.1
                         std::cout << "What are you doing here ? don't you know? You are"
                                      " already in the channel ...\n";

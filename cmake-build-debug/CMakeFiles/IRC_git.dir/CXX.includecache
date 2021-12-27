@@ -68,3 +68,11 @@ Defines.hpp
 Channel.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
 
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp
+iostream
+-
+Server.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
+User.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
+

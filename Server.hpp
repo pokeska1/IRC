@@ -48,7 +48,7 @@ public:
     void    deleteChannel(std::string topic);
     int     find_numb_iter(int fd);
     int     find_num_by_nickname(std::string const &nick);
-    int     find_num_chan_by_topic(std::string const &topic);
+    int     find_num_chan_by_name(std::string const &topic);
     void    say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic);
     float   start_time;
 

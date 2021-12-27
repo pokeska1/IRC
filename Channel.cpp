@@ -1,6 +1,9 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string	str):topic(str){}
+Channel::Channel(std::string str, std::string topic):name(str), topic(topic){
+    modeParams = new ModeChan();
+}
+
 Channel::Channel(std::string	str):name(str)
 {
 	modeParams = new ModeChan();
@@ -12,6 +15,7 @@ Channel::~Channel()
 }
 //Getters
 std::string	Channel::getTopic() const { return topic; }
+std::string	Channel::getName() const { return name; }
 std::string	Channel::getPassword() const { return password; }
 std::string Channel::getNickname_by_it(int it) const { return this->users[it]->getNickname(); }
 std::vector<User *> const &Channel::getUsersVector() const { return this->users; }

@@ -38,6 +38,8 @@ private:
 	void	operator=(const Channel &cp);
 public:
 	Channel(std::string	str);
+    Channel(std::string	str, std::string topic);
+
 	~Channel();
 	//Getters
 	std::string	                getTopic()                  const;
