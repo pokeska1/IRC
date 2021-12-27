@@ -4,7 +4,9 @@
 
 #include "Server.hpp"
 
-void Server::setHost(std::string &host) { this->host = host; }
+void Server::setHost(std::string &host){
+    this->host = host;
+}
 
 void Server::setPassword(std::string &password){
     std::vector<std::string *>::iterator it_begin = arr_password.begin();
@@ -340,6 +342,46 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 
 }
 
+std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
+
+    std::vector<std::string> name_chan;
+    std::vector<std::string>::iterator it_begin_nc = name_chan.begin();
+    std::vector<std::string>::iterator it_end_nc = name_chan.end();
+    std::string name_channel;
+    int pos = 0;
+    if ((pos = arg.find_first_of(" ")) == std::string::npos)
+        return(name_chan);
+    int pos_fh = arg.find_first_of("#");
+    int pos_sh = 0;
+            if ((pos_sh = arg.find_first_of("#", pos_fh + 1)) == -1) {
+                name_channel = arg.substr(0, pos - 1);
+                name_chan.push_back(name_channel);
+                return name_chan;
+            }
+    while (pos_sh != -1) {
+        while (it_begin_nc != it_end_nc) {
+            it_begin_nc++;
+        }
+        name_channel = arg.substr(pos_fh, pos_sh - pos_fh);
+        name_chan.push_back(name_channel);
+        pos_fh = arg.find_first_of("#");
+        pos_sh = arg.find_first_of("#", pos_fh + 1);
+        it_begin_nc = name_chan.begin();
+        it_end_nc = name_chan.end();
+    }
+
+    return name_chan;
+
+}
+
+std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &msg, int i){
+    std::vector<std::string> key_chan;
+    std::vector<std::string>::iterator it_begin_nk = key_chan.begin();
+    std::vector<std::string>::iterator it_end_nk = key_chan.end();
+    return key_chan;
+}
+
+
 //не работаеt
 //структура
 //1) расщепление аргумента на массивы topic и их паролей
@@ -358,16 +400,15 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 //          3.2.1) если есть пароль ддобавляем его в канал
 //
 void Server::join_work(int num) {
-
     //1*
     std::string msg = this->arr_user[num]->getMsgArgs();
     int pos = msg.find_first_of(" ");
     int pos2 = 0;
-    std::vector<Channel *>::iterator it_b_channel =  this->arr_channel.begin();
-    std::vector<Channel *>::iterator it_e_channel =  this->arr_channel.end();
-    if ((pos2 = msg.find_first_of(" ", pos +1)) != std::string::npos) {
+    std::vector<Channel *>::iterator it_b_channel = this->arr_channel.begin();
+    std::vector<Channel *>::iterator it_e_channel = this->arr_channel.end();
+    if ((pos2 = msg.find_first_of(" ", pos + 1)) != std::string::npos) {
         std::cout << "JOIN [channel] [key], joins the channel with the key if provided, reconnects"
-                                      " to the current channel if no channel is specified.\n";
+                     " to the current channel if no channel is specified.\n";
         return;
     }
     std::string topic = msg.substr(1, pos);
@@ -375,19 +416,18 @@ void Server::join_work(int num) {
     if (pos != -1)
         std::string key = msg.substr(pos + 1, msg.length());
     //2*
-    if (this->arr_channel.empty())
-    {
+    if (this->arr_channel.empty()) {
         //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
         Channel *channel = new Channel(topic);
         if (!key.empty())
             channel->setPassword(key);
         channel->setOper(arr_user[num]);
         channel->addUser(arr_user[num]);
-        setChannel(* channel);
+        setChannel(*channel);
         //закидываем канал в список юзера;
         this->arr_user[num]->setVecChannel(*channel);
-        it_b_channel =  this->arr_channel.begin();
-        it_e_channel =  this->arr_channel.end();
+        it_b_channel = this->arr_channel.begin();
+        it_e_channel = this->arr_channel.end();
         say_hello_to_new_in_channel(num, it_b_channel, topic);
     } else {//3*
         while (it_b_channel != it_e_channel) {
@@ -415,7 +455,6 @@ void Server::join_work(int num) {
                     std::string msg = arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@"
                                       + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " #" +
                                       topic + "\r\n";
-
                     while (it_begin != it_end) {
                         //2 второе сообщение после JOIN #channel
                         int nbytes = send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
@@ -423,8 +462,8 @@ void Server::join_work(int num) {
                                   << std::endl;
                         it_begin++;
                     }
-                    it_b_channel =  this->arr_channel.begin();
-                    it_e_channel =  this->arr_channel.end();
+                    it_b_channel = this->arr_channel.begin();
+                    it_e_channel = this->arr_channel.end();
                     say_hello_to_new_in_channel(num, it_b_channel, topic);
                     break;
                 } else {
@@ -448,8 +487,8 @@ void Server::join_work(int num) {
             setChannel(*channel);
             //закидываем канал в список юзера;
             this->arr_user[num]->setVecChannel(*channel);
-            it_b_channel =  this->arr_channel.begin();
-            it_e_channel =  this->arr_channel.end();
+            it_b_channel = this->arr_channel.begin();
+            it_e_channel = this->arr_channel.end();
             say_hello_to_new_in_channel(num, it_b_channel, topic);
         }
     }
@@ -543,7 +582,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             case NICK:
                 break;
             case USER:
-//                user_work(arg, num);
+                user_work(arg, num);
                 break;
             case OPER:
                 break;
@@ -553,10 +592,27 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 break;
             case NOTICE:
                 break;
-            case JOIN:
-                join_work(num);
-                break;
-            case MODE:
+            case JOIN: {
+                std::vector<std::string> name_channel;
+                std::vector<std::string> key_channel;
+
+                name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
+                int i = name_channel.size();
+                std::vector<std::string>::iterator it_begin = name_channel.begin();
+                key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs(), i);
+                std::vector<std::string>::iterator it_begin_key = key_channel.begin();
+                while (i >= 0) {
+                    std::string valid_buf = (*it_begin) + " " + (*it_begin_key);
+                    arr_user[num]->setMsgArgs(valid_buf);
+                    join_work(num);
+                    i--;
+                    it_begin++;
+                    it_begin_key++;
+                }
+            }
+                    break;
+            }
+                case MODE:
 				mode_chan(num);
                 break;
             case TOPIC:
@@ -690,7 +746,6 @@ void Server::work(int ls) {
             this->arr_user[num]->cleaner();
         }
         free(buf);
-
     }
 }
 
