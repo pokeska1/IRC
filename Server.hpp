@@ -10,6 +10,7 @@
 
 class Server {
 public:
+    Server();
     //основной цикл
     void    work(int ls);
      // разбивка основного цикла
@@ -46,6 +47,7 @@ public:
     int     find_who_talk(fd_set &writefds);
     void    deleteClient(int fd);
     void    deleteChannel(std::string topic);
+    int     many_or_solo_join(std::string const &arg, int num);
     int     find_numb_iter(int fd);
     int     find_num_by_nickname(std::string const &nick);
     int     find_num_chan_by_name(std::string const &topic);
@@ -60,6 +62,7 @@ private:
     std::vector<int>            arr_port;
     std::vector<std::string *>  arr_password;
     std::string                 host;
+    bool                        channel_exist; // удобный показатель есть ли хоть один канал
 	//*//std::string msgForClient;
 
 public: //rmerrie
