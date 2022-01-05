@@ -352,13 +352,16 @@ std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
     std::vector<std::string> *name_chan = new std::vector<std::string>;
     int pos_til = arg.find_first_of("#&");
     int pos_dot = arg.find_first_of(",");
+    int pos_space = arg.find_first_of(" ");
 
     while (pos_til != -1 && pos_dot != -1) {
+        if (pos_space != -1 && pos_space < pos_dot)
+            pos_dot = pos_space;
         name_chan->push_back(arg.substr(pos_til, pos_dot - (pos_til)));
         pos_til = arg.find_first_of("#&", pos_til + 1);
         pos_dot = arg.find_first_of(",", pos_dot + 1);
     }
-    int pos_space = arg.find_first_of(" ");
+
     if (pos_til != -1 && pos_dot == -1 && pos_space == -1)
         name_chan->push_back(arg.substr(pos_til, arg.length() - (pos_til)));
     return *name_chan;
@@ -374,25 +377,24 @@ std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
 
     int pos_space = arg.find_first_of(" ");
     if (pos_space != -1) {
-        int pos_dot = arg.find_first_of(",");
+        int pos_dot = arg.find_first_of(",", pos_space);
 
         if (pos_dot == -1){
             key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
             return *key_chan;
         }
         key_chan->push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
-        pos_dot = arg.find_first_of(",", pos_dot + 1);
-        if (pos_dot == -1) {
-            key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+        int pos_dot_two = arg.find_first_of(",", pos_dot + 1);
+        if (pos_dot_two == -1) {
+            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
             return *key_chan;
         }
-        int pos_dot_two = arg.find_first_of(",", pos_dot + 1);
-            while (pos_dot_two != -1) {
-                    key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
-                    pos_dot = arg.find_first_of(",", pos_dot + 1);
-                    pos_dot_two = arg.find_first_of(",", pos_dot + 1);
-            }
-        key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+        while (pos_dot_two != -1) {
+            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+            pos_dot = pos_dot_two;
+            pos_dot_two = arg.find_first_of(",", pos_dot + 1);
+        }
+        key_chan->push_back(arg.substr(pos_dot + 1, arg.length() - (pos_dot + 1)));
     }
     return *key_chan;
 }
@@ -427,10 +429,10 @@ void Server::join_work(int num) {
                      " to the current channel if no channel is specified.\n";
         return;
     }
-    std::string topic = msg.substr(1, pos);
+    std::string topic = msg.substr(1, pos - 1);
     std::string key = "";
     if (pos != -1)
-        std::string key = msg.substr(pos + 1, msg.length());
+       key = msg.substr(pos + 1, msg.length() - (pos + 1));
     //2*
     if (this->arr_channel.empty()) {
         //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
@@ -640,13 +642,21 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                     key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
                     int i = name_channel.size();
                     std::vector<std::string>::iterator it_begin = name_channel.begin();
+                    std::vector<std::string>::iterator it_begin_key = key_channel.begin();
 
+                    std::vector<std::string>::iterator end_begin_key = key_channel.end();
+                    std::string valid_buf = "";
                     while (i > 0) {
-                        std::string valid_buf = (*it_begin);
+                        if (key_channel.size() == 0 || end_begin_key == it_begin_key)
+                            valid_buf = (*it_begin);
+                        else
+                            valid_buf = (*it_begin) + " " + (*it_begin_key);
                         arr_user[num]->setMsgArgs(valid_buf);
                         join_work(num);
                         i--;
                         it_begin++;
+                        if (it_begin_key != end_begin_key)
+                            it_begin_key++;
                     }
                 }
                 else if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 1)
