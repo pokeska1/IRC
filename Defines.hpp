@@ -1,8 +1,7 @@
 #pragma once
 
-
 #define ERR_NOSUCHNICK "401"
-#define ERR_NOSUCHSERVER "401"
+#define ERR_NOSUCHSERVER "402"
 #define ERR_NOSUCHCHANNEL "403"
 #define ERR_CANNOTSENDTOCHAN "404"
 #define ERR_TOOMANYCHANNELS "405"
@@ -137,3 +136,18 @@
 #define RPL_CLOSEEND "363"
 #define RPL_MYPORTIS "384"
 #define ERR_BADCHANMASK "476"
+
+////////////// MESSAGES ///////////////////////////////////////////////////////
+
+//403
+#define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//461
+#define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname()  +  " <command> :Not enough parameters\n"
+//501 
+#define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
++ ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname()  +  ":Unknown MODE flag\n"

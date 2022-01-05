@@ -19,7 +19,7 @@ all:		$(NAME)
 $(NAME) : $(OBJC)
 			$(CC) $(FLAG) $(OBJC) -o $(NAME)
 
-%.o:	%.cpp #Server.hpp
+%.o:	%.cpp Defines.hpp
 			$(CC) -c $(FLAG) $< -o $@
 
 clean:
@@ -30,4 +30,4 @@ fclean:	clean
 
 re:			fclean all
 
-.PHONY:		all clan fclean re
+.PHONY:		all clean fclean re
