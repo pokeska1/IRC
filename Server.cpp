@@ -349,12 +349,9 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 
 std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
 
+    std::vector<std::string> *name_chan = new std::vector<std::string>;
     int pos_til = arg.find_first_of("#&");
     int pos_dot = arg.find_first_of(",");
-
-    std::vector<std::string> *name_chan = new std::vector<std::string>;
-    std::vector<std::string>::iterator it_begin_nc = name_chan->begin();
-    std::vector<std::string>::iterator it_end_nc = name_chan->end();
 
     while (pos_til != -1 && pos_dot != -1) {
         name_chan->push_back(arg.substr(pos_til, pos_dot - (pos_til)));
@@ -364,40 +361,40 @@ std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
     int pos_space = arg.find_first_of(" ");
     if (pos_til != -1 && pos_dot == -1 && pos_space == -1)
         name_chan->push_back(arg.substr(pos_til, arg.length() - (pos_til)));
-    if (pos_space != -1){
-        name_chan->push_back("\\PASSWORD\\");
-        //name_chan.push_back(arg.substr(pos_til + 1, pos_dot - (pos_til + 1)));
-    }
     return *name_chan;
-//    std::string name_channel;
-//    int pos = 0;
-////    if ((pos = arg.find_first_of(" ")) == std::string::npos)
-////        return(name_chan);
-//    int pos_fh = arg.find_first_of("#&");
-//    int pos_sh = 0;
-//            if ((pos_sh = arg.find_first_of("#&", pos_fh + 1)) == -1) {
-//                name_channel = arg.substr(0, pos - 1);
-//                name_chan.push_back(name_channel);
-//                return name_chan;
-//            }
-//    while (pos_sh != -1) {
-//        while (it_begin_nc != it_end_nc) {
-//            it_begin_nc++;
-//        }
-//        name_channel = arg.substr(pos_fh + 1, pos_sh - pos_fh);
-//        name_chan.push_back(name_channel);
-//        pos_fh = arg.find_first_of("#&");
-//        pos_sh = arg.find_first_of("#&", pos_fh + 1);
-//        it_begin_nc = name_chan.begin();
-//        it_end_nc = name_chan.end();
-//    }
 }
 
-std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &msg, int i){
-    std::vector<std::string> key_chan;
-    std::vector<std::string>::iterator it_begin_nk = key_chan.begin();
-    std::vector<std::string>::iterator it_end_nk = key_chan.end();
-    return key_chan;
+
+
+//1) если после пробела нет запятых
+//2 ) там одна запятая
+//3) там много запятых
+std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
+    std::vector<std::string> *key_chan = new std::vector<std::string>;
+
+    int pos_space = arg.find_first_of(" ");
+    if (pos_space != -1) {
+        int pos_dot = arg.find_first_of(",");
+
+        if (pos_dot == -1){
+            key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+            return *key_chan;
+        }
+        key_chan->push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
+        pos_dot = arg.find_first_of(",", pos_dot + 1);
+        if (pos_dot == -1) {
+            key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+            return *key_chan;
+        }
+        int pos_dot_two = arg.find_first_of(",", pos_dot + 1);
+            while (pos_dot_two != -1) {
+                    key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+                    pos_dot = arg.find_first_of(",", pos_dot + 1);
+                    pos_dot_two = arg.find_first_of(",", pos_dot + 1);
+            }
+        key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+    }
+    return *key_chan;
 }
 
 
@@ -635,22 +632,21 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 break;
             case NOTICE:
                 break;
-            case JOIN: {
+            case JOIN: { //сломаны топики , сло
                 if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 2) {
                     std::vector<std::string> name_channel;
-//                    std::vector<std::string> key_channel;
+                    std::vector<std::string> key_channel;
                     name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
+                    key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
                     int i = name_channel.size();
                     std::vector<std::string>::iterator it_begin = name_channel.begin();
-//                    key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs(), i);
-//                    std::vector<std::string>::iterator it_begin_key = key_channel.begin();
+
                     while (i > 0) {
                         std::string valid_buf = (*it_begin);
                         arr_user[num]->setMsgArgs(valid_buf);
                         join_work(num);
                         i--;
                         it_begin++;
-//                        it_begin_key++;
                     }
                 }
                 else if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 1)
