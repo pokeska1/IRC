@@ -857,6 +857,21 @@ Channel	*Server::find_chan(std::string str)
 	}
 	return *it_chan;
 }
+//// ВАРИАНТЫ ВВОДА MODE ////////////
+//  ВАР.1: установка флагов в + -
+//  MODE #Finnish +im                 // Делает канал #Finnish модерируемым и 'invite-only'.
+//  MODE #Fins -s                     // Убирает флаг 'secret' с канала #Fins.
+//  ВАР.2: установка флагов в + - с указанием юзера
+//  MODE #Finnish +o Kilroy           // Дает привилегии оператора Kilroy на канале #Finnish.
+//  MODE #Finnish +v Wiz              // Дает WiZ право голоса на канале #Finnish.
+//  ВАР.3: установка флагов в + - с указанием параметра
+//  MODE #42 +k oulu                  // Устанавливает на канал пароль "oulu".
+//  MODE #eu-opers +l 10              // Устанавливает максимальное количество пользователей на канале (10).
+//  ВАР.4: установка флагов для бана канала (пока не делаем)
+//  MODE &oulu +b                     // Вывод списка масок бана для канала.
+//  MODE &oulu +b *!*@*               // Предотвращает вход на канал для любого пользователя.
+//  MODE &oulu +b *!*@*.edu           // Предотвращает вход любого пользователя подходящего под маску хоста *.edu.
+
 int		Server::mode_chan(int num)
 {
 	// Channel *test = new Channel("test"); //default channel - delete on production
@@ -872,7 +887,7 @@ int		Server::mode_chan(int num)
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
-	if (is_chan(args[0]) == false) //проверка: не канал
+	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
 	{
 		std::string msg = MSG_NOSUCHCHANNEL;
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
@@ -885,7 +900,7 @@ int		Server::mode_chan(int num)
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
-	Channel *cur_chan = find_chan(args[0]);
+	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
 	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
