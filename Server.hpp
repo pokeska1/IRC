@@ -40,7 +40,7 @@ public:
 
     // до-подобный парсер
     int     password_verification(std::string &buf, int fd, int num);
-    int     name_verification(std::string &buf, int fd);
+    int     name_verification(std::string &buf, int fd, int num);
     void    parser(int num , std::string buf_str, int fd, fd_set &writefds);
 
     // функуии упрощающие жизнь и код
