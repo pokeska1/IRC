@@ -515,6 +515,8 @@ void Server::join_work(int num) {
                     break;
                 } else {
                     // 3.1.1.2.2
+                    std::string error = MSG_BADCHANNELKEY;
+                    send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
                     std::cout << "\x1b[31;1mLebowski where is the key ?!"
                                  " You need a password to enter the channel!\x1b[0m\n";
                     return;
@@ -722,6 +724,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
         std::string buf_str = "";
         int num = find_numb_iter(fd);
         nbytes = recv(fd, *buf, 512, 0);// прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
+        std::cout << *buf << "\n";
         std::string buf_str_bad = *buf;
         if ((buf_str_bad.find_first_of("\n") == std::string::npos) ||
                 (arr_user[num]->getMsgFrom() != "")) {
