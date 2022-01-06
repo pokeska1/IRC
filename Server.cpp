@@ -661,6 +661,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
 				mode_chan(num);
                 break;
             case TOPIC:
+                topic(num);
                 break;
             case INVITE:
                 break;
@@ -804,6 +805,40 @@ void Server::work(int ls) {
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
 
+int		Server::topic(int num)
+{
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+    if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
+	{
+		std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+    if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+    Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+    if (args.size() == 1) //only channel name passed
+    {
+        std::string msg = MSG_TOPIC + cur_chan->getTopic();
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 0;
+    }
+    else
+        cur_chan->setTopic(args[1]);
+	return 0;
+}
+
 std::vector<std::string>	Server::splitStr(std::string str)
 {
 	std::vector<std::string>	res;
@@ -824,19 +859,19 @@ std::vector<std::string>	Server::splitStr(std::string str)
 }
 
 int		Server::version(int num)
-	{
-		std::string msg = "Server vesion: v1.0\n";
-		write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-		std::cout << "version massage: " << msg;
-		return 0;
-	}
+{
+	std::string msg = "Server vesion: v1.0\n";
+	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+	std::cout << "version massage: " << msg;
+	return 0;
+}
 
 bool	Server::is_chan(std::string str)
-	{
-		if (str[0] != '#' && str[0] != '&') //проверка: не канал
-			return false;
-		return true;
-	}
+{
+	if (str[0] != '#' && str[0] != '&') //проверка: не канал
+		return false;
+	return true;
+}
 bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
 {
 	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
@@ -934,5 +969,7 @@ int		Server::mode_chan(int num)
 	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
 	return 0;
 }
+
+
 
 // THE END

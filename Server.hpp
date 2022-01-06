@@ -72,6 +72,7 @@ public: //rmerrie
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
 	int		mode_chan(int num);
+    int		topic(int num);
 
 };
 

@@ -4,7 +4,7 @@ Channel::Channel(std::string str, std::string topic):name(str), topic(topic){
     modeParams = new ModeChan();
 }
 
-Channel::Channel(std::string	str):name(str)
+Channel::Channel(std::string	str):name(str), topic("")
 {
 	modeParams = new ModeChan();
 }

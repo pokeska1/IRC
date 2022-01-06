@@ -139,6 +139,10 @@
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
+//332
+#define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
++ RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname()  +  " <channel name> :"
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
