@@ -140,9 +140,7 @@
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
 //332
-#define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
-+ RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ this->arr_user[num]->getNickname()  +  " <channel name> :"
+#define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
