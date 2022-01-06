@@ -146,7 +146,7 @@
 + this->arr_user[num]->getHostname() + "\r\n";
 //001
 //332
-#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic
+#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + "\r\n"
 //332
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
@@ -159,7 +159,7 @@
 //401
 #define MSG_NOSUCHNICK ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK \
 + " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() \
-+ " Нет такого челика\n\r"
++ " Нет такого челика \""
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
