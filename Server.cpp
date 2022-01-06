@@ -113,10 +113,10 @@ void Server::deleteChannel(std::string topic){
 int Server::password_verification(std::string &buf, int fd, int num){
     if (buf != this->getPassword(0) ) {
         int offical;
-            std::cout << "Wrong password\n";
+            std::cout << "\x1b[31;1mWrong password\x1b[0m\n";
         return (-1);
     }else{
-            std::cout << "OK password\n";
+            std::cout << "\x1b[32;1mOK password\x1b[0m\n";
         this->arr_user[num]->setPassword_init(true);
     }
 
@@ -134,7 +134,7 @@ int Server::name_verification(std::string &buf, int ls, int num)
             fd = (*it_begin)->getFd();
             if (buf == (*it_begin)->getNickname()){
                 int offical;
-                std::cout << "This name is taken\n";
+                std::cout << "\x1b[31;1mThis name is taken\x1b[0m\n";
                 return (-1);
             }
             it_begin++;
@@ -272,8 +272,7 @@ void Server::privmisg_work(int num) {
     }else {
         int num_friend = find_num_by_nickname(name);
         if (num_friend < 0) {
-
-            std::cout << "Нет такого челика\n";
+            std::cout << "\x1b[31;1mНет такого челика\x1b[0m\n";
             std::string error = MSG_NOSUCHNICK;
             send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
             return;
@@ -332,8 +331,6 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
     //4b
     msg = MSG_END_OF_USER_LIST;
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-
-
 }
 
 std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
@@ -472,7 +469,8 @@ void Server::join_work(int num) {
                     break;
                 } else {
                     // 3.1.1.2.2
-                    std::cout << "Lebowski where is the key ?! You need a password to enter the channel!\n";
+                    std::cout << "\x1b[31;1mLebowski where is the key ?!"
+                                 " You need a password to enter the channel!\x1b[0m\n";
                     return;
                 }
             }
@@ -515,7 +513,7 @@ void    Server::user_work(std::string &arg, int num)
     this->arr_user[num]->setHostname(host_name);
     this->arr_user[num]->setServername(server_name);
     this->arr_user[num]->setRealname(real_name);
-    std::cout << "OK useraname" << std::endl;
+    std::cout << "\x1b[32;1mOK useraname\x1b[0m" << std::endl;
 }
 
 int Server::many_or_solo_join(std::string const &arg, int num)
@@ -556,7 +554,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                     this->arr_user[num]->setName_init(true);
                     this->arr_user[num]->setNickname(arr_user[num]->getMsgArgs()); // вносим в объект имя
 //                            send(fd, "Welcome to the club buddy\r\n", 27 + 1, 0);
-                            std::cout << "OK nickname " << std::endl;
+                            std::cout << "\x1b[32;1mOK nickname\x1b[0m" << std::endl;
                 }
             }
         } else if (arr_user[num]->getMsgCom() == "USER") {
@@ -572,11 +570,11 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             this->arr_user[num]->setAccess(true);
         } else {
             if (this->arr_user[num]->getPassword_init() == false)
-                std::cout << "NO password NO" << std::endl;
+                std::cout << "\x1b[31;1mNO password NO\x1b[0m" << std::endl;
             else if (this->arr_user[num]->getName_init() == false)
-                std::cout << "NO nickname NO" << std::endl;
+                std::cout << "\x1b[31;1mNO nickname NO\x1b[0m" << std::endl;
             else {
-                std::cout << "NO username NO" << std::endl;
+                std::cout << "\x1b[31;1mNO username NO\x1b[0m" << std::endl;
             }
             return;
         }
@@ -598,7 +596,6 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
         map_forms["VERSION"] = VERSION;
         map_forms["INFO"] = INFO;
 
-        std::cout << "Switch" << "\n";
         switch (map_forms[arr_user[num]->getMsgCom()]) {
             case NICK:
                 break;
@@ -608,7 +605,6 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             case OPER:
                 break;
             case PRIVMSG:
-                std::cout << "privmisg_work" << "\n";
                 privmisg_work(num);//* доделать, отправка множеству юзеров
                 break;
             case NOTICE:
