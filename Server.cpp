@@ -904,7 +904,7 @@ int		Server::mode_chan(int num)
 	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
-		std::size_t found = (args[1]).find_first_not_of("psitnml");
+		std::size_t found = (args[1]).find_first_not_of("opsitnmlv");
 		if (found!=std::string::npos)
 		{
 			std::string msg = MSG_UMODEUNKNOWNFLAG;

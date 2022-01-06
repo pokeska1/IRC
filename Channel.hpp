@@ -54,12 +54,15 @@ public:
 	void		                setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
-//	void		eraseUser(User* usr);
+	void		eraseUser(User* usr);
+	void		addVoteUser(User* usr); //std::string
+	void		eraseVoteUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 	void		setParamTrue(std::string str, std::string str_arg);
 	void		setParamTrue(std::string str);
 	void		setParamFalse(std::string str);
+	User*		findUserByName(std::string str);
 };
 
 #endif
