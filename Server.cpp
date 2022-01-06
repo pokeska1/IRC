@@ -815,7 +815,7 @@ int		Server::topic(int num)
     Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
     if (args.size() == 1) //only channel name passed
     {
-        std::string msg = MSG_TOPIC + cur_chan->getTopic();
+        std::string msg = MSG_TOPIC + cur_chan->getTopic() + "\n";
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 0;
     }
