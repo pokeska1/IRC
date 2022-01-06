@@ -114,6 +114,8 @@ void	Channel::setParamTrue(std::string flags, std::string flag_arg)
 			if (user_to_add != NULL)
 				addVoteUser(user_to_add);
 		}
+		else if ('k' == flags[i])
+			setPassword(flag_arg);
 	}
 }
 void	Channel::setParamTrue(std::string str)

@@ -835,7 +835,16 @@ int		Server::topic(int num)
 		return 0;
     }
     else
+    {
+        if ((args[1])[0] != ':')
+        {
+            std::string msg = MSG_NEEDMOREPARAMS;
+		    send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		    return 1;
+        }
+        (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
+    }
 	return 0;
 }
 
@@ -939,7 +948,7 @@ int		Server::mode_chan(int num)
 	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
-		std::size_t found = (args[1]).find_first_not_of("opsitnmlv");
+		std::size_t found = (args[1]).find_first_not_of("opsitnmlvk");
 		if (found!=std::string::npos)
 		{
 			std::string msg = MSG_UMODEUNKNOWNFLAG;
@@ -950,7 +959,7 @@ int		Server::mode_chan(int num)
 			cur_chan->setParamTrue(args[1], args[2]);
 		else
 			cur_chan->setParamTrue(args[1]);
-		send(this->arr_user[num]->getFd(), "flag+\n", 6, 0);
+		//send(this->arr_user[num]->getFd(), "flag+\n", 6, 0);
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{
@@ -963,7 +972,7 @@ int		Server::mode_chan(int num)
 			return 1;
 		}
 		cur_chan->setParamFalse(args[1]);
-		send(this->arr_user[num]->getFd(), "flag-\n", 6, 0);
+		//send(this->arr_user[num]->getFd(), "flag-\n", 6, 0);
 	}
 	std::string msg = ":Unknown MODE flag\n";
 	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
