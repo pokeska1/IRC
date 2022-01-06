@@ -7,6 +7,7 @@
 Server::Server()
 {
     this->channel_exist = false;
+    host = "localhost";
 }
 
 void Server::setHost(std::string &host){
@@ -263,11 +264,8 @@ void Server::privmisg_work(int num) {
 
         while (it_begin != it_end){
             if ((*it_begin)->getNickname() != arr_user[num]->getNickname()) {
-                std::string msg = ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() +
-                                  "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " +
-                                  arr_user[num]->getMsgArgs() + "\r\n";
+                std::string msg = MSG_PRIVMSG_CHANNEL;
                 int nbytes = send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
-                std::cout << msg << std::endl;
             }
             it_begin++;
         }
@@ -276,16 +274,12 @@ void Server::privmisg_work(int num) {
         if (num_friend < 0) {
 
             std::cout << "Нет такого челика\n";
-            std::string error = ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK +
-                                " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +
-                                " Нет такого челика\n\r";
+            std::string error = MSG_NOSUCHNICK;
             send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
             return;
         }
         // отправляем сообщеньку по фд
-        std::string msg = ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() +
-                          "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " +
-                          arr_user[num_friend]->getNickname() + ":" + arr_user[num]->getMsgArgs() + "\r\n";
+        std::string msg = MSG_PRIVMSG;
         nbytes = send(this->arr_user[num_friend]->getFd(), msg.c_str(), msg.length(), 0);
         std::cout << "Private massage: " << msg.c_str() << "bytes=" << nbytes
                   << std::endl;
@@ -310,9 +304,7 @@ void Server::info_work(int num)
 
 void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic){
     //отправляем что он в канале
-    std::string msg = arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@"
-                      + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " #" +
-                      topic + "\r\n";
+    std::string msg = MSG_ACCESS_JOIN;
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     // отправляем всех кто есть на канале новичку
     std::vector<User *>::iterator it_begin = (*it_b_channel)->getUsersVector_red().begin();
@@ -320,19 +312,16 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 
     //3 сообщение
     if ((*it_b_channel)->getTopic() == "") {
-        msg = ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic;// +
-              //" :\r\n";
+        msg = MSG_HELLO_AND_JOIN;
         send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
     else{
-        msg = ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic +
-              " :" + (*it_b_channel)->getTopic() + "\r\n";
+        msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
         send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
 
     //4а сообщение
-    msg = ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic +
-          " :@";
+    msg = MSG_LIST_USER_IN_CHANELL;
     while (it_begin != it_end) {
         msg += (*it_begin)->getNickname() + " ";
         it_begin++;
@@ -341,8 +330,7 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
     msg += "\r\n";
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     //4b
-    msg = ":localhost 366 " + arr_user[num]->getNickname() + " #" + topic +
-          " :END of NAMES list\r\n";
+    msg = MSG_END_OF_USER_LIST;
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 
 
@@ -424,10 +412,7 @@ void Server::join_work(int num) {
     if ((pos2 = msg.find_first_of(" ", pos + 1)) != std::string::npos) {
 //        std::cout << "JOIN [channel] [key], joins the channel with the key if provided, reconnects"
 //                     " to the current channel if no channel is specified.\n";
-        std::string error = ":" + this->arr_user[num]->getServername() + " " + ERR_NEEDMOREPARAMS +
-                " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +
-                " :JOIN [channel] [key], joins the channel with the key if provided, reconnects" +
-                " to the current channel if no channel is specified.\n\r";
+        std::string error = MSG_NEEDMOREPARAMS;
         send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
         return;
     }
@@ -458,12 +443,10 @@ void Server::join_work(int num) {
                 while (it_b_u_channel != it_e_u_channel) {
                     if ((*it_b_u_channel)->getName() == topic) {//3.1.1
                         //3.1.1.1
-//                        std::cout << "What are you doing here ? don't you know? You are"
-//                                     " already in the channel ...\n";
-                        std::string error = ":" + this->arr_user[num]->getServername() + " " + ERR_NEEDMOREPARAMS +
-                                            " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +
-                                            " :What are you doing here ? don't you know? You are already in the channel ...\n\r";
-                        send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
+                        //
+                        //
+                        //
+                        //я так и не нашёл как обрабатывать join в канал в котором ты уже состоишь
                         return;
                     }
                     it_b_u_channel++;
@@ -475,9 +458,7 @@ void Server::join_work(int num) {
                     (*it_b_channel)->addUser(arr_user[num]);
                     std::vector<User *>::iterator it_begin = (*it_b_channel)->getUsersVector_red().begin();
                     std::vector<User *>::iterator it_end = (*it_b_channel)->getUsersVector_red().end();
-                    std::string msg = arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@"
-                                      + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " #" +
-                                      topic + "\r\n";
+                    std::string msg = MSG_ACCESS_JOIN;
                     while (it_begin != it_end) {
                         //2 второе сообщение после JOIN #channel
                         int nbytes = send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
@@ -491,13 +472,7 @@ void Server::join_work(int num) {
                     break;
                 } else {
                     // 3.1.1.2.2
-                    std::cout << "Lebowski where is the key ?!"
-                                 " You need a password to enter the channel!\n";
-//                    std::string error = ":" + this->arr_user[num]->getServername() + " " + ERR_NEEDMOREPARAMS +
-//                                        " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +
-//                                        " :Lebowski where is the key ?!" +
-//                                        " You need a password to enter the channel!\n\r";
-//                    send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
+                    std::cout << "Lebowski where is the key ?! You need a password to enter the channel!\n";
                     return;
                 }
             }
@@ -588,7 +563,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             std::cout << "|" << arr_user[num]->getMsgArgs() << "|" <<std::endl;
             std::cout << "|" << arr_user[num]->getMsgCom()<< "|" << std::endl;
             user_work(arr_user[num]->getMsgArgs(), num);
-            std::string send_msg = ":localhost 001 " + this->arr_user[num]->getNickname() +
+            std::string send_msg = ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() +
                                    " :Welcome to the Internet Relay Network " +
                                    this->arr_user[num]->getNickname() +
                                    "!" + this->arr_user[num]->getUsername() + "@" +
@@ -640,18 +615,18 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 break;
             case JOIN: { //сломаны топики , сло
                 if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 2) {
-                    std::vector<std::string> *name_channel;
-                    std::vector<std::string> *key_channel;
-                    *name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
-                    *key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
-                    int i = name_channel->size();
-                    std::vector<std::string>::iterator it_begin = name_channel->begin();
-                    std::vector<std::string>::iterator it_begin_key = key_channel->begin();
+                    std::vector<std::string> name_channel;
+                    std::vector<std::string> key_channel;
+                    name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
+                    key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
+                    int i = name_channel.size();
+                    std::vector<std::string>::iterator it_begin = name_channel.begin();
+                    std::vector<std::string>::iterator it_begin_key = key_channel.begin();
 
-                    std::vector<std::string>::iterator end_begin_key = key_channel->end();
+                    std::vector<std::string>::iterator end_begin_key = key_channel.end();
                     std::string valid_buf = "";
                     while (i > 0) {
-                        if (key_channel->size() == 0 || end_begin_key == it_begin_key)
+                        if (key_channel.size() == 0 || end_begin_key == it_begin_key)
                             valid_buf = (*it_begin);
                         else
                             valid_buf = (*it_begin) + " " + (*it_begin_key);
@@ -662,8 +637,8 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                         if (it_begin_key != end_begin_key)
                             it_begin_key++;
                     }
-                    delete name_channel;
-                    delete key_channel;
+                    name_channel.clear();
+                    key_channel.clear();
                 }
                 else if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 1)
                     join_work(num);
@@ -705,17 +680,31 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
     int num = find_numb_iter(fd); // найдем порядковый номер этого клиента в массиве
     if (FD_ISSET(fd, &activfds)){//если фд есть в списке акитвистов то начнем с ним работать
         int nbytes;
+        std::string buf_str = "";
         int num = find_numb_iter(fd);
-        nbytes = recv(fd, *buf, 512, 0); // прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
+        nbytes = recv(fd, *buf, 512, 0);// прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
         std::string buf_str_bad = *buf;
-        size_t pos = buf_str_bad.find_first_of("\r\n");
-        std::string buf_str = buf_str_bad.substr(0, pos);
+        if ((buf_str_bad.find_first_of("\n") == std::string::npos) ||
+                (arr_user[num]->getMsgFrom() != "")) {
+            arr_user[num]->setFullMassage(false);
+            std::string new_args = arr_user[num]->getMsgFrom() + buf_str_bad;
+            arr_user[num]->setMsgFrom(new_args);
+            if(buf_str_bad.find_first_of("\n") != std::string::npos){
+                arr_user[num]->setFullMassage(true);
+            buf_str =arr_user[num]->getMsgFrom();
+            }
+        }
+        else {
+            arr_user[num]->setFullMassage(true);
+            size_t pos = buf_str_bad.find_first_of("\r\n");
+            buf_str = buf_str_bad.substr(0, pos);
+        }
         if (nbytes < 0){ perror("Server: meh nbytes < 0");}
         else if (nbytes == 0){
             deleteClient(fd);
-            perror("Server: meh nbytes == 0");
+            perror("Server: meh nbytes == 0, and delete Client byby =^_^=");
         }
-        else{
+        else if(arr_user[num]->getFullMassage() == true){
             std::cout << "Serv got massage: |" << buf_str << "|" << std::endl;
             parser(num , buf_str,  fd, writefds);
         }
@@ -770,12 +759,14 @@ void Server::work(int ls) {
                 work_fd = get_old_client_massage(i, activfds, writefds, &buf);
             }
         }
-       // write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
+        // write_massage_to_client(fd, writefds, &buf);  // здесь отправляем сообщеники
         if (FD_ISSET(work_fd, &activfds)) {
             int num = find_numb_iter(work_fd);
-            this->arr_user[num]->cleaner();
+            if (arr_user[num]->getFullMassage() == true)
+                this->arr_user[num]->cleaner();
         }
         free(buf);
+
     }
 }
 

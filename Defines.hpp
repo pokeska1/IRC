@@ -138,7 +138,28 @@
 #define ERR_BADCHANMASK "476"
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
-
+//001 если имя хоста не задано
+#define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
++ " :Welcome to the Internet Relay Network " \
++ this->arr_user[num]->getNickname() + \
+"!" + this->arr_user[num]->getUsername() + "@" \
++ this->arr_user[num]->getHostname() + "\r\n";
+//001
+//332
+#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic
+//332
+#define MSG_HELLO_AND_JOIN_THITH_TOPIC ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic \
++ " :" + (*it_b_channel)->getTopic() + "\r\n"
+//353
+#define MSG_LIST_USER_IN_CHANELL ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
++ " :@";
+//366
+#define MSG_END_OF_USER_LIST ":localhost 366 " + arr_user[num]->getNickname() + " #" + topic \
++ " :END of NAMES list\r\n";
+//401
+#define MSG_NOSUCHNICK ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK \
++ " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() \
++ " Нет такого челика\n\r"
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
@@ -151,3 +172,17 @@
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  ":Unknown MODE flag\n"
+
+////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
+//Подтверждение что join произошел удачно
+#define MSG_ACCESS_JOIN arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@" \
++ arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " #" \
++ topic + "\r\n"
+//собщение одному человеку
+#define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
++ "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
++ arr_user[num_friend]->getNickname() + ":" + arr_user[num]->getMsgArgs() + "\r\n"
+//сообщение по каналу
+#define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
++ "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
++ arr_user[num]->getMsgArgs() + "\r\n"

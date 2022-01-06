@@ -74,7 +74,6 @@
 			write(num, msg.c_str(), msg.length());
 			return 1;
 		}
-
 	}
 //*
 //* Конец методов для Server.cpp

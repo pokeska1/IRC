@@ -44,6 +44,7 @@ private:
 	bool			        password;
 	bool			        name_init;
 	bool			        access;
+    bool                    full_massage;
 
 	std::string		        msg_from;
 	std::string		        msg_com;
@@ -69,6 +70,7 @@ public:
 	bool const   &getPassword_init()     const;
 	bool const   &getName_init()         const;
 	bool const   &getAccess()            const;
+    bool const   &getFullMassage()       const;
     std::string  &getMsgFrom();
     std::string  &getMsgCom();
     std::string  &getMsgArgs();
@@ -83,6 +85,7 @@ public:
 	void    setPassword_init(bool   password);
 	void    setName_init(bool   name_init);
 	void    setAccess(bool  access);
+    void    setFullMassage(bool  full_massage);
     void    setMsgFrom(std::string str);
     void    setMsgCom(std::string str);
     void    setMsgArgs(std::string str);
