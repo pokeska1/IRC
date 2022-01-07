@@ -20,6 +20,7 @@ std::string	Channel::getPassword() const { return password; }
 std::string Channel::getNickname_by_it(int it) const { return this->users[it]->getNickname(); }
 std::vector<User *> const &Channel::getUsersVector() const { return this->users; }
 std::vector<User *>   &Channel::getUsersVector_red(){ return(this->users);}
+std::vector<User *> const &Channel::getOpersVector() const { return this->operUsers; }
 //Setters
 void		Channel::setTopic(std::string str) { topic = str; }
 void		Channel::setPassword(std::string str) { password = str; }
@@ -59,6 +60,16 @@ void		Channel::eraseVoteUser(User* usr)
 	{
 		if (usr == *first)
 			voteUsers.erase(first);
+	}
+}
+void		Channel::eraseOperUser(User* usr)
+{
+	std::vector<User *>::iterator	first = voteUsers.begin();
+	std::vector<User *>::iterator	last = voteUsers.end();
+	for (; first != last; ++first)
+	{
+		if (usr == *first)
+			operUsers.erase(first);
 	}
 }
 void		Channel::setOper(User* usr)

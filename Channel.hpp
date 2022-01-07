@@ -50,6 +50,7 @@ public:
 	std::string	                getPassword()               const;
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
+	std::vector<User *> const	&getOpersVector()           const;
     std::string                 getNickname_by_it(int it)   const;
 	User*				 		getOperModer();
 	ModeChan					*getModeParams() { return modeParams; }
@@ -63,6 +64,7 @@ public:
 	void		addInvitedUser(User* usr); //std::string
 	void		eraseUser(User* usr);
 	void		eraseVoteUser(User* usr);
+	void		eraseOperUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 	void		setParamTrue(std::string str, std::string str_arg);

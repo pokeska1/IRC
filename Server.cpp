@@ -688,7 +688,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             case PART:
 				part(num);
                 break;
-            case KILL:
+            case KILL: // предлагаю исключить
                 break;
             case VERSION:
 				version(num);
@@ -791,6 +791,54 @@ void Server::work(int ls) {
 //		##   ##   ##     ## ##       ##   ##   ##   ##    ##  ##
 //		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
+
+int		Server::part(int num)
+{
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
+	{
+		std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
+	{
+		std::string msg = MSG_ZAGLUSHKA;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else
+	{
+		//ADD notice message
+		if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
+		{
+			if (cur_chan->getOpersVector().empty()) //there are no operusers
+				cur_chan->setOper(cur_chan->getUsersVector()[1]);
+			else
+			{
+				cur_chan->setOper(cur_chan->getOpersVector()[0]);
+				cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
+			}
+		}
+		cur_chan->eraseUser(this->arr_user[num]);
+	}
+	return 0;
+}
 
 int 	Server::invite(int num)
 {
@@ -896,9 +944,16 @@ bool    Server::isOper(User *usr, Channel *chan)
 {
     if (usr == chan->getOperModer())
         return true;
+	std::vector<User *> tmp = chan->getOpersVector();
+	std::vector<User *>::iterator	first = tmp.begin();
+	std::vector<User *>::iterator	last = tmp.end();
+	for (; first != last; ++first)
+	{
+		if (usr == *first)
+			return true;
+	}
     return false;
 }
-
 
 int		Server::topic(int num)
 {
@@ -1075,14 +1130,14 @@ int		Server::mode_chan(int num)
 			cur_chan->setParamTrue(args[1], args[2]);
 		else
 			cur_chan->setParamTrue(args[1]);
-		std::string flag;
+		/*std::string flag;
 		if (cur_chan->getModeParams()->t == true)
 			flag = "true";
 		else 
 			flag = "false";
 		std::string msg = MSG_ZAGLUSHKA + " t= " + flag + "\n";
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
+		return 1;*/
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{
@@ -1097,8 +1152,8 @@ int		Server::mode_chan(int num)
 		cur_chan->setParamFalse(args[1]);
 		//send(this->arr_user[num]->getFd(), "flag-\n", 6, 0);
 	}
-	std::string msg = ":Unknown MODE flag\n";
-	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+	// std::string msg = ":Unknown MODE flag\n";
+	// write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
 	return 0;
 }
 
