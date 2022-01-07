@@ -682,6 +682,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
             case INVITE:
                 break;
             case KICK:
+				kick(num);
                 break;
             case PART:
                 break;
@@ -789,6 +790,63 @@ void Server::work(int ls) {
 //		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
+int		Server::kick(int num)
+{
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
+	{
+		std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	if (args.size() == 1) //only channel name passed
+    {
+        std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+    }
+	else
+	{
+		std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
+		{
+			std::string msg = MSG_ZAGLUSHKA;
+			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+			return 1;
+		}
+		User * user_to_kick = cur_chan->findUserByName(args[1]);
+		if (user_to_kick == NULL)
+		{
+			std::string msg = MSG_ZAGLUSHKA;
+			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+			return 1;
+		}
+		else
+		{
+			cur_chan->eraseUser(user_to_kick);
+			cur_chan->eraseVoteUser(user_to_kick);
+		}
+	}
+	return 0;
+}
+
 bool    Server::isOper(User *usr, Channel *chan)
 {
     if (usr == chan->getOperModer())
@@ -820,6 +878,13 @@ int		Server::topic(int num)
 		return 1;
 	}
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
+	if (user_speaking == NULL)
+	{
+		std::string msg = MSG_ZAGLUSHKA;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
 	if (args.size() == 1) //only channel name passed
     {
         std::string msg = MSG_ZAGLUSHKA;
