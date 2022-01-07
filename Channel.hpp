@@ -33,6 +33,7 @@ private:
 	std::vector<User *>	users;
 	std::vector<User *>	operUsers;// channel operators
 	std::vector<User *>	voteUsers;// для мода -v
+	std::vector<User *>	invitedUsers;// для мода -i
 	
 
 	//std::vector<int>	chan_list; //should be in Server.hpp
@@ -58,8 +59,9 @@ public:
 	void		                setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
-	void		eraseUser(User* usr);
 	void		addVoteUser(User* usr); //std::string
+	void		addInvitedUser(User* usr); //std::string
+	void		eraseUser(User* usr);
 	void		eraseVoteUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);

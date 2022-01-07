@@ -680,11 +680,13 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 topic(num);
                 break;
             case INVITE:
+				invite(num);
                 break;
             case KICK:
 				kick(num);
                 break;
             case PART:
+				part(num);
                 break;
             case KILL:
                 break;
@@ -790,6 +792,52 @@ void Server::work(int ls) {
 //		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
+int 	Server::invite(int num)
+{
+	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "" || args.size() == 1) //проверка нет аргументов
+	{
+		std::string msg = MSG_NEEDMOREPARAMS;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	if (is_chan(args[1]) == false) //проверка: не канал (args[1] - храниться имя канала)
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	(args[1]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[1], arr_channel) == false) //проверка: нет в списке каналов
+	{
+		std::string msg = MSG_NOSUCHCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	Channel *cur_chan = find_chan(args[1]); //указатель на текущий канал
+	if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->i == 1 ) //check if user is oper
+	{
+		std::string msg = MSG_ZAGLUSHKA;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	User * user_to_invite = cur_chan->findUserByName(args[1]);
+	if (user_to_invite == NULL)
+	{
+		std::string msg = MSG_ZAGLUSHKA;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else
+	{
+		//ADD notice message
+		cur_chan->addInvitedUser(user_to_invite);
+	}
+	// добавить в джоин проверку на инвайт-онли канал
+	return 0;
+}
+
 int		Server::kick(int num)
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
@@ -822,9 +870,6 @@ int		Server::kick(int num)
     }
 	else
 	{
-		std::string msg = MSG_NEEDMOREPARAMS;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
 		{
 			std::string msg = MSG_ZAGLUSHKA;

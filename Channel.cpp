@@ -46,6 +46,11 @@ void		Channel::addVoteUser(User* usr)
 		voteUsers.push_back(operModer);
 	voteUsers.push_back(usr);
 }
+void		Channel::addInvitedUser(User* usr)
+{
+	//TODO if
+	invitedUsers.push_back(usr);
+}
 void		Channel::eraseVoteUser(User* usr)
 {
 	std::vector<User *>::iterator	first = voteUsers.begin();
