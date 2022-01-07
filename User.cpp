@@ -6,8 +6,7 @@ User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
     }
 User::User(int fd):fd(fd){
     nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
-    password = false; name_init = false; access = false;
-
+    password = false; name_init = false; access = false; full_massage = false;
 }
 User::~User(){}
 //Getters
@@ -21,6 +20,7 @@ std::string	User::getRealname() const { return realname; }
 bool const	&User::getPassword_init() const { return(this->password); }
 bool const	&User::getName_init() const { return(this->name_init); }
 bool const	&User::getAccess() const { return(this->access); }
+bool const   &User::getFullMassage() const{ return(this->full_massage); }
 std::string	&User::getMsgFrom()  { return msg_from; }
 std::string	&User::getMsgCom()  { return msg_com; }
 std::string	&User::getMsgArgs()  { return msg_args; }
@@ -36,6 +36,7 @@ void		User::setRealname(std::string str) { realname = str; }
 void		User::setPassword_init(bool password) { this->password = password; }
 void		User::setName_init(bool name_init) { this->name_init = name_init; }
 void		User::setAccess(bool access) { this->access = access; }
+void        User::setFullMassage(bool  full_massage) { this->full_massage = full_massage; }
 void		User::setMsgFrom(std::string str) { msg_from = str; }
 void		User::setMsgCom(std::string str) { msg_com = str; }
 void		User::setMsgArgs(std::string str) { msg_args = str; }
