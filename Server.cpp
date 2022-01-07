@@ -673,7 +673,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 }
             }
                     break;
-                case MODE:
+            case MODE:
 				mode_chan(num);
                 break;
             case TOPIC:
@@ -789,6 +789,13 @@ void Server::work(int ls) {
 //		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
+bool    Server::isOper(User *usr, Channel *chan)
+{
+    if (usr == chan->getOperModer())
+        return true;
+    return false;
+}
+
 
 int		Server::topic(int num)
 {
@@ -812,17 +819,23 @@ int		Server::topic(int num)
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
-    Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
-    if (args.size() == 1) //only channel name passed
+	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	if (args.size() == 1) //only channel name passed
     {
-        std::string msg = MSG_TOPIC;
+        std::string msg = MSG_ZAGLUSHKA;
         //std::string msg = ":localhost 332 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + "\r\n";
 		//std::string msg = ":localhost 332 " + arr_user[num]->getNickname() + " ewr> :Nowerwerl\r\n";
         send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 0;
+		return 1;
     }
     else
     {
+		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
+		{
+			std::string msg = MSG_ZAGLUSHKA;
+			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+			return 1;
+		}
         if ((args[1])[0] != ':')
         {
             std::string msg = MSG_NEEDMOREPARAMS;
@@ -932,6 +945,12 @@ int		Server::mode_chan(int num)
 		return 1;
 	}
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	if (!isOper(this->arr_user[num], cur_chan)) //check if user is oper
+	{
+		std::string msg = MSG_ZAGLUSHKA;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
 	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
@@ -946,7 +965,14 @@ int		Server::mode_chan(int num)
 			cur_chan->setParamTrue(args[1], args[2]);
 		else
 			cur_chan->setParamTrue(args[1]);
-		//send(this->arr_user[num]->getFd(), "flag+\n", 6, 0);
+		std::string flag;
+		if (cur_chan->getModeParams()->t == true)
+			flag = "true";
+		else 
+			flag = "false";
+		std::string msg = MSG_ZAGLUSHKA + " t= " + flag + "\n";
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{

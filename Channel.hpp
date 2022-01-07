@@ -31,7 +31,9 @@ private:
 	User				*operModer;
 	ModeChan			*modeParams;
 	std::vector<User *>	users;
+	std::vector<User *>	operUsers;// channel operators
 	std::vector<User *>	voteUsers;// для мода -v
+	
 
 	//std::vector<int>	chan_list; //should be in Server.hpp
 	Channel(const Channel &cp);
@@ -48,6 +50,8 @@ public:
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
     std::string                 getNickname_by_it(int it)   const;
+	User*				 		getOperModer();
+	ModeChan					*getModeParams() { return modeParams; }
 	//Setters
 	void		                setTopic(std::string str);
     void		                setName(std::string str);

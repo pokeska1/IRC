@@ -153,3 +153,7 @@
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  ":Unknown MODE flag\n"
+//ZASLUSHKA
+#define MSG_ZAGLUSHKA ":" + this->arr_user[num]->getServername() + " " \
++ ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA\n"
