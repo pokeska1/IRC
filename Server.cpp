@@ -1010,15 +1010,19 @@ int		Server::topic(int num)
 	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
 	if (user_speaking == NULL)
 	{
-		std::string msg = MSG_ZAGLUSHKA;
+		std::string msg = MSG_NOTONCHANNEL;
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
 	if (args.size() == 1) //only channel name passed
     {
-        std::string msg = MSG_ZAGLUSHKA;
-        //std::string msg = ":localhost 332 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + "\r\n";
-		//std::string msg = ":localhost 332 " + arr_user[num]->getNickname() + " ewr> :Nowerwerl\r\n";
+        if (cur_chan->getTopic() == "")
+		{
+			std::string msg = MSG_NOTOPIC;
+			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+			return 1;
+		}
+		std::string msg = MSG_ZAGLUSHKA;
         send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
     }
@@ -1026,7 +1030,7 @@ int		Server::topic(int num)
     {
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
 		{
-			std::string msg = MSG_ZAGLUSHKA;
+			std::string msg = MSG_CHANOPRIVSNEEDED;
 			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 			return 1;
 		}

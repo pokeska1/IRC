@@ -139,11 +139,16 @@
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
+//331
+//#define MSG_NOTOPIC ":localhost 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
+#define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
++ RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
++ arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
 //332
-#define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
+//#define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
 #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
 + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ this->arr_user[num]->getNickname()  +  " <channel name> :"
++ arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set2" + "\r\n"
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
 + " :Welcome to the Internet Relay Network " \
@@ -170,10 +175,18 @@
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//442
+#define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not on that channel\n"
 //461
 #define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <command> :Not enough parameters\n"
+//482
+#define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
++ ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not channel operator\n"
 //501 
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
@@ -181,8 +194,7 @@
 //ZASLUSHKA
 #define MSG_ZAGLUSHKA ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
-+ this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA\n"
-
++ this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA VMESTO RPL_TOPIC\n"
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
 #define MSG_ACCESS_JOIN arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@" \
