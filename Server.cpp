@@ -893,16 +893,30 @@ int 	Server::invite(int num)
 		return 1;
 	}
 	Channel *cur_chan = find_chan(args[1]); //указатель на текущий канал
+	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
+	if (user_speaking == NULL)
+	{
+		std::string msg = MSG_NOTONCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
 	if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->i == 1 ) //check if user is oper
 	{
-		std::string msg = MSG_ZAGLUSHKA;
+		std::string msg = MSG_CHANOPRIVSNEEDED;
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
 	User * user_to_invite = cur_chan->findUserByName(args[1]);
+	User * user_allready_in = cur_chan->findUserByName(args[1], cur_chan->getInvitedVector());
 	if (user_to_invite == NULL)
 	{
-		std::string msg = MSG_ZAGLUSHKA;
+		std::string msg = MSG_NOSUCHNICK;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else if (user_allready_in == NULL)
+	{
+		std::string msg = MSG_USERONCHANNEL;
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
@@ -939,6 +953,13 @@ int		Server::kick(int num)
 		return 1;
 	}
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
+	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
+	if (user_speaking == NULL)
+	{
+		std::string msg = MSG_NOTONCHANNEL;
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
 	if (args.size() == 1) //only channel name passed
     {
         std::string msg = MSG_NEEDMOREPARAMS;
@@ -949,14 +970,14 @@ int		Server::kick(int num)
 	{
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
 		{
-			std::string msg = MSG_ZAGLUSHKA;
+			std::string msg = MSG_CHANOPRIVSNEEDED;
 			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 			return 1;
 		}
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
 		if (user_to_kick == NULL)
 		{
-			std::string msg = MSG_ZAGLUSHKA;
+			std::string msg = MSG_NOSUCHNICK;
 			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 			return 1;
 		}

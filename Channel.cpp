@@ -21,6 +21,7 @@ std::string Channel::getNickname_by_it(int it) const { return this->users[it]->g
 std::vector<User *> const &Channel::getUsersVector() const { return this->users; }
 std::vector<User *>   &Channel::getUsersVector_red(){ return(this->users);}
 std::vector<User *> const &Channel::getOpersVector() const { return this->operUsers; }
+std::vector<User *> const &Channel::getInvitedVector() const { return this->invitedUsers; }
 //Setters
 void		Channel::setTopic(std::string str) { topic = str; }
 void		Channel::setPassword(std::string str) { password = str; }
@@ -97,6 +98,16 @@ User*		Channel::findUserByName(std::string str)
 	for (int i = 0; i < users.size(); ++i)
 	{
 		if (users[i]->getNickname() == str)
+			return users[i];
+	}
+	return NULL;
+}
+
+User*		Channel::findUserByName(std::string str, const std::vector<User *> &v_users)
+{
+	for (int i = 0; i < v_users.size(); ++i)
+	{
+		if (v_users[i]->getNickname() == str)
 			return users[i];
 	}
 	return NULL;

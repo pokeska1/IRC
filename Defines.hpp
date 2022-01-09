@@ -179,6 +179,10 @@
 #define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + cur_chan->getName() + " :You're not on that channel\n"
+//443
+#define MSG_USERONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
++ ERR_USERONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + cur_chan->getName() + " :is already on channel\n"
 //461
 #define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \

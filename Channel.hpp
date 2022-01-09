@@ -51,6 +51,7 @@ public:
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
 	std::vector<User *> const	&getOpersVector()           const;
+	std::vector<User *> const	&getInvitedVector()         const;
     std::string                 getNickname_by_it(int it)   const;
 	User*				 		getOperModer();
 	ModeChan					*getModeParams() { return modeParams; }
@@ -71,6 +72,7 @@ public:
 	void		setParamTrue(std::string str);
 	void		setParamFalse(std::string str);
 	User*		findUserByName(std::string str);
+	User*		findUserByName(std::string str, const std::vector<User *> &v_users);
 };
 
 #endif
