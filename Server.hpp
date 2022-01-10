@@ -70,10 +70,14 @@ public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str);
 	Channel						*find_chan(std::string str);
 	int		version(int num);
+	int		part(int num);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
 	int		mode_chan(int num);
     int		topic(int num);
+	int 	invite(int num);
+	int		kick(int num);
+    bool    isOper(User *usr, Channel *chan);
 
 };
 

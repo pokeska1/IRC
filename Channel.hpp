@@ -31,7 +31,10 @@ private:
 	User				*operModer;
 	ModeChan			*modeParams;
 	std::vector<User *>	users;
+	std::vector<User *>	operUsers;// channel operators
 	std::vector<User *>	voteUsers;// для мода -v
+	std::vector<User *>	invitedUsers;// для мода -i
+	
 
 	//std::vector<int>	chan_list; //should be in Server.hpp
 	Channel(const Channel &cp);
@@ -47,16 +50,21 @@ public:
 	std::string	                getPassword()               const;
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
+	std::vector<User *> const	&getOpersVector()           const;
     std::string                 getNickname_by_it(int it)   const;
+	User*				 		getOperModer();
+	ModeChan					*getModeParams() { return modeParams; }
 	//Setters
 	void		                setTopic(std::string str);
     void		                setName(std::string str);
 	void		                setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
-	void		eraseUser(User* usr);
 	void		addVoteUser(User* usr); //std::string
+	void		addInvitedUser(User* usr); //std::string
+	void		eraseUser(User* usr);
 	void		eraseVoteUser(User* usr);
+	void		eraseOperUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 	void		setParamTrue(std::string str, std::string str_arg);

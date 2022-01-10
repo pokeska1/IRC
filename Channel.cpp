@@ -20,6 +20,7 @@ std::string	Channel::getPassword() const { return password; }
 std::string Channel::getNickname_by_it(int it) const { return this->users[it]->getNickname(); }
 std::vector<User *> const &Channel::getUsersVector() const { return this->users; }
 std::vector<User *>   &Channel::getUsersVector_red(){ return(this->users);}
+std::vector<User *> const &Channel::getOpersVector() const { return this->operUsers; }
 //Setters
 void		Channel::setTopic(std::string str) { topic = str; }
 void		Channel::setPassword(std::string str) { password = str; }
@@ -46,6 +47,11 @@ void		Channel::addVoteUser(User* usr)
 		voteUsers.push_back(operModer);
 	voteUsers.push_back(usr);
 }
+void		Channel::addInvitedUser(User* usr)
+{
+	//TODO if
+	invitedUsers.push_back(usr);
+}
 void		Channel::eraseVoteUser(User* usr)
 {
 	std::vector<User *>::iterator	first = voteUsers.begin();
@@ -54,6 +60,16 @@ void		Channel::eraseVoteUser(User* usr)
 	{
 		if (usr == *first)
 			voteUsers.erase(first);
+	}
+}
+void		Channel::eraseOperUser(User* usr)
+{
+	std::vector<User *>::iterator	first = voteUsers.begin();
+	std::vector<User *>::iterator	last = voteUsers.end();
+	for (; first != last; ++first)
+	{
+		if (usr == *first)
+			operUsers.erase(first);
 	}
 }
 void		Channel::setOper(User* usr)
@@ -74,6 +90,8 @@ void		Channel::removeOper(User*)
 //		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
 //		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
+User*		Channel::getOperModer() { return operModer; }
+
 User*		Channel::findUserByName(std::string str)
 {
 	for (int i = 0; i < users.size(); ++i)
@@ -86,7 +104,7 @@ User*		Channel::findUserByName(std::string str)
 
 void	Channel::setParamTrue(std::string flags, std::string flag_arg)
 {
-	for (int i = 1; i < flags.length(); ++i)
+	for (int i = 0; i < flags.length(); ++i)
 	{
 		if ('p' == flags[i])
 			modeParams->p = 1;
@@ -120,7 +138,7 @@ void	Channel::setParamTrue(std::string flags, std::string flag_arg)
 }
 void	Channel::setParamTrue(std::string str)
 {
-	for (int i = 1; i < str.length(); ++i)
+	for (int i = 0; i < str.length(); ++i)
 	{
 		if ('p' == str[i])
 			modeParams->p = 1;
@@ -138,7 +156,7 @@ void	Channel::setParamTrue(std::string str)
 }
 void	Channel::setParamFalse(std::string str)
 {
-	for (int i = 1; i < str.length(); ++i)
+	for (int i = 0; i < str.length(); ++i)
 	{
 		if ('p' == str[i])
 			modeParams->p = 0;
