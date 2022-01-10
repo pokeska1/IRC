@@ -20,6 +20,8 @@ public:
     void    write_massage_to_client(int &fd, fd_set &writefds, char **buf);
     //команды реализация
     void    privmisg_work(int num);
+    void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
+    void    privmisg_for_one_person(int num,  std::string &name);
     void    info_work(int num);
     void    join_work(int num);
     void    user_work(std::string &arg, int num);
