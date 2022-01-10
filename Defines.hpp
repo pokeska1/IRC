@@ -174,6 +174,11 @@
 #define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <command> :Not enough parameters\n"
+//475
+#define MSG_BADCHANNELKEY ":" + this->arr_user[num]->getServername() + " " \
++ ERR_BADCHANNELKEY + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " where is the key ?!" \
++ " You need a password to enter the channel!\n"
 //501 
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
