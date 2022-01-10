@@ -1,10 +1,10 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string str, std::string topic):name(str), topic(topic){
+Channel::Channel(std::string str, std::string topic):topic(topic), name(str){
     modeParams = new ModeChan();
 }
 
-Channel::Channel(std::string	str):name(str), topic("")
+Channel::Channel(std::string	str):topic(""), name(str)
 {
 	modeParams = new ModeChan();
 }
@@ -95,7 +95,7 @@ User*		Channel::getOperModer() { return operModer; }
 
 User*		Channel::findUserByName(std::string str)
 {
-	for (int i = 0; i < users.size(); ++i)
+	for (int i = 0; (unsigned long)i < users.size(); ++i)
 	{
 		if (users[i]->getNickname() == str)
 			return users[i];
@@ -105,7 +105,7 @@ User*		Channel::findUserByName(std::string str)
 
 User*		Channel::findUserByName(std::string str, const std::vector<User *> &v_users)
 {
-	for (int i = 0; i < v_users.size(); ++i)
+	for (int i = 0; (unsigned long)i < v_users.size(); ++i)
 	{
 		if (v_users[i]->getNickname() == str)
 			return users[i];
@@ -115,7 +115,7 @@ User*		Channel::findUserByName(std::string str, const std::vector<User *> &v_use
 
 void	Channel::setParamTrue(std::string flags, std::string flag_arg)
 {
-	for (int i = 0; i < flags.length(); ++i)
+	for (int i = 0; (unsigned long)i < flags.length(); ++i)
 	{
 		if ('p' == flags[i])
 			modeParams->p = 1;
@@ -149,7 +149,7 @@ void	Channel::setParamTrue(std::string flags, std::string flag_arg)
 }
 void	Channel::setParamTrue(std::string str)
 {
-	for (int i = 0; i < str.length(); ++i)
+	for (int i = 0; (unsigned long)i < str.length(); ++i)
 	{
 		if ('p' == str[i])
 			modeParams->p = 1;
@@ -167,7 +167,7 @@ void	Channel::setParamTrue(std::string str)
 }
 void	Channel::setParamFalse(std::string str)
 {
-	for (int i = 0; i < str.length(); ++i)
+	for (int i = 0; (unsigned long)i < str.length(); ++i)
 	{
 		if ('p' == str[i])
 			modeParams->p = 0;

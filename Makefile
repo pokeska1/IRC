@@ -1,6 +1,6 @@
 CC		= clang++ -std=c++98
 
-FLAG	= -g #-Wall -Wextra -Werror
+FLAG	= -g -Wall -Wextra -Werror
 
 OBJC =		$(SRCS:.cpp=.o)
 

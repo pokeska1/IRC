@@ -33,7 +33,7 @@ public:
     int     find_who_talk(fd_set &writefds);
     int     find_num_by_nickname(std::string const &nick);
     int     find_num_chan_by_name(std::string const &topic);
-    int     many_or_solo_join(std::string const &arg, int num);
+    int     many_or_solo_join(std::string const &arg);
     bool    can_user_talk_in_channel(int num, std::string &channel);
     //команды реализация 182
             //PRIVMSG 183
@@ -52,10 +52,10 @@ public:
             //USER 537
     void    user_work(std::string &arg, int num);
     // парсер 566
-    int     name_verification(std::string &buf, int fd, int num);
-    int     password_verification(std::string &buf, int fd, int num);
-    void    parser_check_pas_nick_user(int num , std::string &buf_str, int fd, fd_set &writefds);
-    void    parser_switch(int num , std::string &buf_str, int fd, fd_set &writefds);
+    int     name_verification(std::string &buf);
+    int     password_verification(std::string &buf, int num);
+    void    parser_check_pas_nick_user(int num , int fd);
+    void    parser_switch(int num , int fd, fd_set &writefds);
     void    parser(int num , std::string buf_str, int fd, fd_set &writefds);
     // разбивка основного цикла 712
     void    create_many_active_fd(int &fd, fd_set &activfds, int &max_d);

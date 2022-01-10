@@ -150,7 +150,7 @@ int Server::find_num_by_nickname(std::string const &nick){
     return (-1);
 }
 
-int Server::many_or_solo_join(std::string const &arg, int num)
+int Server::many_or_solo_join(std::string const &arg)
 {
     int pos = arg.find_first_of("#&");
     if (pos == -1)
@@ -159,6 +159,7 @@ int Server::many_or_solo_join(std::string const &arg, int num)
         return (1);
     else
         return (2);
+    return (2);
 }
 
 
@@ -184,6 +185,7 @@ bool Server::can_user_talk_in_channel(int num, std::string &channel){
 //
 void Server::privmisg_for_one_channel(int num, std::string &massage, std::string &channel){
     int pos = 0, num_channel = 0, nbytes = 0;
+    std::string arg = "";
     std::vector<User *>::iterator it_begin, it_end;
 
     if (can_user_talk_in_channel(num, channel) != true)
@@ -193,7 +195,8 @@ void Server::privmisg_for_one_channel(int num, std::string &massage, std::string
     num_channel = find_num_chan_by_name(channel);
     it_begin = arr_channel[num_channel]->getUsersVector_red().begin();
     it_end = arr_channel[num_channel]->getUsersVector_red().end();
-
+    arg = "#" + channel + " :" + massage;
+    arr_user[num]->setMsgArgs(arg);
     while (it_begin != it_end){
         if ((*it_begin)->getNickname() != arr_user[num]->getNickname()) {
             std::string msg = MSG_PRIVMSG_CHANNEL;
@@ -224,7 +227,7 @@ void Server::privmisg_for_one_person(int num,  std::string &name){
 }
 
 void Server::privmisg_work(int num) {
-    int nbytes = 0, pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0, num_channel = 0, num_friend = 0;
+    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0;
     std::string name = "", massage = "", error = "" , msg = "", channel = "";
     std::vector<std::string> arr_channel_name;
     std::vector<std::string>::iterator it_begin, it_end;
@@ -244,31 +247,27 @@ void Server::privmisg_work(int num) {
     //много каналов
     if (pos_two != -1 && pos_dot + 1 == pos_two)
     {
-        pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
         arr_channel_name.push_back(name.substr(pos + 1, pos_two - 2));
-        pos = name.find_first_of("#&") ;
+        pos = pos_two;
         while ((pos_two = name.find_first_of("#&", pos +1)) != -1){
-            if (name.find_first_of(",", pos_two + 1) == -1 )
-                break;
-            arr_channel_name.push_back(name.substr(pos + 1, pos_two - (pos + 3)));
+            arr_channel_name.push_back(name.substr(pos + 1, pos_two - (pos + 2)));
             pos = pos_two;
         }
-        arr_channel_name.push_back(name.substr(pos_two + 1, name.length() - (pos + 2)));
+        arr_channel_name.push_back(name.substr(pos + 1, name.length() - (pos + 1)));
         it_begin = arr_channel_name.begin();
         it_end = arr_channel_name.end();
         while (it_begin != it_end) {
-            if (can_user_talk_in_channel(num, (*it_begin)) == true){//нужно проверить состоит ли юзер в канале
+            if (can_user_talk_in_channel(num, (*it_begin)) == true)//нужно проверить состоит ли юзер в канале
                 privmisg_for_one_channel(num , massage, (*it_begin));
-            }
             it_begin++;
         }
     }//если сообщения для одного канала
-    else if (pos != std::string::npos) {
+    else if (pos != -1) {
         pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
         channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
         privmisg_for_one_channel(num, massage, channel);
     }else {//если сообщение персоне или ссписку персон
-        if (name.find_first_of(",") != std::string::npos || (name.find_first_of(",") > pos_space )) {
+        if (name.find_first_of(",") != std::string::npos || (name.find_first_of(",") > (unsigned long)pos_space )) {
             std::vector<std::string> arr_name;
 
             name = this->arr_user[num]->getMsgArgs();
@@ -326,8 +325,8 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
     //3 сообщение
     if ((*it_b_channel)->getTopic() == "") {
         //msg = MSG_HELLO_AND_JOIN;
-        msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
-        send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+//        msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
+//        send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
     else{
         msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
@@ -446,7 +445,7 @@ void Server::join_work(int num) {
     pos = msg.find_first_of(" ");
     it_b_channel = this->arr_channel.begin();
     it_e_channel = this->arr_channel.end();
-    if ((pos2 = msg.find_first_of(" ", pos + 1)) != std::string::npos) {
+    if ((pos2 = msg.find_first_of(" ", pos + 1)) != -1) {
         error = MSG_NEEDMOREPARAMS;
         send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
         return;
@@ -480,8 +479,6 @@ void Server::join_work(int num) {
                         std::cout << "Private massage: to " << (*it_begin)->getNickname() << "->" << msg.c_str();
                         it_begin++;
                     }
-                    it_b_channel = this->arr_channel.begin();
-                    it_e_channel = this->arr_channel.end();
                     say_hello_to_new_in_channel(num, it_b_channel, topic);
                     break;
                 } else { // 3.1.1.2.2
@@ -501,11 +498,11 @@ void Server::join_work(int num) {
 
 void Server::join_pre_work(int num){
     std::string command = "", arg = "", send_msg = "", valid_buf = "";;
-    int pos_n = 0, pos_r = 0, i = 0;
+    int  i = 0;
     std::vector<std::string> name_channel, key_channel;
     std::vector<std::string>::iterator it_begin, it_begin_key, end_begin_key;
 
-    if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 2) {
+    if (many_or_solo_join(arr_user[num]->getMsgArgs()) == 2) {
         name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
         key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
         i = name_channel.size();
@@ -527,7 +524,7 @@ void Server::join_pre_work(int num){
         name_channel.clear();
         key_channel.clear();
     }
-    else if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 1)
+    else if (many_or_solo_join(arr_user[num]->getMsgArgs()) == 1)
         join_work(num);
     else
         std::cout << "JOIN #namechanel\n";
@@ -565,7 +562,7 @@ void    Server::user_work(std::string &arg, int num)
                                     // Парсер
 //
 
-int Server::name_verification(std::string &buf, int ls, int num)
+int Server::name_verification(std::string &buf)
 {
     std::vector<User *>::iterator it_begin = arr_user.begin();
     std::vector<User *>::iterator it_end = arr_user.end();
@@ -574,8 +571,7 @@ int Server::name_verification(std::string &buf, int ls, int num)
         fd = (*it_begin)->getFd();  // вытаскием по адресу определенного клиента его фд
         while (it_begin != it_end){
             fd = (*it_begin)->getFd();
-            if (buf == (*it_begin)->getNickname()){
-                int offical;
+            if (buf == (*it_begin)->getNickname() || buf == "" ){
                 std::cout << "\x1b[31;1mThis name is taken\x1b[0m\n";
                 return (-1);
             }
@@ -585,25 +581,25 @@ int Server::name_verification(std::string &buf, int ls, int num)
     return(1);
 }
 
-int Server::password_verification(std::string &buf, int fd, int num){
+int Server::password_verification(std::string &buf, int num){
     if (buf != this->getPassword(0) ) {
-        int offical;
         std::cout << "\x1b[31;1mWrong password\x1b[0m\n";
         return (-1);
     }else{
             std::cout << "\x1b[32;1mOK password\x1b[0m\n";
+            num = find_numb_iter(num);
         this->arr_user[num]->setPassword_init(true);
     }
     return (0);
 }
 
 //первая часть парсераа проверяет пароль , ник , и юзер команды
-void Server::parser_check_pas_nick_user(int num , std::string &buf_str, int fd, fd_set &writefds) {
+void Server::parser_check_pas_nick_user(int num, int fd) {
     std::string send_msg = "";
 
     if (this->arr_user[num]->getPassword_init() == false) {
         if (arr_user[num]->getMsgCom() == "PASS") {// проверяем ввел ли сейчас он корректный пароль
-            if (password_verification(arr_user[num]->getMsgArgs(), fd, num) == -1)
+            if (password_verification(arr_user[num]->getMsgArgs(), fd) == -1)
                 return;
         } else {
             std::cout << "\x1b[31;1mFirst write PASS_WORD\x1b[0m\n";
@@ -611,7 +607,7 @@ void Server::parser_check_pas_nick_user(int num , std::string &buf_str, int fd, 
         }
     } else if (this->arr_user[num]->getName_init() == false) {
         if (arr_user[num]->getMsgCom() == "NICK") {
-            if (name_verification(arr_user[num]->getMsgArgs(), fd, num) == -1)//проверяем вводил ли он не занятый ник
+            if (name_verification(arr_user[num]->getMsgArgs()) == -1)//проверяем вводил ли он не занятый ник
                 return;
             else {
                 this->arr_user[num]->setName_init(true);
@@ -636,7 +632,7 @@ void Server::parser_check_pas_nick_user(int num , std::string &buf_str, int fd, 
 }
 
 //вторая часть парсера отвечает за выполнение команд
-void Server::parser_switch(int num , std::string &buf_str, int fd, fd_set &writefds){
+void Server::parser_switch(int num ,int fd, fd_set &writefds){
     std::map<std::string, forms> map_forms;
     map_forms["NICK"] = NICK;
     map_forms["USER"] = USER;
@@ -694,7 +690,7 @@ void Server::parser_switch(int num , std::string &buf_str, int fd, fd_set &write
             break;
         default:
             FD_SET(fd, &writefds);
-            return;
+            break;
     }
 }
 
@@ -702,9 +698,9 @@ void Server::parser_switch(int num , std::string &buf_str, int fd, fd_set &write
 void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
     arr_user[num]->make_msg(buf_str);
     if (getAccess(fd) != true)
-        parser_check_pas_nick_user(num, buf_str, fd, writefds);
+        parser_check_pas_nick_user(num,  fd);
     else if (getAccess(fd) == true)
-        parser_switch(num, buf_str, fd, writefds);
+        parser_switch(num, fd, writefds);
 }
 
 // ############################################################################################################
