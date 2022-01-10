@@ -1,5 +1,11 @@
 #pragma once
 
+#define VEC_STR std::vector<std::string>
+#define VEC_ITER_STR_ADR std::vector<std::string *>::iterator
+#define VEC_ITER_CHANEL_ADR std::vector<Channel *>::iterator
+#define VEC_ITER_USER_ADR std::vector<User *>::iterator
+
+
 #define ERR_NOSUCHNICK "401"
 #define ERR_NOSUCHSERVER "402"
 #define ERR_NOSUCHCHANNEL "403"

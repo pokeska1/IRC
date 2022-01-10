@@ -11,53 +11,58 @@
 class Server {
 public:
     Server();
-    //основной цикл
-    void    work(int ls);
-     // разбивка основного цикла
+    double   start_time;
+    //сеторы 14
+    void    setAccess(int fd);
+    void    setPort(int port);
+    void    setUser(User &user);
+    void    setHost(std::string &host);
+    void    setChannel(Channel &channel);
+    void    setPassword(std::string &password);
+    //геторы 30
+    std::string             &getHost();
+    std::string const       &getPassword(int i);
+    std::vector<Channel *>  &getChannel();
+    int                     &getPort(int i);
+    bool                    getAccess(int fd);
+    void    write_massage_to_client(int &fd, fd_set &writefds, char **buf);
+    // функуии упрощающие жизнь и код 67
+    void    deleteClient(int fd);
+    void    deleteChannel(std::string topic);
+    int     find_numb_iter(int fd);
+    int     find_who_talk(fd_set &writefds);
+    int     find_num_by_nickname(std::string const &nick);
+    int     find_num_chan_by_name(std::string const &topic);
+    int     many_or_solo_join(std::string const &arg, int num);
+    bool    can_user_talk_in_channel(int num, std::string &channel);
+    //команды реализация 182
+            //PRIVMSG 183
+    void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
+    void    privmisg_for_one_person(int num,  std::string &name);
+    void    privmisg_work(int num);
+            //INFO 302
+    void    info_work(int num);
+            //JOIN 316
+    void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR it_b_channel, std::string topic);
+    VEC_STR &parser_of_join_chanel(std::string &msg);
+    VEC_STR &parser_of_join_chanel_key(std::string &msg);
+    void    create_new_channel(int num, std::string &key, std::string &topic);
+    void    join_work(int num);
+    void    join_pre_work(int num);
+            //USER 537
+    void    user_work(std::string &arg, int num);
+    // парсер 566
+    int     name_verification(std::string &buf, int fd, int num);
+    int     password_verification(std::string &buf, int fd, int num);
+    void    parser_check_pas_nick_user(int num , std::string &buf_str, int fd, fd_set &writefds);
+    void    parser_switch(int num , std::string &buf_str, int fd, fd_set &writefds);
+    void    parser(int num , std::string buf_str, int fd, fd_set &writefds);
+    // разбивка основного цикла 712
     void    create_many_active_fd(int &fd, fd_set &activfds, int &max_d);
     void    get_new_client(int &ls, int &fd, fd_set &activfds);
     int     get_old_client_massage(int &i, fd_set &activfds, fd_set &writefds, char **buf);
-    void    write_massage_to_client(int &fd, fd_set &writefds, char **buf);
-    //команды реализация
-    void    privmisg_work(int num);
-    void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
-    void    privmisg_for_one_person(int num,  std::string &name);
-    void    info_work(int num);
-    void    join_work(int num);
-    void    user_work(std::string &arg, int num);
-
-    //сеторы
-    void    setUser(User &user);
-    void    setChannel(Channel &channel);
-    void    setPassword(std::string &password);
-    void    setHost(std::string &host);
-    void    setPort(int port);
-    void    setAccess(int fd);
-    //геторы
-    int                     &getPort(int i);
-    bool                    getAccess(int fd);
-    std::vector<Channel *>  &getChannel(){return (this->arr_channel);}
-    std::string const       &getPassword(int i);
-    std::string             &getHost(){ return host; }
-
-    // до-подобный парсер
-    int     password_verification(std::string &buf, int fd, int num);
-    int     name_verification(std::string &buf, int fd, int num);
-    void    parser(int num , std::string buf_str, int fd, fd_set &writefds);
-
-    // функуии упрощающие жизнь и код
-    bool    can_user_talk_in_channel(int num, std::string &channel);
-    int     find_who_talk(fd_set &writefds);
-    int     many_or_solo_join(std::string const &arg, int num);
-    int     find_numb_iter(int fd);
-    int     find_num_by_nickname(std::string const &nick);
-    int     find_num_chan_by_name(std::string const &topic);
-    void    deleteClient(int fd);
-    void    deleteChannel(std::string topic);
-    void    say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic);
-    std::vector<std::string> &parser_of_join_chanel(std::string &msg);
-    std::vector<std::string> &parser_of_join_chanel_key(std::string &msg);
-    float   start_time;
+    //основной цикл 788
+    void    work(int ls);
 
 private:
     std::vector<User *>         arr_user;
