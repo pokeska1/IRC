@@ -833,6 +833,68 @@ int		Server::rplPrint(const int fd, std::string msg) const
 	return 0;
 }
 
+
+std::vector<std::string>	Server::splitStr(std::string str)
+{
+	std::vector<std::string>	res;
+	std::string delimiter = " ";
+	size_t pos = 0;
+	std::string tmp;
+
+	while ((pos = str.find(delimiter)) != std::string::npos) {
+		tmp = str.substr(0, pos);
+		res.push_back(tmp); //action
+		str.erase(0, pos + delimiter.length());
+		while (str.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
+			str.erase(0,1);
+	}
+	tmp = str.substr(0, pos);
+	res.push_back(tmp); //action
+	return res;
+}
+
+bool	Server::is_chan(std::string str)
+{
+	if (str[0] != '#' && str[0] != '&') //проверка: не канал
+		return false;
+	return true;
+}
+bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return true;
+	}
+	return false;
+}
+Channel	*Server::find_chan(std::string str)
+{
+	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
+	for (; it_chan != arr_channel.end(); ++it_chan)
+	{
+		if (str == (*it_chan)->getName())
+			return *it_chan;
+	}
+	return *it_chan;
+}
+
+bool    Server::isOper(User *usr, Channel *chan)
+{
+    if (usr == chan->getOperModer())
+        return true;
+	std::vector<User *> tmp = chan->getOpersVector();
+	std::vector<User *>::iterator	first = tmp.begin();
+	std::vector<User *>::iterator	last = tmp.end();
+	for (; first != last; ++first)
+	{
+		if (usr == *first)
+			return true;
+	}
+    return false;
+}
+
 int		Server::part(int num) //добавить выход из нескльких каналов сразу
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
@@ -898,58 +960,30 @@ int 	Server::invite(int num) //добавить ответы
 	return 0;
 }
 
-int		Server::kick(int num)
+int		Server::kick(int num) // that if user is oper?
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
-	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
-	{
-		std::string msg = MSG_NEEDMOREPARAMS;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+	if (this->arr_user[num]->getMsgArgs() == "" || args.size() == 1) //проверка нет аргументов
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
 	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
 	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
-	if (user_speaking == NULL)
-	{
-		std::string msg = MSG_NOTONCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+	if (user_speaking == NULL) 	//проверка: говорящий юзер не состоит в канале
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (args.size() == 1) //only channel name passed
-    {
-        std::string msg = MSG_NEEDMOREPARAMS;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-    }
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	else
 	{
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
-		{
-			std::string msg = MSG_CHANOPRIVSNEEDED;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
+			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
-		if (user_to_kick == NULL)
-		{
-			std::string msg = MSG_NOSUCHNICK;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
+		if (user_to_kick == NULL) //проверка: не существует такого юзера
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
 		else
 		{
 			cur_chan->eraseUser(user_to_kick);
@@ -959,136 +993,39 @@ int		Server::kick(int num)
 	return 0;
 }
 
-bool    Server::isOper(User *usr, Channel *chan)
-{
-    if (usr == chan->getOperModer())
-        return true;
-	std::vector<User *> tmp = chan->getOpersVector();
-	std::vector<User *>::iterator	first = tmp.begin();
-	std::vector<User *>::iterator	last = tmp.end();
-	for (; first != last; ++first)
-	{
-		if (usr == *first)
-			return true;
-	}
-    return false;
-}
-
 int		Server::topic(int num)
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
-    if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
-	{
-		std::string msg = MSG_NEEDMOREPARAMS;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
-    if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
+	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
+	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
 	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
 	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
-	if (user_speaking == NULL)
-	{
-		std::string msg = MSG_NOTONCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+	if (user_speaking == NULL) 	//проверка: говорящий юзер не состоит в кана
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (args.size() == 1) //only channel name passed
     {
         if (cur_chan->getTopic() == "")
-		{
-			std::string msg = MSG_NOTOPIC;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
-		std::string msg = MSG_TOPIC;
-        send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
+			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
+		return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
     }
     else
     {
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
-		{
-			std::string msg = MSG_CHANOPRIVSNEEDED;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
+			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
         if ((args[1])[0] != ':')
-        {
-            std::string msg = MSG_NEEDMOREPARAMS;
-		    send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		    return 1;
-        }
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
     }
 	return 0;
 }
 
-std::vector<std::string>	Server::splitStr(std::string str)
-{
-	std::vector<std::string>	res;
-	std::string delimiter = " ";
-	size_t pos = 0;
-	std::string tmp;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		tmp = str.substr(0, pos);
-		res.push_back(tmp); //action
-		str.erase(0, pos + delimiter.length());
-		while (str.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
-			str.erase(0,1);
-	}
-	tmp = str.substr(0, pos);
-	res.push_back(tmp); //action
-	return res;
-}
-
-int		Server::version(int num)
-{
-	std::string msg = "Server vesion: v1.0\n";
-	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-	std::cout << "version massage: " << msg;
-	return 0;
-}
-
-bool	Server::is_chan(std::string str)
-{
-	if (str[0] != '#' && str[0] != '&') //проверка: не канал
-		return false;
-	return true;
-}
-bool	Server::chan_in_list(std::string str, std::vector<Channel *> &arr_channel)
-{
-	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
-	for (; it_chan != arr_channel.end(); ++it_chan)
-	{
-		if (str == (*it_chan)->getName())
-			return true;
-	}
-	return false;
-}
-Channel	*Server::find_chan(std::string str)
-{
-	std::vector<Channel *>::iterator it_chan = arr_channel.begin();
-	for (; it_chan != arr_channel.end(); ++it_chan)
-	{
-		if (str == (*it_chan)->getName())
-			return *it_chan;
-	}
-	return *it_chan;
-}
 //// ВАРИАНТЫ ВВОДА MODE ////////////
 //  ВАР.1: установка флагов в + -
 //  MODE #Finnish +im                 // Делает канал #Finnish модерируемым и 'invite-only'.
@@ -1114,48 +1051,24 @@ int		Server::mode_chan(int num)
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
-	{
-		std::string msg = MSG_NEEDMOREPARAMS;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
 	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
-	{
-		std::string msg = MSG_NOSUCHCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	Channel *cur_chan = find_chan(args[0]); //указатель на текущий канал
 	User * user_speaking = cur_chan->findUserByName(this->arr_user[num]->getNickname());
-	if (user_speaking == NULL)
-	{
-		std::string msg = MSG_NOTONCHANNEL;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+	if (user_speaking == NULL) 	//проверка: говорящий юзер не состоит в кана
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (!isOper(this->arr_user[num], cur_chan)) //check if user is oper
-	{
-		std::string msg = MSG_CHANOPRIVSNEEDED;
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 1;
-	}
+		return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
 	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
 		std::size_t found = (args[1]).find_first_not_of("opsitnmlvk");
 		if (found!=std::string::npos)
-		{
-			std::string msg = MSG_UMODEUNKNOWNFLAG;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
+			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
 		if (args.size() > 2)
 			cur_chan->setParamTrue(args[1], args[2]);
 		else
@@ -1166,16 +1079,18 @@ int		Server::mode_chan(int num)
 		(args[1]).erase(0,1);
 		std::size_t found = (args[1]).find_first_not_of("psitnm");
 		if (found!=std::string::npos)
-		{
-			std::string msg = MSG_UMODEUNKNOWNFLAG;
-			send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-			return 1;
-		}
+			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
 		cur_chan->setParamFalse(args[1]);
 	}
 	return 0;
 }
 
-
+int		Server::version(int num)
+{
+	std::string msg = "Server vesion: v1.0\n";
+	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+	std::cout << "version massage: " << msg;
+	return 0;
+}
 
 // THE END

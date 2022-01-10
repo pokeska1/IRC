@@ -145,10 +145,12 @@
 + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
 + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
 //332
-//#define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
-#define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
-+ RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set2" + "\r\n"
+#define MSG_TOPIC ":localhost 332 " \
++ this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
++ " :" + cur_chan->getTopic() + "\r\n"
+// #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
+// + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
+// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set2" + "\r\n"
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
 + " :Welcome to the Internet Relay Network " \
