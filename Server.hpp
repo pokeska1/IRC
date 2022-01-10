@@ -77,6 +77,8 @@ public: //rmerrie
 	int 	invite(int num);
 	int		kick(int num);
     bool    isOper(User *usr, Channel *chan);
+	int		errPrint(const int fd, std::string msg) const;
+	int		rplPrint(const int fd, std::string msg) const;
 
 };
 
