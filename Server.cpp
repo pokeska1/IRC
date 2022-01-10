@@ -241,10 +241,24 @@ int Server::find_num_by_nickname(std::string const &nick){
     return (-1);
 }
 
+// функция говорит есть ли у юзерa в списке данный канал
+bool Server::can_user_talk_in_channel(int num, std::string &channel){
+    std::vector<Channel *> meh;
+    meh = this->arr_user[num]->getVecChannel();
+    std::vector<Channel *>::iterator it_begin = meh.begin();
+    std::vector<Channel *>::iterator it_end = meh.end();
+
+    while (it_begin != it_end){
+        if ((*it_begin)->getName() == channel)
+            return(true);
+        it_begin++;
+    }
+    return(false);
+}
+
 // не работает c множеством каналов.
 void Server::privmisg_work(int num) {
     int nbytes;
-
     size_t pos = this->arr_user[num]->getMsgArgs().find_first_of(' ');
     std::string name = this->arr_user[num]->getMsgArgs().substr(0, pos);
     pos = this->arr_user[num]->getMsgArgs().find_first_of(':');
@@ -258,13 +272,18 @@ void Server::privmisg_work(int num) {
     //много каналов
     if (name.find_first_of(",") > pos_space  && pos_two != -1)
     {
-
+        int pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
+        std::string channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+        if (can_user_talk_in_channel(num, channel) != true)//нужно проверить состоит ли юзер в канале
+            return;
     }//если сообщения для одного канала
     else if (pos != std::string::npos) {
         int pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
         std::string channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+        if (can_user_talk_in_channel(num, channel) != true)
+            return;
         pos = this->arr_user[num]->getMsgArgs().find_first_of(':');
-        std::cout << "channel topic =" << channel << "|massage =|" << massage << "|" << "\n";
+        std::cout << "channel name =" << channel << "|massage =|" << massage << "|" << "\n";
         int num_channel = find_num_chan_by_name(channel);
         std::vector<User *>::iterator it_begin = arr_channel[num_channel]->getUsersVector_red().begin();
         std::vector<User *>::iterator it_end = arr_channel[num_channel]->getUsersVector_red().end();
@@ -358,7 +377,8 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 
     //3 сообщение
     if ((*it_b_channel)->getTopic() == "") {
-        msg = MSG_HELLO_AND_JOIN;
+        //msg = MSG_HELLO_AND_JOIN;
+        msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
         send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
     else{
@@ -478,6 +498,7 @@ void Server::join_work(int num) {
         it_b_channel = this->arr_channel.begin();
         it_e_channel = this->arr_channel.end();
         say_hello_to_new_in_channel(num, it_b_channel, topic);
+        std::cout <<"\x1b[32;1m Create a channel :|\x1b[0m" << topic << "\x1b[32;1m|\x1b[0m\n";
     } else {//3*
         while (it_b_channel != it_e_channel) {
             if ((*it_b_channel)->getName() == topic)//3.1
@@ -515,6 +536,8 @@ void Server::join_work(int num) {
                     break;
                 } else {
                     // 3.1.1.2.2
+                    std::string error = MSG_BADCHANNELKEY;
+                    send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
                     std::cout << "\x1b[31;1mLebowski where is the key ?!"
                                  " You need a password to enter the channel!\x1b[0m\n";
                     return;
@@ -535,6 +558,7 @@ void Server::join_work(int num) {
             it_b_channel = this->arr_channel.begin();
             it_e_channel = this->arr_channel.end();
             say_hello_to_new_in_channel(num, it_b_channel, topic);
+            std::cout <<"\x1b[32;1m Create a channel :|\x1b[0m" << topic <<  "\x1b[32;1m|\x1b[0m\n";
         }
     }
 }
@@ -651,7 +675,7 @@ void Server::parser(int num , std::string buf_str, int fd, fd_set &writefds) {
                 break;
             case NOTICE:
                 break;
-            case JOIN: { //сломаны топики , сло
+            case JOIN: {
                 if (many_or_solo_join(arr_user[num]->getMsgArgs(), num) == 2) {
                     std::vector<std::string> name_channel;
                     std::vector<std::string> key_channel;
@@ -725,6 +749,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
         std::string buf_str = "";
         int num = find_numb_iter(fd);
         nbytes = recv(fd, *buf, 512, 0);// прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
+        std::cout << *buf << "\n";
         std::string buf_str_bad = *buf;
         if ((buf_str_bad.find_first_of("\n") == std::string::npos) ||
                 (arr_user[num]->getMsgFrom() != "")) {

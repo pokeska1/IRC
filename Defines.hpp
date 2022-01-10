@@ -193,6 +193,11 @@
 #define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
 + ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
 + cur_chan->getName() + " :You're not channel operator\n"
+//475
+#define MSG_BADCHANNELKEY ":" + this->arr_user[num]->getServername() + " " \
++ ERR_BADCHANNELKEY + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " where is the key ?!" \
++ " You need a password to enter the channel!\n"
 //501 
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
