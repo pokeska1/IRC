@@ -44,13 +44,14 @@ public:
     void    parser(int num , std::string buf_str, int fd, fd_set &writefds);
 
     // функуии упрощающие жизнь и код
+    bool    can_user_talk_in_channel(int num, std::string &channel);
     int     find_who_talk(fd_set &writefds);
-    void    deleteClient(int fd);
-    void    deleteChannel(std::string topic);
     int     many_or_solo_join(std::string const &arg, int num);
     int     find_numb_iter(int fd);
     int     find_num_by_nickname(std::string const &nick);
     int     find_num_chan_by_name(std::string const &topic);
+    void    deleteClient(int fd);
+    void    deleteChannel(std::string topic);
     void    say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic);
     std::vector<std::string> &parser_of_join_chanel(std::string &msg);
     std::vector<std::string> &parser_of_join_chanel_key(std::string &msg);
