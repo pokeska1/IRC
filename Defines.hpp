@@ -141,9 +141,9 @@
 
 //332
 #define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
-#define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
-+ RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ this->arr_user[num]->getNickname()  +  " <channel name> :"
+// #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
+// + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
+// + this->arr_user[num]->getNickname()  +  " <channel name> :"
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
 + " :Welcome to the Internet Relay Network " \
@@ -182,6 +182,33 @@
 #define MSG_ZAGLUSHKA ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA\n"
+
+//epilar
+//431
+#define MSG_NONICKNAME ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NONICKNAMEGIVEN + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + ":No nickname given\r\n"
+
+//433
+#define MSG_NICKNAMEINUSE ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NICKNAMEINUSE + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + nickname + " :Nickname is already in use\r\n"
+
+//server version
+#define SERVER_VERSION "1.0"
+#define VERSION_COMMENTS "by jmarian/rmerrie/epilar"
+#define MSG_SERVERVERSION ":" + this->getHost() + " 351 " + this->arr_user[num]->getNickname() \
++ " " + SERVER_VERSION + " " + this->getHost() + " :" + VERSION_COMMENTS + "\r\n"
+
+//402
+#define MSG_NOSUCHSERVER ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHSERVER + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + servername + " :No such server\r\n"
+
+//server info
+#define MSG_SERVERINFO ":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() \
++ " " + SERVER_VERSION + " " + this->getHost() + " :" + VERSION_COMMENTS + "\r\n"
+#define MSG_ENDOFINFO ":" + this->getHost() + " 374 " + this->arr_user[num]->getNickname() + " :End of /INFO list\r\n"
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно

@@ -68,7 +68,7 @@ private:
 public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str);
 	Channel						*find_chan(std::string str);
-	int		version(int num);
+	// int		version(int num);
 	int		part(int num);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
@@ -78,6 +78,13 @@ public: //rmerrie
 	int		kick(int num);
     bool    isOper(User *usr, Channel *chan);
 
+public: //epilar
+	bool	isNickUsed(const std::string& nickname);
+	int		nick(int num, std::string& args);
+
+	int		version(int num, std::string& args);
+
+	int		info(int num, std::string& args);
 };
 
 #endif //IRC_SERVER_HPP
