@@ -107,6 +107,7 @@ public: //epilar
 	std::string					getTimeElapsed(void);
 	int							info(int num, std::string& args);
 
+	int		quit(int num, std::string& args);
 };
 
 #endif //IRC_SERVER_HPP
