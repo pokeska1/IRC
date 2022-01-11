@@ -1,5 +1,11 @@
 #pragma once
 
+#define VEC_STR std::vector<std::string>
+#define VEC_ITER_STR_ADR std::vector<std::string *>::iterator
+#define VEC_ITER_CHANEL_ADR std::vector<Channel *>::iterator
+#define VEC_ITER_USER_ADR std::vector<User *>::iterator
+
+
 #define ERR_NOSUCHNICK "401"
 #define ERR_NOSUCHSERVER "402"
 #define ERR_NOSUCHCHANNEL "403"
@@ -146,13 +152,11 @@
 // #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
 // + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
 // + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
+#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
 //332
-#define MSG_TOPIC ":localhost 332 " \
+#define MSG_TOPIC ":" + this->getHost() + " 332 " \
 + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
 + " :" + cur_chan->getTopic() + "\r\n"
-// #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
-// + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set2" + "\r\n"
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
 + " :Welcome to the Internet Relay Network " \
@@ -163,7 +167,7 @@
 //332
 #define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + "\r\n"
 //332
-#define MSG_HELLO_AND_JOIN_THITH_TOPIC ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic \
+#define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
 //341
 #define MSG_INVITING ":" + this->arr_user[num]->getServername() + " " \
@@ -173,10 +177,12 @@
 // + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
 // + " :" + cur_chan->getTopic() + "\r\n"
 //353
-#define MSG_LIST_USER_IN_CHANELL ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
+#define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :@";
+#define MSG_LIST_USER_IN_CHANELL_O_1 ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
++ " :";
 //366
-#define MSG_END_OF_USER_LIST ":localhost 366 " + arr_user[num]->getNickname() + " #" + topic \
+#define MSG_END_OF_USER_LIST ":" + this->getHost() + " 366 " + arr_user[num]->getNickname() + " #" + topic \
 + " :END of NAMES list\r\n";
 //401
 #define MSG_NOSUCHNICK ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK \
@@ -223,8 +229,9 @@
 //собщение одному человеку
 #define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
-+ arr_user[num_friend]->getNickname() + ":" + arr_user[num]->getMsgArgs() + "\r\n"
++ arr_user[num_friend]->getNickname() + arr_user[num]->getMsgArgs() + "\r\n"
 //сообщение по каналу
 #define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
 + arr_user[num]->getMsgArgs() + "\r\n"
+
