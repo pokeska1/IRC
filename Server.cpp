@@ -317,6 +317,7 @@ void Server::privmisg_work(int num) {
 void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic){
     //отправляем что он в канале
     std::string msg = MSG_ACCESS_JOIN;
+    std::cout << "|"<<  msg  << "|\n";
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     // отправляем всех кто есть на канале новичку
     std::vector<User *>::iterator it_begin = (*it_b_channel)->getUsersVector_red().begin();
@@ -324,25 +325,31 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
 
     //3 сообщение
     if ((*it_b_channel)->getTopic() == "") {
-        //msg = MSG_HELLO_AND_JOIN;
-//        msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
-//        send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+        msg = MSG_HELLO_AND_JOIN;
+        std::cout << "|"<<  msg  << "|\n";
+        send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
     else{
         msg = MSG_HELLO_AND_JOIN_THITH_TOPIC;
+        std::cout << "|"<<  msg  << "|\n";
         send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     }
     //4а сообщение
     msg = MSG_LIST_USER_IN_CHANELL;
     while (it_begin != it_end) {
-        msg += (*it_begin)->getNickname() + " ";
+        if (isOper((*it_begin),  (*it_b_channel)) == true)
+            msg += "@" + (*it_begin)->getNickname() + " ";
+        else
+            msg += (*it_begin)->getNickname() + " ";
         it_begin++;
     }
     msg.erase(msg.length() - 1, 1);
     msg += "\r\n";
+    std::cout << "|"<<  msg  << "|\n";
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
     //4b
     msg = MSG_END_OF_USER_LIST;
+    std::cout << "|"<<  msg  << "|\n";
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 }
 
