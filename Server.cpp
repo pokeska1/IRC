@@ -856,22 +856,6 @@ std::vector<std::string>	Server::splitStr(std::string str)
 	return res;
 }
 
-std::vector<std::string>	Server::splitStr(std::string str, std::string delimiter)
-{
-	std::vector<std::string>	res;
-	size_t pos = 0;
-	std::string tmp;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		tmp = str.substr(0, pos);
-		res.push_back(tmp); //action
-		str.erase(0, pos + delimiter.length());
-	}
-	tmp = str.substr(0, pos);
-	res.push_back(tmp); //action
-	return res;
-}
-
 bool	Server::is_chan(std::string str)
 {
 	if (str[0] != '#' && str[0] != '&') //проверка: не канал
@@ -914,39 +898,35 @@ bool    Server::isOper(User *usr, Channel *chan)
     return false;
 }
 
-int		Server::part(int num) //all cases done (textual has a feature)
+int		Server::part(int num) //добавить выход из нескльких каналов сразу
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
-	std::vector<std::string> exitChans = splitStr(args[0], ",");
-	for(int i = 0; i < exitChans.size(); ++i)
+	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
+	(args[0]).erase(0,1); // удаляем символ #/&
+	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
+	Channel *cur_chan = find_chan(args[0]);
+	//проверка: юзер не состоит в канале или в канале только 1 юзер
+	if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
+	else
 	{
-		if (is_chan(exitChans[i]) == false) //проверка: не канал (exitChans[i] - храниться имя канала)
-			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
-		(exitChans[i]).erase(0,1); // удаляем символ #/&
-		if (chan_in_list(exitChans[i], arr_channel) == false) //проверка: нет в списке каналов
-			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
-		Channel *cur_chan = find_chan(exitChans[i]);
-		//проверка: юзер не состоит в канале или в канале только 1 юзер
-		if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
-			return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
-		else
+		//ADD notice message
+		if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
 		{
-			//ADD notice message
-			if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
+			if (cur_chan->getOpersVector().empty()) //there are no operusers
+				cur_chan->setOper(cur_chan->getUsersVector()[1]);
+			else
 			{
-				if (cur_chan->getOpersVector().empty()) //there are no operusers
-					cur_chan->setOper(cur_chan->getUsersVector()[1]);
-				else
-				{
-					cur_chan->setOper(cur_chan->getOpersVector()[0]);
-					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
-				}
+				cur_chan->setOper(cur_chan->getOpersVector()[0]);
+				cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
 			}
-			cur_chan->eraseUser(this->arr_user[num]);
 		}
+		cur_chan->eraseUser(this->arr_user[num]);
 	}
 	return 0;
 }
@@ -978,13 +958,12 @@ int 	Server::invite(int num) //добавить ответы
 	{
 		//ADD notice message
 		cur_chan->addInvitedUser(user_to_invite);
-		return (rplPrint(this->arr_user[num]->getFd(), MSG_INVITING));
 	}
 	// добавить в джоин проверку на инвайт-онли канал
 	return 0;
 }
 
-int		Server::kick(int num) //all cases done
+int		Server::kick(int num) // that if user is oper?
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
@@ -1006,22 +985,18 @@ int		Server::kick(int num) //all cases done
 		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
 			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
-		if (user_to_kick == cur_chan->getOperModer() \
-		|| (this->arr_user[num] != cur_chan->getOperModer() && isOper(user_to_kick, cur_chan)) ) //only operModer kicks oper
-			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
 		else
 		{
 			cur_chan->eraseUser(user_to_kick);
 			cur_chan->eraseVoteUser(user_to_kick);
-			cur_chan->eraseOperUser(user_to_kick);
 		}
 	}
 	return 0;
 }
 
-int		Server::topic(int num) //all cases done (textual has a feature)
+int		Server::topic(int num)
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
