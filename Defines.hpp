@@ -153,7 +153,6 @@
 // + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
 // + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
 //#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
-#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
 
 //332
 #define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"

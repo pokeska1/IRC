@@ -61,11 +61,13 @@ public:
 	void		                setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
+	void		addOperUser(User* usr); //std::string
 	void		addVoteUser(User* usr); //std::string
 	void		addInvitedUser(User* usr); //std::string
 	void		eraseUser(User* usr);
-	void		eraseVoteUser(User* usr);
 	void		eraseOperUser(User* usr);
+	void		eraseVoteUser(User* usr);
+	void		eraseInvitedUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
 	void		setParamTrue(std::string str, std::string str_arg);

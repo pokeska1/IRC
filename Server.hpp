@@ -75,6 +75,7 @@ private:
 
 public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str);
+	std::vector<std::string>	splitStr(std::string str, std::string delimiter);
 	Channel						*find_chan(std::string str);
 	// int		version(int num);
 	int		part(int num);
