@@ -176,8 +176,6 @@
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
-#define MSG_LIST_USER_IN_CHANELL_O_1 ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
-+ " :";
 //366
 #define MSG_END_OF_USER_LIST ":" + this->getHost() + " 366 " + arr_user[num]->getNickname() + " #" + topic \
 + " :END of /NAMES list\r\n";
@@ -210,6 +208,9 @@
 #define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
 + ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
 + cur_chan->getName() + " :You're not channel operator\n"
+#define MSG_CHANOPRIVSNEEDED_KICK ":" + this->arr_user[num]->getServername() + " " \
++ ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not channel operator. And you dare to think about KIСK someone ?!\n"
 //473
 #define MSG_INVITEONLYCHAN ":" + this->arr_user[num]->getServername() + " " + ERR_INVITEONLYCHAN \
 + " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +          \

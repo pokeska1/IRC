@@ -1076,8 +1076,8 @@ int		Server::kick(int num) // that if user is oper?
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	else
 	{
-		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
-			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
+		if (!isOper(this->arr_user[num], cur_chan))//check if user is oper
+            return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
