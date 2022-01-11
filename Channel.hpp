@@ -51,7 +51,7 @@ public:
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
 	std::vector<User *> const	&getOpersVector()           const;
-	std::vector<User *> const	&getInvitedVector()         const;
+	std::vector<User *>	        &getInvitedVector()         ;
     std::string                 getNickname_by_it(int it)   const;
 	User*				 		getOperModer();
 	ModeChan					*getModeParams() { return modeParams; }

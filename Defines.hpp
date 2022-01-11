@@ -1,6 +1,7 @@
 #pragma once
 
 #define VEC_STR std::vector<std::string>
+#define VEC_ITER_STR std::vector<std::string>::iterator
 #define VEC_ITER_STR_ADR std::vector<std::string *>::iterator
 #define VEC_ITER_CHANEL_ADR std::vector<Channel *>::iterator
 #define VEC_ITER_USER_ADR std::vector<User *>::iterator
@@ -198,6 +199,10 @@
 #define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
 + ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
 + cur_chan->getName() + " :You're not channel operator\n"
+//473
+#define MSG_INVITEONLYCHAN ":" + this->arr_user[num]->getServername() + " " + ERR_INVITEONLYCHAN \
++ " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +          \
+" :This channel (#" + this->arr_channel[num_channel]->getName() +  ") only for invite\r\n"
 //475
 #define MSG_BADCHANNELKEY ":" + this->arr_user[num]->getServername() + " " \
 + ERR_BADCHANNELKEY + " " + this->arr_user[num]->getHostname() + " " \

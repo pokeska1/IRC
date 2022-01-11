@@ -43,11 +43,13 @@ public:
             //INFO 302
     void    info_work(int num);
             //JOIN 316
-    void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR it_b_channel, std::string topic);
+    void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR &it_b_channel, std::string topic);
     VEC_STR &parser_of_join_chanel(std::string &msg);
     VEC_STR &parser_of_join_chanel_key(std::string &msg);
     void    create_new_channel(int num, std::string &key, std::string &topic);
     void    join_work(int num);
+    bool    find_user_by_name_in_invited(std::string &name, int num_channel);
+    bool    check_invite_join(int num,std::string &name_channel);
     void    join_pre_work(int num);
             //USER 537
     void    user_work(std::string &arg, int num);
