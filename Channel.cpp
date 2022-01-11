@@ -41,6 +41,11 @@ void		Channel::eraseUser(User* usr)
 			users.erase(first);
 	}
 }
+void		Channel::addOperUser(User* usr)
+{
+	//TODO if allready in
+	operUsers.push_back(usr);
+}
 void		Channel::addVoteUser(User* usr)
 {
 	//TODO if
@@ -50,7 +55,7 @@ void		Channel::addVoteUser(User* usr)
 }
 void		Channel::addInvitedUser(User* usr)
 {
-	//TODO if
+	//TODO if allready in
 	invitedUsers.push_back(usr);
 }
 void		Channel::eraseVoteUser(User* usr)
@@ -65,12 +70,22 @@ void		Channel::eraseVoteUser(User* usr)
 }
 void		Channel::eraseOperUser(User* usr)
 {
-	std::vector<User *>::iterator	first = voteUsers.begin();
-	std::vector<User *>::iterator	last = voteUsers.end();
+	std::vector<User *>::iterator	first = operUsers.begin();
+	std::vector<User *>::iterator	last = operUsers.end();
 	for (; first != last; ++first)
 	{
 		if (usr == *first)
 			operUsers.erase(first);
+	}
+}
+void		Channel::eraseInvitedUser(User* usr)
+{
+	std::vector<User *>::iterator	first = invitedUsers.begin();
+	std::vector<User *>::iterator	last = invitedUsers.end();
+	for (; first != last; ++first)
+	{
+		if (usr == *first)
+			invitedUsers.erase(first);
 	}
 }
 void		Channel::setOper(User* usr)
