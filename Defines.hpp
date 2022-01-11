@@ -187,8 +187,13 @@
 + " Нет такого челика \""
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
-+ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ ERR_CANNOTSENDTOCHAN + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//404
+#define MSG_CANNOTSENDTOCHAN ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + \
+" :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
 //442
 #define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
@@ -224,6 +229,7 @@
 + this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA VMESTO RPL_TOPIC\n"
 
 //epilar
+//nick
 //431
 #define MSG_NONICKNAME ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NONICKNAMEGIVEN + " " + this->arr_user[num]->getHostname() + " " \
@@ -233,6 +239,9 @@
 #define MSG_NICKNAMEINUSE ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NICKNAMEINUSE + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + " " + nickname + " :Nickname is already in use\r\n"
+
+//nick answer
+#define MSG_NICKCHANGED ":" + this->arr_user[num]->getNickname() + " NICK " + nickname + "\r\n" 
 
 //server version
 #define SERVER_VERSION "1.0"
