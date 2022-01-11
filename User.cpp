@@ -65,8 +65,11 @@ void		User::make_msg(std::string str_buf)
 	{
 		msg_com = tmp;
 		curr_buf = curr_buf.substr(pos + 1);
-		while (curr_buf.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
-			curr_buf.erase(0,1);
+		if (curr_buf != "")
+		{
+			while (curr_buf.find_first_not_of(" ", 0) > 0) //удаление лишних пробелов в начале строки
+				curr_buf.erase(0,1);
+		}
 	}
 	else
 		msg_com = "";

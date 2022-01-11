@@ -300,17 +300,18 @@ void Server::privmisg_work(int num) {
 }
                                         //INFO
 // не работает
- void Server::info_work(int num) {
-    std::string timeee = std::to_string(clock() / 1000 - start_time);
-    // отправляем сообщеньку по фд
-    send(this->arr_user[num]->getFd(), "Server vesion: v1.0 ", 21, 0);
-    send(this->arr_user[num]->getFd(), "\ntime start server = ", 22, 0);
-    send(this->arr_user[num]->getFd(), timeee.c_str(), timeee.length(), 0);
-    send(this->arr_user[num]->getFd(), " second", 7, 0);
-    send(this->arr_user[num]->getFd(), "\n", 1, 0);
-    std::cout << "info massage: " << "Server vesion: v1.0, " << "time ="
-              << timeee.c_str() << std::endl;
-}
+// void Server::info_work(int num)
+// {
+//     std::string timeee = std::to_string( clock() / 1000 - start_time);
+//     // отправляем сообщеньку по фд
+//     send(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21, 0);
+//     send(this->arr_user[num]->getFd(),"\ntime start server = ",22, 0);
+//     send(this->arr_user[num]->getFd(),timeee.c_str(), timeee.length(), 0);
+//     send(this->arr_user[num]->getFd()," second",7, 0);
+//     send(this->arr_user[num]->getFd(), "\n",  1, 0);
+//     std::cout << "info massage: " << "Server vesion: v1.0, " << "time =" << timeee.c_str() << std::endl;
+// }
+
 
                                         //JOIN
 //
@@ -651,6 +652,7 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
 
     switch (map_forms[arr_user[num]->getMsgCom()]) {
         case NICK:
+            nick(num, arr_user[num]->getMsgArgs());// EPILAR
             break;
         case USER:
             user_work(arr_user[num]->getMsgArgs(), num);
@@ -683,10 +685,10 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
         case KILL: // предлагаю исключить
             break;
         case VERSION:
-            version(num);
+            version(num, arr_user[num]->getMsgArgs());// EPILAR
             break;
         case INFO:
-            info_work(num);
+            info(num, arr_user[num]->getMsgArgs());// EPILAR
             break;
         default:
             FD_SET(fd, &writefds);
@@ -1122,3 +1124,101 @@ int		Server::version(int num)
 }
 
 // THE END
+
+// ####### ######  ### #          #    ######  
+// #       #     #  #  #         # #   #     # 
+// #       #     #  #  #        #   #  #     # 
+// #####   ######   #  #       #     # ######  
+// #       #        #  #       ####### #   #   
+// #       #        #  #       #     # #    #  
+// ####### #       ### ####### #     # #     # 
+
+bool	Server::isNickUsed(const std::string& nickname)
+{
+	std::vector<User *>::iterator	it_begin = arr_user.begin();
+	std::vector<User *>::iterator	it_end = arr_user.end();
+	while (it_begin != it_end)
+	{
+		if ((*it_begin)->getNickname() == nickname)
+			return true;
+		it_begin++;
+	}
+	return false;
+}
+
+int		Server::nick(int num, std::string& args)
+{
+	// std::cout << "args: " << args << std::endl;
+	if (args.empty())
+	{
+		std::string	msg(MSG_NONICKNAME);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	std::string	nickname(splitStr(args)[0]); // вычленяем сам никнэйм из строки аргументов команды
+	if (nickname.empty())
+	{
+		std::string	msg(MSG_NONICKNAME);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	if (!Server::isNickUsed(nickname))
+		arr_user[num]->setNickname(nickname);
+	else
+	{
+		std::string	msg(MSG_NICKNAMEINUSE);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	return 0;
+}
+
+int		Server::version(int num, std::string& args)
+{
+	if (args.empty())
+	{
+		std::string	msg(MSG_SERVERVERSION);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 0;
+	}
+	std::string	servername(splitStr(args)[0]);
+	if (this->getHost() != servername)
+	{
+		std::string	msg(MSG_NOSUCHSERVER);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else
+	{
+		std::string	msg(MSG_SERVERVERSION);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 0;
+	}
+	return 0;
+}
+
+int	Server::info(int num, std::string& args)
+{
+	// if (args.empty())
+	// {
+	// 	std::string	msg(MSG_SERVERVERSION);
+	// 	send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+	// 	return 0;
+	// }
+	std::string	servername(splitStr(args)[0]);
+	if (this->getHost() != servername)
+	{
+		std::string	msg(MSG_NOSUCHSERVER);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else
+	{
+		std::string	msg(MSG_SERVERINFO);
+		std::string msg_endinfo(MSG_ENDOFINFO);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		send(this->arr_user[num]->getFd(), msg_endinfo.c_str(), msg.length(), 0);
+		return 0;
+	}
+	return 0;
+}
