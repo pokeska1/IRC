@@ -140,10 +140,12 @@
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
 //331
-//#define MSG_NOTOPIC ":localhost 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
-#define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
-+ RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
+#define MSG_NOTOPIC ":localhost 331 " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
++ " :" +  "notopic" + "\r\n"
+// #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
+// + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
+// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
 //332
 #define MSG_TOPIC ":localhost 332 " \
 + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
@@ -163,6 +165,13 @@
 //332
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
+//341
+#define MSG_INVITING ":" + this->arr_user[num]->getServername() + " " \
++ RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
++ arr_user[num]->getNickname() + cur_chan->getName() +  " " + args[1] + "\r\n"
+// #define MSG_INVITING ":localhost 341 " \
+// + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
+// + " :" + cur_chan->getTopic() + "\r\n"
 //353
 #define MSG_LIST_USER_IN_CHANELL ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :@";
