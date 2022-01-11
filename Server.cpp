@@ -63,9 +63,24 @@ std::string const &Server::getPassword(int i){
     return(*mimic);
 }
 
-// ############################################################################################################
-                                        // функуии упрощающие жизнь и код
-enum forms{NOT_DEFINED, NICK, USER, OPER, PRIVMSG, NOTICE, JOIN, MODE, TOPIC, INVITE, KICK, PART, KILL, VERSION, INFO};
+// ##################################################################################
+                            // функции упрощающие жизнь и код
+enum forms{NOT_DEFINED, \
+		NICK, \
+		USER, \
+		OPER, \
+		PRIVMSG, \
+		NOTICE, \
+		JOIN, \
+		MODE, \
+		TOPIC, \
+		INVITE, \
+		KICK, \
+		PART, \
+		KILL, \
+		VERSION, \
+		INFO, \
+		QUIT};
 
 void Server::deleteClient(int fd){
     VEC_ITER_USER_ADR it_begin = arr_user.begin();
@@ -694,6 +709,7 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
     map_forms["KILL"] = KILL;
     map_forms["VERSION"] = VERSION;
     map_forms["INFO"] = INFO;
+	map_forms["QUIT"] = QUIT;
 
     switch (map_forms[arr_user[num]->getMsgCom()]) {
         case NICK:
@@ -735,6 +751,9 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
         case INFO:
             info(num, arr_user[num]->getMsgArgs());// EPILAR
             break;
+		case QUIT:
+			quit(num, arr_user[num]->getMsgArgs());// EPILAR
+			break;
         default:
             FD_SET(fd, &writefds);
             break;
@@ -1211,7 +1230,11 @@ int		Server::nick(int num, std::string& args)
 		return 1;
 	}
 	if (!Server::isNickUsed(nickname))
+	{
+		std::string	msg(MSG_NICKCHANGED);
 		arr_user[num]->setNickname(nickname);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+	}
 	else
 	{
 		std::string	msg(MSG_NICKNAMEINUSE);
@@ -1321,7 +1344,7 @@ char	*ft_itoa(int n)
 }
 //////////////////////////////////////////////////////////////////////////
 
-std::string					Server::getTimeElapsed()
+std::string		Server::getTimeElapsed()
 {
 	time_t	current_time = time(NULL);
 
@@ -1341,7 +1364,7 @@ std::string					Server::getTimeElapsed()
 	return ret;
 }
 
-int							Server::info(int num, std::string& args)
+int				Server::info(int num, std::string& args)
 {
 	if (args.empty())
 	{
@@ -1373,5 +1396,12 @@ int							Server::info(int num, std::string& args)
 		send(this->arr_user[num]->getFd(), msg_endinfo.c_str(), msg_endinfo.length(), 0);
 		return 0;
 	}
+	return 0;
+}
+
+int		Server::quit(int num, std::string& args)
+{
+	num = 0;
+	args.clear();
 	return 0;
 }

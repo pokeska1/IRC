@@ -224,6 +224,7 @@
 + this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA VMESTO RPL_TOPIC\n"
 
 //epilar
+//nick
 //431
 #define MSG_NONICKNAME ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NONICKNAMEGIVEN + " " + this->arr_user[num]->getHostname() + " " \
@@ -233,6 +234,9 @@
 #define MSG_NICKNAMEINUSE ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NICKNAMEINUSE + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + " " + nickname + " :Nickname is already in use\r\n"
+
+//nick answer
+#define MSG_NICKCHANGED ":" + this->arr_user[num]->getNickname() + " NICK " + nickname + "\r\n" 
 
 //server version
 #define SERVER_VERSION "1.0"
