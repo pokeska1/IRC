@@ -146,6 +146,11 @@
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
+//324
+#define MSG_CHANNELMODEIS ":localhost 324 " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName()
+//+ " +i" + "\r\n";
+
 //331
 #define MSG_NOTOPIC ":localhost 331 " \
 + this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \

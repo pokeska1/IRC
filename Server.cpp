@@ -917,6 +917,24 @@ void	Server::sendToChanUsers(std::string msg, Channel *chan)
 		send((*first)->getFd(), msg.c_str(), msg.length(), 0);
 }
 
+std::string					Server::fillModes(std::string msg, ModeChan *flags)
+{
+	msg += " +";
+	if (flags->p == 1)
+		msg += "p";
+	if (flags->s == 1)
+		msg += "s";
+	if (flags->i == 1)
+		msg += "i";
+	if (flags->t == 1)
+		msg += "t";
+	if (flags->n == 1)
+		msg += "n";
+	if (flags->m == 1)
+		msg += "m";
+	msg += "\r\n";
+	return msg;
+}
 
 std::vector<std::string>	Server::splitStr(std::string str)
 {
@@ -1139,12 +1157,9 @@ int		Server::topic(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
-
 		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
 		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
 		sendToChanUsers(msg, cur_chan);
-		//send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-
     }
 	return 0;
 }
@@ -1166,9 +1181,6 @@ int		Server::topic(int num)
 
 int		Server::mode_chan(int num)
 {
-	// Channel *test = new Channel("test"); //default channel - delete on production
-	// arr_channel.push_back(test);
-	/* this->arr_user[num] - обращение к классу User */
 	std::cout << "arr_channel.size()=" << arr_channel.size() << std::endl;
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
@@ -1195,7 +1207,7 @@ int		Server::mode_chan(int num)
 		if (args.size() > 2)
 			cur_chan->setParamTrue(args[1], args[2]);
 		else
-			cur_chan->setParamTrue(args[1]);
+			cur_chan->setParamTrue(args[1]);	
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{
@@ -1205,16 +1217,12 @@ int		Server::mode_chan(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
 		cur_chan->setParamFalse(args[1]);
 	}
+	std::string msg = MSG_CHANNELMODEIS;
+	msg = fillModes(msg, cur_chan->getModeParams());
+	sendToChanUsers(msg, cur_chan);
 	return 0;
 }
 
-//int		Server::version(int num)
-//{
-//	std::string msg = "Server vesion: v1.0\n";
-//	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-//	std::cout << "version massage: " << msg;
-//	return 0;
-//}
 
 // THE END
 
