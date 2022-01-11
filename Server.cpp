@@ -315,7 +315,7 @@ void Server::privmisg_work(int num) {
 
                                         //JOIN
 //
-void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic){
+void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator &it_b_channel, std::string topic){
     //отправляем что он в канале
     std::string msg = MSG_ACCESS_JOIN;
     std::cout << "|"<<  msg  << "|\n";
@@ -407,6 +407,7 @@ std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
 //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
 void Server::create_new_channel(int num, std::string &key, std::string &topic){
     std::vector<Channel *>::iterator it_b_channel, it_e_channel;
+    int i = 0;
 
     Channel *channel = new Channel(topic);
     if (!key.empty())
@@ -418,6 +419,8 @@ void Server::create_new_channel(int num, std::string &key, std::string &topic){
     this->arr_user[num]->setVecChannel(*channel);
     it_b_channel = this->arr_channel.begin();
     it_e_channel = this->arr_channel.end();
+    i = find_num_chan_by_name(channel->getName());
+    it_b_channel += i;
     say_hello_to_new_in_channel(num, it_b_channel, topic);
     std::cout <<"\x1b[32;1m Create a channel :|\x1b[0m" << topic <<  "\x1b[32;1m|\x1b[0m\n";
 }
@@ -459,6 +462,8 @@ void Server::join_work(int num) {
         return;
     }
     topic = msg.substr(1, pos - 1);
+    if (check_invite_join(num, topic) == false)
+        return;
     if (pos != -1)
         key = msg.substr(pos + 1, msg.length() - (pos + 1));
     //2*
@@ -504,8 +509,41 @@ void Server::join_work(int num) {
     }
 }
 
+bool Server::find_user_by_name_in_invited(std::string &name, int num_channel)
+{
+    std::vector<User *>::iterator it_begin, it_end;
+
+    it_begin = arr_channel[num_channel]->getInvitedVector().begin();
+    it_end = arr_channel[num_channel]->getInvitedVector().end();
+    while (it_begin != it_end){
+        if((*it_begin)->getNickname() == name)
+            return(true);
+        it_begin++;
+    }
+    return(false);
+}
+
+bool Server::check_invite_join(int num,std::string &name_channel){
+    std::string name ="", send_msg = "";
+    int num_channel = 0;
+
+    num_channel = find_num_chan_by_name(name_channel);
+    if (num_channel >= 0){
+        bool i_flag = arr_channel[num_channel]->getModeParams()->i;
+        name = arr_user[num]->getNickname();
+        if (i_flag == true)
+            if (find_user_by_name_in_invited(name, num_channel) != true) {
+                send_msg = MSG_INVITEONLYCHAN;
+                send(arr_user[num]->getFd(), send_msg.c_str(), send_msg.length(), 0);
+                return(false);
+            }
+    }
+    return(true);
+}
+
+
 void Server::join_pre_work(int num){
-    std::string command = "", arg = "", send_msg = "", valid_buf = "";;
+    std::string command = "", arg = "", send_msg = "", valid_buf = "", name = "";
     int  i = 0;
     std::vector<std::string> name_channel, key_channel;
     std::vector<std::string>::iterator it_begin, it_begin_key, end_begin_key;
@@ -1097,13 +1135,13 @@ int		Server::mode_chan(int num)
 	return 0;
 }
 
-// int		Server::version(int num)
-// {
-// 	std::string msg = "Server vesion: v1.0\n";
-// 	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-// 	std::cout << "version massage: " << msg;
-// 	return 0;
-// }
+//int		Server::version(int num)
+//{
+//	std::string msg = "Server vesion: v1.0\n";
+//	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+//	std::cout << "version massage: " << msg;
+//	return 0;
+//}
 
 // THE END
 
