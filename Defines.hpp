@@ -1,5 +1,11 @@
 #pragma once
 
+#define VEC_STR std::vector<std::string>
+#define VEC_ITER_STR_ADR std::vector<std::string *>::iterator
+#define VEC_ITER_CHANEL_ADR std::vector<Channel *>::iterator
+#define VEC_ITER_USER_ADR std::vector<User *>::iterator
+
+
 #define ERR_NOSUCHNICK "401"
 #define ERR_NOSUCHSERVER "402"
 #define ERR_NOSUCHCHANNEL "403"
@@ -139,11 +145,21 @@
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
+//331
+#define MSG_NOTOPIC ":localhost 331 " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
++ " :" +  "notopic" + "\r\n"
+// #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
+// + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
+// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
+#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
+
 //332
 #define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
 // #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
 // + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
 // + this->arr_user[num]->getNickname()  +  " <channel name> :"
+
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
 + " :Welcome to the Internet Relay Network " \
@@ -154,13 +170,22 @@
 //332
 #define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + "\r\n"
 //332
-#define MSG_HELLO_AND_JOIN_THITH_TOPIC ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic \
+#define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
+//341
+#define MSG_INVITING ":" + this->arr_user[num]->getServername() + " " \
++ RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
++ arr_user[num]->getNickname() + cur_chan->getName() +  " " + args[1] + "\r\n"
+// #define MSG_INVITING ":localhost 341 " \
+// + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
+// + " :" + cur_chan->getTopic() + "\r\n"
 //353
-#define MSG_LIST_USER_IN_CHANELL ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
+#define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :@";
+#define MSG_LIST_USER_IN_CHANELL_O_1 ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
++ " :";
 //366
-#define MSG_END_OF_USER_LIST ":localhost 366 " + arr_user[num]->getNickname() + " #" + topic \
+#define MSG_END_OF_USER_LIST ":" + this->getHost() + " 366 " + arr_user[num]->getNickname() + " #" + topic \
 + " :END of NAMES list\r\n";
 //401
 #define MSG_NOSUCHNICK ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK \
@@ -170,10 +195,27 @@
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//442
+#define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not on that channel\n"
+//443
+#define MSG_USERONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
++ ERR_USERONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + cur_chan->getName() + " :is already on channel\n"
 //461
 #define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <command> :Not enough parameters\n"
+//482
+#define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
++ ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not channel operator\n"
+//475
+#define MSG_BADCHANNELKEY ":" + this->arr_user[num]->getServername() + " " \
++ ERR_BADCHANNELKEY + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " where is the key ?!" \
++ " You need a password to enter the channel!\n"
 //501 
 #define MSG_UMODEUNKNOWNFLAG ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
@@ -181,7 +223,7 @@
 //ZASLUSHKA
 #define MSG_ZAGLUSHKA ":" + this->arr_user[num]->getServername() + " " \
 + ERR_UMODEUNKNOWNFLAG + " " + this->arr_user[num]->getHostname() + " " \
-+ this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA\n"
++ this->arr_user[num]->getNickname()  + cur_chan->getTopic() + ":ZAGLUSHKA VMESTO RPL_TOPIC\n"
 
 //epilar
 //431
@@ -218,8 +260,9 @@
 //собщение одному человеку
 #define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
-+ arr_user[num_friend]->getNickname() + ":" + arr_user[num]->getMsgArgs() + "\r\n"
++ arr_user[num_friend]->getNickname() + arr_user[num]->getMsgArgs() + "\r\n"
 //сообщение по каналу
 #define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
 + arr_user[num]->getMsgArgs() + "\r\n"
+
