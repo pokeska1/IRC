@@ -99,6 +99,7 @@ public: //rmerrie
     bool    isOper(User *usr, Channel *chan);
 	int		errPrint(const int fd, std::string msg) const;
 	int		rplPrint(const int fd, std::string msg) const;
+	void	sendToChanUsers(std::string msg, Channel *chan);
 
 public: //epilar
 	bool	isNickUsed(const std::string& nickname);

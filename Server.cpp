@@ -909,6 +909,14 @@ int		Server::rplPrint(const int fd, std::string msg) const
 	return 0;
 }
 
+void	Server::sendToChanUsers(std::string msg, Channel *chan)
+{
+	std::vector<User *>::const_iterator	first = chan->getUsersVector().begin();
+	std::vector<User *>::const_iterator	last = chan->getUsersVector().end();
+	for (; first != last; ++first)
+		send((*first)->getFd(), msg.c_str(), msg.length(), 0);
+}
+
 
 std::vector<std::string>	Server::splitStr(std::string str)
 {
@@ -1117,9 +1125,8 @@ int		Server::topic(int num)
     {
         if (cur_chan->getTopic() == "")
 			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
-		std::string msg = ":" + this->arr_user[num]->getNickname() + "!" \
-		+ this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() \
-		+ " " + "TOPIC" + " " + cur_chan->getName() + cur_chan->getTopic() + "\r\n";
+		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 0;
 		//return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
@@ -1132,6 +1139,12 @@ int		Server::topic(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
+
+		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
+		sendToChanUsers(msg, cur_chan);
+		//send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+
     }
 	return 0;
 }
