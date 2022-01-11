@@ -187,8 +187,13 @@
 + " Нет такого челика \""
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
-+ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ ERR_CANNOTSENDTOCHAN + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//404
+#define MSG_CANNOTSENDTOCHAN ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + \
+" :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
 //442
 #define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \

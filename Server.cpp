@@ -242,7 +242,7 @@ void Server::privmisg_for_one_person(int num,  std::string &name){
 }
 
 void Server::privmisg_work(int num) {
-    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0;
+    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0, num_channel = 0;
     std::string name = "", massage = "", error = "" , msg = "", channel = "";
     std::vector<std::string> arr_channel_name;
     std::vector<std::string>::iterator it_begin, it_end;
@@ -278,9 +278,16 @@ void Server::privmisg_work(int num) {
         }
     }//если сообщения для одного канала
     else if (pos != -1) {
-        pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
-        channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
-        privmisg_for_one_channel(num, massage, channel);
+        name = name.substr(1, name.length() - 1);
+        if (can_user_talk_in_channel(num, name) == true) {
+            pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
+            channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+            privmisg_for_one_channel(num, massage, channel);
+        }else{
+            num_channel = find_num_chan_by_name(name);
+            msg = MSG_CANNOTSENDTOCHAN;
+            send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+        }
     }else {//если сообщение персоне или ссписку персон
         if (name.find_first_of(",") != std::string::npos || (name.find_first_of(",") > (unsigned long)pos_space )) {
             std::vector<std::string> arr_name;
@@ -1076,10 +1083,16 @@ int		Server::kick(int num) // that if user is oper?
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
 		else
 		{
+            std::string msg = MSG_PRIVMSG_CHANNEL;
+            for (VEC_ITER_USER_ADR it = cur_chan->getUsersVector_red().begin();
+            it != cur_chan->getUsersVector_red().end(); ++it) {
+                send((*it)->getFd(), msg.c_str(), msg.length(), 0);
+            }
 			cur_chan->eraseUser(user_to_kick);
 			cur_chan->eraseVoteUser(user_to_kick);
 			cur_chan->eraseOperUser(user_to_kick);
 			cur_chan->eraseInvitedUser(user_to_kick);
+            user_to_kick->eraseChannel(cur_chan);
 		}
 	}
 	return 0;

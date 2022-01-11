@@ -93,6 +93,7 @@ public:
 
     void    make_msg(std::string str_buf);
     void    delete_channel();
+    void	eraseChannel(Channel* cnl);
 	bool    matchCommand(std::string str);
     void    cleaner();
 };
