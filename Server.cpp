@@ -8,7 +8,7 @@ Server::Server()
 {
     this->channel_exist = false;
     host = "localhost";
-    start_time = clock() / 1000.0;
+    time(&start_time);
 }
 // ############################################################################################################
                                                    //Сеторы
@@ -923,7 +923,7 @@ int		Server::part(int num) //all cases done (textual has a feature)
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	std::vector<std::string> exitChans = splitStr(args[0], ",");
-	for(int i = 0; i < exitChans.size(); ++i)
+	for(unsigned long i = 0; i < exitChans.size(); ++i)
 	{
 		if (is_chan(exitChans[i]) == false) //проверка: не канал (exitChans[i] - храниться имя канала)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
@@ -1115,13 +1115,13 @@ int		Server::mode_chan(int num)
 	return 0;
 }
 
-int		Server::version(int num)
-{
-	std::string msg = "Server vesion: v1.0\n";
-	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-	std::cout << "version massage: " << msg;
-	return 0;
-}
+// int		Server::version(int num)
+// {
+// 	std::string msg = "Server vesion: v1.0\n";
+// 	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
+// 	std::cout << "version massage: " << msg;
+// 	return 0;
+// }
 
 // THE END
 
@@ -1197,27 +1197,132 @@ int		Server::version(int num, std::string& args)
 	return 0;
 }
 
-int	Server::info(int num, std::string& args)
+std::vector<std::string>	Server::getSrvStat(void)
 {
-	// if (args.empty())
-	// {
-	// 	std::string	msg(MSG_SERVERVERSION);
-	// 	send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-	// 	return 0;
-	// }
+	struct stat					all_info;
+	std::vector<std::string>	ret;
+	char*						clock_create;
+	char*						clock_modif;
+
+	if (stat(PATH_TO_SERVER_FILE, &all_info) == -1)
+		return ret;
+	clock_create = ctime(&all_info.st_ctimespec.tv_sec);
+	clock_modif = ctime(&all_info.st_mtimespec.tv_sec);
+	ret.push_back(clock_create);
+	ret.push_back(clock_modif);
+	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//                              LIBFT ITOA                              //
+//////////////////////////////////////////////////////////////////////////
+static unsigned int	get_sym_num(long nl, int sign)
+{
+	unsigned int	i;
+
+	i = 0;
+	if (nl == 0)
+		return (1);
+	while (nl > 0)
+	{
+		nl /= 10;
+		i++;
+	}
+	if (sign == -1)
+		i++;
+	return (i);
+}
+
+static void	converter(char *s, long nl, unsigned int sym_num, int sign)
+{
+	s[sym_num] = '\0';
+	sym_num--;
+	if (nl == 0)
+		s[0] = '0';
+	while (nl > 0)
+	{
+		s[sym_num] = nl % 10 + '0';
+		sym_num--;
+		nl /= 10;
+	}
+	if (sign == -1)
+		s[0] = '-';
+}
+
+char	*ft_itoa(int n)
+{
+	char			*s;
+	long			nl;
+	unsigned int	sym_num;
+	int				sign;
+
+	sign = 1;
+	if (n < 0)
+	{
+		nl = (long)n * -1;
+		sign = -1;
+	}
+	else
+		nl = (long)n;
+	sym_num = get_sym_num(nl, sign);
+	s = (char *)malloc(sizeof(char) * (sym_num + 1));
+	if (s == NULL)
+		return (NULL);
+	converter(s, nl, sym_num, sign);
+	return (s);
+}
+//////////////////////////////////////////////////////////////////////////
+
+std::string					Server::getTimeElapsed()
+{
+	time_t	current_time = time(NULL);
+
+	double	elapsed = difftime(current_time, this->start_time);
+	int		minutes = floor(elapsed / 60);
+	int 	seconds = static_cast<int>(elapsed - minutes * 60);
+
+	char	*min_str = ft_itoa(minutes);
+	char	*sec_str = ft_itoa(seconds);
+
+	std::string	min(min_str);
+	std::string	sec(sec_str);
+	std::string	ret(min + " minutes, " + sec + " seconds.");
+
+	free(min_str);
+	free(sec_str);
+	return ret;
+}
+
+int							Server::info(int num, std::string& args)
+{
+	if (args.empty())
+	{
+		std::vector<std::string>	statistic = getSrvStat();
+		std::string					time_elapsed(getTimeElapsed());
+		std::string					msg_info(MSG_SERVERINFO);
+		std::string					msg_endinfo(MSG_ENDOFINFO);
+
+		send(this->arr_user[num]->getFd(), msg_info.c_str(), msg_info.length(), 0);
+		send(this->arr_user[num]->getFd(), msg_endinfo.c_str(), msg_endinfo.length(), 0);
+		return 0;
+	}
 	std::string	servername(splitStr(args)[0]);
 	if (this->getHost() != servername)
 	{
 		std::string	msg(MSG_NOSUCHSERVER);
+
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
 	else
 	{
-		std::string	msg(MSG_SERVERINFO);
-		std::string msg_endinfo(MSG_ENDOFINFO);
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		send(this->arr_user[num]->getFd(), msg_endinfo.c_str(), msg.length(), 0);
+		std::vector<std::string>	statistic = getSrvStat();
+		std::string					time_elapsed(getTimeElapsed());
+		std::string					msg_info(MSG_SERVERINFO);
+		std::string					msg_endinfo(MSG_ENDOFINFO);
+
+		send(this->arr_user[num]->getFd(), msg_info.c_str(), msg_info.length(), 0);
+		send(this->arr_user[num]->getFd(), msg_endinfo.c_str(), msg_endinfo.length(), 0);
 		return 0;
 	}
 	return 0;

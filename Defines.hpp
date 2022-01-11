@@ -146,9 +146,9 @@
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
 //331
-#define MSG_NOTOPIC ":localhost 331 " \
-+ this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
-+ " :" +  "notopic" + "\r\n"
+// #define MSG_NOTOPIC ":localhost 331 " \
+// + this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
+// + " :" +  "notopic" + "\r\n"
 // #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
 // + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
 // + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
@@ -248,9 +248,17 @@
 + this->arr_user[num]->getNickname() + " " + servername + " :No such server\r\n"
 
 //server info
-#define MSG_SERVERINFO ":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() \
-+ " " + SERVER_VERSION + " " + this->getHost() + " :" + VERSION_COMMENTS + "\r\n"
+#define PATH_TO_SERVER_FILE "./ircserv"
+#define MSG_SERVERINFO ":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() + \
+" " + SERVER_VERSION + " " + this->getHost() + " :" + VERSION_COMMENTS + "\r\n" + \
+":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() + \
+" Created: " + statistic[0] + "\r\n" + \
+":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() + \
+" Modified: " + statistic[1] + "\r\n" + \
+":" + this->getHost() + " 371 " + this->arr_user[num]->getNickname() + \
+" Elapsed time: " + time_elapsed + "\r\n"
 #define MSG_ENDOFINFO ":" + this->getHost() + " 374 " + this->arr_user[num]->getNickname() + " :End of /INFO list\r\n"
+
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно

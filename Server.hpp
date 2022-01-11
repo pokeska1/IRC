@@ -8,10 +8,18 @@
 #include "User.hpp"
 #include "Channel.hpp"
 
+//info includes
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ctime>
+#include <cmath>
+#include <cstdlib>
+//////////////
+
 class Server {
 public:
     Server();
-    double   start_time;
+
     //сеторы 14
     void    setAccess(int fd);
     void    setPort(int port);
@@ -41,7 +49,7 @@ public:
     void    privmisg_for_one_person(int num,  std::string &name);
     void    privmisg_work(int num);
             //INFO 302
-    void    info_work(int num);
+    // void    info_work(int num);
             //JOIN 316
     void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR it_b_channel, std::string topic);
     VEC_STR &parser_of_join_chanel(std::string &msg);
@@ -65,6 +73,7 @@ public:
     void    work(int ls);
 
 private:
+	time_t						start_time;
     std::vector<User *>         arr_user;
     std::vector<Channel *>      arr_channel; // скорее всего так будем хранить комнаты
     std::vector<int>            arr_port;
@@ -95,7 +104,10 @@ public: //epilar
 
 	int		version(int num, std::string& args);
 
-	int		info(int num, std::string& args);
+	std::vector<std::string>	getSrvStat(void);
+	std::string					getTimeElapsed(void);
+	int							info(int num, std::string& args);
+
 };
 
 #endif //IRC_SERVER_HPP
