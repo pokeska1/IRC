@@ -921,7 +921,7 @@ int		Server::part(int num) //all cases done (textual has a feature)
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	std::vector<std::string> exitChans = splitStr(args[0], ",");
-	for(int i = 0; i < exitChans.size(); ++i)
+	for(size_t i = 0; i < exitChans.size(); ++i)
 	{
 		if (is_chan(exitChans[i]) == false) //проверка: не канал (exitChans[i] - храниться имя канала)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
@@ -1040,7 +1040,12 @@ int		Server::topic(int num) //all cases done (textual has a feature)
     {
         if (cur_chan->getTopic() == "")
 			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
-		return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
+		std::string msg = ":" + this->arr_user[num]->getNickname() + "!" \
+		+ this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() \
+		+ " " + "TOPIC" + " " + cur_chan->getName() + cur_chan->getTopic() + "\r\n";
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 0;
+		//return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
     }
     else
     {
