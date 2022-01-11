@@ -146,12 +146,6 @@
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
 //331
-// #define MSG_NOTOPIC ":localhost 331 " \
-// + this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
-// + " :" +  "notopic" + "\r\n"
-// #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
-// + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
-// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
 #define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
 
 //332
@@ -168,25 +162,18 @@
 + this->arr_user[num]->getHostname() + "\r\n";
 //001
 //332
-#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + "\r\n"
+#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + " :No topic is set" + "\r\n"
 //332
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
-//341
-#define MSG_INVITING ":" + this->arr_user[num]->getServername() + " " \
-+ RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
-+ arr_user[num]->getNickname() + cur_chan->getName() +  " " + args[1] + "\r\n"
-// #define MSG_INVITING ":localhost 341 " \
-// + this->arr_user[num]->getNickname()  + " #" + cur_chan->getName() \
-// + " :" + cur_chan->getTopic() + "\r\n"
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
-+ " :@";
++ " :";
 #define MSG_LIST_USER_IN_CHANELL_O_1 ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
 //366
 #define MSG_END_OF_USER_LIST ":" + this->getHost() + " 366 " + arr_user[num]->getNickname() + " #" + topic \
-+ " :END of NAMES list\r\n";
++ " :END of /NAMES list\r\n";
 //401
 #define MSG_NOSUCHNICK ":" + this->arr_user[num]->getServername() + " " + ERR_NOSUCHNICK \
 + " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() \
@@ -262,15 +249,15 @@
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
-#define MSG_ACCESS_JOIN arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() + "@" \
+#define MSG_ACCESS_JOIN ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() + "@" \
 + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " #" \
 + topic + "\r\n"
 //собщение одному человеку
-#define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
+#define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
 + arr_user[num_friend]->getNickname() + arr_user[num]->getMsgArgs() + "\r\n"
 //сообщение по каналу
-#define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getNickname() \
+#define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
 + arr_user[num]->getMsgArgs() + "\r\n"
 
