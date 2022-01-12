@@ -748,7 +748,7 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
             kick(num);
             break;
         case PART:
-            part(num);
+            part(num, arr_user[num]->getMsgArgs());
             break;
         case KILL: // предлагаю исключить
             break;
@@ -1016,9 +1016,9 @@ bool    Server::isOper(User *usr, Channel *chan)
     return false;
 }
 
-int		Server::part(int num)
+int		Server::part(int num, std::string& arguments)
 {
-	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
+	std::vector<std::string> args = splitStr(arguments);
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
@@ -1463,7 +1463,24 @@ int				Server::info(int num, std::string& args)
 
 int		Server::quit(int num, std::string& args)
 {
-	num = 0;
+	// выйти из каналов, где был пользователь
+	// закрыть fd
+	// удалить пользователя
+
+	std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
+	if (!userChannels.empty())
+	{
+		std::vector<Channel *>::iterator itb = userChannels.begin();
+		std::vector<Channel *>::iterator ite = userChannels.end();
+		for (; itb != ite; ++itb)
+		{
+			std::string	arg("#" + (*itb)->getName());
+			this->part(num, arg);
+		}
+	}
+	close(this->arr_user[num]->getFd());
+	this->deleteClient(this->arr_user[num]->getFd());
+
 	args.clear();
 	return 0;
 }
