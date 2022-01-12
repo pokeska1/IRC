@@ -283,7 +283,10 @@
 
 //part answer
 // #define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + " PART " + cur_chan->getName() + "\r\n"
-#define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "PART :" + cur_chan->getName() + "\r\n"
+#define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "!" + \
+this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+" PART #" + cur_chan->getName() + " :" + this->arr_user[num]->getNickname() + "\r\n"
+// #define MSG_PARTSUCCESS "PART #" + cur_chan->getName() + " :" + this->arr_user[num]->getNickname() + "\r\n"
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
