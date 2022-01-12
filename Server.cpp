@@ -1046,15 +1046,24 @@ int		Server::part(int num, std::string& arguments)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 		else
 		{
-			//ADD notice message
+			std::string mg = ":" + this->arr_user[num]->getNickname() + \
+			"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+			" " + "MODE" + " #" + cur_chan->getName() + " +o ";
 			if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
 			{
 				if (cur_chan->getOpersVector().empty()) //there are no operusers
+				{
 					cur_chan->setOper(cur_chan->getUsersVector()[1]);
+					mg += (cur_chan->getUsersVector()[1])->getNickname() + "\r\n";
+					sendToChanUsers(mg, cur_chan);
+				}
 				else
 				{
 					cur_chan->setOper(cur_chan->getOpersVector()[0]);
 					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
+					mg += (cur_chan->getOpersVector()[0])->getNickname() + "\r\n";
+					sendToChanUsers(mg, cur_chan);
+					
 				}
 			}
 
