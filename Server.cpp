@@ -1026,7 +1026,7 @@ bool    Server::isOper(User *usr, Channel *chan)
     return false;
 }
 
-int		Server::part(int num) //добавить выход из нескльких каналов сразу
+int		Server::part(int num)
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
@@ -1057,13 +1057,18 @@ int		Server::part(int num) //добавить выход из нескльких
 					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
 				}
 			}
+
+			std::string	msg(MSG_PARTSUCCESS);// отправка уведомление всем пользователям
+											//	канал
+			std::vector<User *>::const_iterator itb = cur_chan->getUsersVector().begin();
+			std::vector<User *>::const_iterator ite = cur_chan->getUsersVector().end();
+			for (; itb != ite; ++itb)
+				rplPrint((*itb)->getFd(), msg);
+
 			cur_chan->eraseUser(this->arr_user[num]);
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
 		}
-		std::string	msg(MSG_PARTSUCCESS);
-		rplPrint(this->arr_user[num]->getFd(), msg);
-		cur_chan->eraseUser(this->arr_user[num]);
 	}
 	return 0;
 }
