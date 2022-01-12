@@ -51,7 +51,7 @@ public:
     std::vector<User *> const	&getUsersVector()           const;
     std::vector<User *>         &getUsersVector_red();//
 	std::vector<User *> const	&getOpersVector()           const;
-	std::vector<User *> const	&getInvitedVector()         const;
+	std::vector<User *>	        &getInvitedVector()         ;
     std::string                 getNickname_by_it(int it)   const;
 	User*				 		getOperModer();
 	ModeChan					*getModeParams() { return modeParams; }
@@ -61,16 +61,18 @@ public:
 	void		                setPassword(std::string str);
 
 	void		addUser(User* usr); //std::string
+	void		addOperUser(User* usr); //std::string
 	void		addVoteUser(User* usr); //std::string
 	void		addInvitedUser(User* usr); //std::string
 	void		eraseUser(User* usr);
-	void		eraseVoteUser(User* usr);
 	void		eraseOperUser(User* usr);
+	void		eraseVoteUser(User* usr);
+	void		eraseInvitedUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
-	void		setParamTrue(std::string str, std::string str_arg);
-	void		setParamTrue(std::string str);
-	void		setParamFalse(std::string str);
+	std::string		setParamTrue(std::string str, std::string str_arg, std::string msg);
+	std::string		setParamTrue(std::string str, std::string msg);
+	std::string		setParamFalse(std::string str, std::string msg);
 	User*		findUserByName(std::string str);
 	User*		findUserByName(std::string str, const std::vector<User *> &v_users);
 };

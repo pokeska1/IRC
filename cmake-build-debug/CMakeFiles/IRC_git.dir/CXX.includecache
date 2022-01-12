@@ -29,6 +29,16 @@ User.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
 Channel.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
+sys/types.h
+-
+sys/stat.h
+-
+ctime
+-
+cmath
+-
+cstdlib
+-
 
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
 User.hpp

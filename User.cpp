@@ -91,6 +91,17 @@ bool		User::matchCommand(std::string str)
 	return false;
 }
 
+void		User::eraseChannel(Channel* cnl)
+{
+    std::vector<Channel *>::iterator	first = arr_channel.begin();
+    std::vector<Channel *>::iterator	last = arr_channel.end();
+    for (; first != last; ++first)
+    {
+        if (cnl == *first)
+            arr_channel.erase(first);
+    }
+}
+
 void	User::cleaner()
 {
     setMsgFrom("");

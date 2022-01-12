@@ -178,7 +178,6 @@ int Server::many_or_solo_join(std::string const &arg)
     return (2);
 }
 
-
 // функция говорит есть ли у юзерa в списке данный канал
 bool Server::can_user_talk_in_channel(int num, std::string &channel){
     std::vector<Channel *> meh;
@@ -243,7 +242,7 @@ void Server::privmisg_for_one_person(int num,  std::string &name){
 }
 
 void Server::privmisg_work(int num) {
-    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0;
+    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0, num_channel = 0;
     std::string name = "", massage = "", error = "" , msg = "", channel = "";
     std::vector<std::string> arr_channel_name;
     std::vector<std::string>::iterator it_begin, it_end;
@@ -279,9 +278,16 @@ void Server::privmisg_work(int num) {
         }
     }//если сообщения для одного канала
     else if (pos != -1) {
-        pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
-        channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
-        privmisg_for_one_channel(num, massage, channel);
+        name = name.substr(1, name.length() - 1);
+        if (can_user_talk_in_channel(num, name) == true) {
+            pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
+            channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+            privmisg_for_one_channel(num, massage, channel);
+        }else{
+            num_channel = find_num_chan_by_name(name);
+            msg = MSG_CANNOTSENDTOCHAN;
+            send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+        }
     }else {//если сообщение персоне или ссписку персон
         if (name.find_first_of(",") != std::string::npos || (name.find_first_of(",") > (unsigned long)pos_space )) {
             std::vector<std::string> arr_name;
@@ -314,24 +320,9 @@ void Server::privmisg_work(int num) {
         }
     }
 }
-                                        //INFO
-// не работает
-// void Server::info_work(int num)
-// {
-//     std::string timeee = std::to_string( clock() / 1000 - start_time);
-//     // отправляем сообщеньку по фд
-//     send(this->arr_user[num]->getFd(),"Server vesion: v1.0 ",21, 0);
-//     send(this->arr_user[num]->getFd(),"\ntime start server = ",22, 0);
-//     send(this->arr_user[num]->getFd(),timeee.c_str(), timeee.length(), 0);
-//     send(this->arr_user[num]->getFd()," second",7, 0);
-//     send(this->arr_user[num]->getFd(), "\n",  1, 0);
-//     std::cout << "info massage: " << "Server vesion: v1.0, " << "time =" << timeee.c_str() << std::endl;
-// }
-
-
                                         //JOIN
 //
-void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator it_b_channel, std::string topic){
+void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterator &it_b_channel, std::string topic){
     //отправляем что он в канале
     std::string msg = MSG_ACCESS_JOIN;
     std::cout << "|"<<  msg  << "|\n";
@@ -421,8 +412,9 @@ std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
 }
 
 //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
-void Server::create_new_channel(int num, std::string &key, std::string &topic){
+void    Server::create_new_channel(int num, std::string &key, std::string &topic){
     std::vector<Channel *>::iterator it_b_channel, it_e_channel;
+    int i = 0;
 
     Channel *channel = new Channel(topic);
     if (!key.empty())
@@ -434,13 +426,27 @@ void Server::create_new_channel(int num, std::string &key, std::string &topic){
     this->arr_user[num]->setVecChannel(*channel);
     it_b_channel = this->arr_channel.begin();
     it_e_channel = this->arr_channel.end();
+    i = find_num_chan_by_name(channel->getName());
+    it_b_channel += i;
     say_hello_to_new_in_channel(num, it_b_channel, topic);
     std::cout <<"\x1b[32;1m Create a channel :|\x1b[0m" << topic <<  "\x1b[32;1m|\x1b[0m\n";
 }
 
+int     Server::check_how_many_channel_have_user(int num){
+    if (this->arr_user[num]->getVecChannel().empty() == true)
+        return(0);
 
+    int i = 0;
+    std::vector<Channel *>::iterator it_begin, it_end;
 
-
+    it_begin = this->arr_user[num]->getVecChannel().begin();
+    it_end = this->arr_user[num]->getVecChannel().end();
+    while(it_begin != it_end){
+        it_begin++;
+        i++;
+    }
+   return(i);
+}
 
 //структура
 //1) расщепление аргумента на массивы topic и их паролей
@@ -469,59 +475,97 @@ void Server::join_work(int num) {
     pos = msg.find_first_of(" ");
     it_b_channel = this->arr_channel.begin();
     it_e_channel = this->arr_channel.end();
-    if ((pos2 = msg.find_first_of(" ", pos + 1)) != -1) {
-        error = MSG_NEEDMOREPARAMS;
-        send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
-        return;
-    }
-    topic = msg.substr(1, pos - 1);
-    if (pos != -1)
-        key = msg.substr(pos + 1, msg.length() - (pos + 1));
-    //2*
-    if (this->arr_channel.empty())
-        create_new_channel(num, key, topic);
-    else {//3*
-        while (it_b_channel != it_e_channel) {
-            if ((*it_b_channel)->getName() == topic)//3.1
-            {
-                it_b_u_channel = this->arr_user[num]->getVecChannel().begin();
-                it_e_u_channel = this->arr_user[num]->getVecChannel().end();
-                while (it_b_u_channel != it_e_u_channel) {
-                    if ((*it_b_u_channel)->getName() == topic)//3.1.1.1//я так и не нашёл как обрабатывать join в канал в котором ты уже состоишь
-                        return;
-                    it_b_u_channel++;
-                }
-                if ((*it_b_channel)->getPassword() == "" || (*it_b_channel)->getPassword() == key) {
-                    //3.1.1.2  отправляем всем кто присоединился
-                    this->arr_user[num]->setVecChannel(*(*it_b_channel));
-                    (*it_b_channel)->addUser(arr_user[num]);
-                    it_begin = (*it_b_channel)->getUsersVector_red().begin();
-                    it_end = (*it_b_channel)->getUsersVector_red().end();
-                    std::string msg = MSG_ACCESS_JOIN;
-                    while (it_begin != it_end) { //2 второе сообщение после JOIN #channel
-                        nbytes = send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
-                        std::cout << "Private massage: to " << (*it_begin)->getNickname() << "->" << msg.c_str();
-                        it_begin++;
-                    }
-                    say_hello_to_new_in_channel(num, it_b_channel, topic);
-                    break;
-                } else { // 3.1.1.2.2
-                    error = MSG_BADCHANNELKEY;
-                    send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
-                    std::cout << "\x1b[31;1mLebowski where is the key ?!"
-                                 " You need a password to enter the channel!\x1b[0m\n";
-                    return;
-                }
-            }
-            it_b_channel++;
+    if (check_how_many_channel_have_user(num) <= 9) {
+        if ((pos2 = msg.find_first_of(" ", pos + 1)) != -1) {
+            error = MSG_NEEDMOREPARAMS;
+            send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
+            return;
         }
-        if (it_b_channel == it_e_channel)// точная копия 2*  3.2
+        topic = msg.substr(1, pos - 1);
+        if (check_invite_join(num, topic) == false)
+            return;
+        if (pos != -1)
+            key = msg.substr(pos + 1, msg.length() - (pos + 1));
+        //2*
+        if (this->arr_channel.empty())
             create_new_channel(num, key, topic);
+        else {//3*
+            while (it_b_channel != it_e_channel) {
+                if ((*it_b_channel)->getName() == topic)//3.1
+                {
+                    it_b_u_channel = this->arr_user[num]->getVecChannel().begin();
+                    it_e_u_channel = this->arr_user[num]->getVecChannel().end();
+                    while (it_b_u_channel != it_e_u_channel) {
+                        if ((*it_b_u_channel)->getName() ==
+                            topic)//3.1.1.1//я так и не нашёл как обрабатывать join в канал в котором ты уже состоишь
+                            return;
+                        it_b_u_channel++;
+                    }
+                    if ((*it_b_channel)->getPassword() == "" || (*it_b_channel)->getPassword() == key) {
+                        //3.1.1.2  отправляем всем кто присоединился
+                        this->arr_user[num]->setVecChannel(*(*it_b_channel));
+                        (*it_b_channel)->addUser(arr_user[num]);
+                        it_begin = (*it_b_channel)->getUsersVector_red().begin();
+                        it_end = (*it_b_channel)->getUsersVector_red().end();
+                        std::string msg = MSG_ACCESS_JOIN;
+                        while (it_begin != it_end) { //2 второе сообщение после JOIN #channel
+                            nbytes = send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
+                            std::cout << "Private massage: to " << (*it_begin)->getNickname() << "->" << msg.c_str();
+                            it_begin++;
+                        }
+                        say_hello_to_new_in_channel(num, it_b_channel, topic);
+                        break;
+                    } else { // 3.1.1.2.2
+                        error = MSG_BADCHANNELKEY;
+                        send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
+                        std::cout << "\x1b[31;1mLebowski where is the key ?!"
+                                     " You need a password to enter the channel!\x1b[0m\n";
+                        return;
+                    }
+                }
+                it_b_channel++;
+            }
+            if (it_b_channel == it_e_channel)// точная копия 2*  3.2
+                create_new_channel(num, key, topic);
+        }
+    } else
+        errPrint(arr_user[num]->getFd(), MSG_TOOMANYCHANNELS);
+}
+
+bool Server::find_user_by_name_in_invited(std::string &name, int num_channel)
+{
+    std::vector<User *>::iterator it_begin, it_end;
+
+    it_begin = arr_channel[num_channel]->getInvitedVector().begin();
+    it_end = arr_channel[num_channel]->getInvitedVector().end();
+    while (it_begin != it_end){
+        if((*it_begin)->getNickname() == name)
+            return(true);
+        it_begin++;
     }
+    return(false);
+}
+
+bool Server::check_invite_join(int num,std::string &name_channel){
+    std::string name ="", send_msg = "";
+    int num_channel = 0;
+
+    num_channel = find_num_chan_by_name(name_channel);
+    if (num_channel >= 0){
+        bool i_flag = arr_channel[num_channel]->getModeParams()->i;
+        name = arr_user[num]->getNickname();
+        if (i_flag == true)
+            if (find_user_by_name_in_invited(name, num_channel) != true) {
+                send_msg = MSG_INVITEONLYCHAN;
+                send(arr_user[num]->getFd(), send_msg.c_str(), send_msg.length(), 0);
+                return(false);
+            }
+    }
+    return(true);
 }
 
 void Server::join_pre_work(int num){
-    std::string command = "", arg = "", send_msg = "", valid_buf = "";;
+    std::string command = "", arg = "", send_msg = "", valid_buf = "", name = "";
     int  i = 0;
     std::vector<std::string> name_channel, key_channel;
     std::vector<std::string>::iterator it_begin, it_begin_key, end_begin_key;
@@ -869,6 +913,32 @@ int		Server::rplPrint(const int fd, std::string msg) const
 	return 0;
 }
 
+void	Server::sendToChanUsers(std::string msg, Channel *chan)
+{
+	std::vector<User *>::const_iterator	first = chan->getUsersVector().begin();
+	std::vector<User *>::const_iterator	last = chan->getUsersVector().end();
+	for (; first != last; ++first)
+		send((*first)->getFd(), msg.c_str(), msg.length(), 0);
+}
+
+std::string					Server::fillModes(std::string msg, ModeChan *flags)
+{
+	msg += " +";
+	if (flags->p == 1)
+		msg += "p";
+	if (flags->s == 1)
+		msg += "s";
+	if (flags->i == 1)
+		msg += "i";
+	if (flags->t == 1)
+		msg += "t";
+	if (flags->n == 1)
+		msg += "n";
+	if (flags->m == 1)
+		msg += "m";
+	msg += "\r\n";
+	return msg;
+}
 
 std::vector<std::string>	Server::splitStr(std::string str)
 {
@@ -883,6 +953,21 @@ std::vector<std::string>	Server::splitStr(std::string str)
 		str.erase(0, pos + delimiter.length());
 		while (str.find_first_not_of(" ") > 0) //удаление лишних пробелов в начале строки
 			str.erase(0,1);
+	}
+	tmp = str.substr(0, pos);
+	res.push_back(tmp); //action
+	return res;
+}
+
+std::vector<std::string>	Server::splitStr(std::string str, std::string delimiter)
+{
+	std::vector<std::string>	res;
+	size_t pos = 0;
+	std::string tmp;
+	while ((pos = str.find(delimiter)) != std::string::npos) {
+		tmp = str.substr(0, pos);
+		res.push_back(tmp); //action
+		str.erase(0, pos + delimiter.length());
 	}
 	tmp = str.substr(0, pos);
 	res.push_back(tmp); //action
@@ -937,27 +1022,34 @@ int		Server::part(int num) //добавить выход из нескльких
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
 	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
-	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
-	(args[0]).erase(0,1); // удаляем символ #/&
-	if (chan_in_list(args[0], arr_channel) == false) //проверка: нет в списке каналов
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
-	Channel *cur_chan = find_chan(args[0]);
-	//проверка: юзер не состоит в канале или в канале только 1 юзер
-	if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
-	else
+	std::vector<std::string> exitChans = splitStr(args[0], ",");
+	for(size_t i = 0; i < exitChans.size(); ++i)
 	{
-		//ADD notice message
-		if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
+		if (is_chan(exitChans[i]) == false) //проверка: не канал (exitChans[i] - храниться имя канала)
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
+		(exitChans[i]).erase(0,1); // удаляем символ #/&
+		if (chan_in_list(exitChans[i], arr_channel) == false) //проверка: нет в списке каналов
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
+		Channel *cur_chan = find_chan(exitChans[i]);
+		//проверка: юзер не состоит в канале или в канале только 1 юзер
+		if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
+		else
 		{
-			if (cur_chan->getOpersVector().empty()) //there are no operusers
-				cur_chan->setOper(cur_chan->getUsersVector()[1]);
-			else
+			//ADD notice message
+			if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
 			{
-				cur_chan->setOper(cur_chan->getOpersVector()[0]);
-				cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
+				if (cur_chan->getOpersVector().empty()) //there are no operusers
+					cur_chan->setOper(cur_chan->getUsersVector()[1]);
+				else
+				{
+					cur_chan->setOper(cur_chan->getOpersVector()[0]);
+					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
+				}
 			}
+			cur_chan->eraseUser(this->arr_user[num]);
+			cur_chan->eraseVoteUser(this->arr_user[num]);
+			cur_chan->eraseOperUser(this->arr_user[num]);
 		}
 		std::string	msg(MSG_PARTSUCCESS);
 		rplPrint(this->arr_user[num]->getFd(), msg);
@@ -1017,15 +1109,23 @@ int		Server::kick(int num) // that if user is oper?
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	else
 	{
-		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
-			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
+		if (!isOper(this->arr_user[num], cur_chan))//check if user is oper
+            return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
 		else
 		{
+            std::string msg = MSG_PRIVMSG_CHANNEL;
+            for (VEC_ITER_USER_ADR it = cur_chan->getUsersVector_red().begin();
+            it != cur_chan->getUsersVector_red().end(); ++it) {
+                send((*it)->getFd(), msg.c_str(), msg.length(), 0);
+            }
 			cur_chan->eraseUser(user_to_kick);
 			cur_chan->eraseVoteUser(user_to_kick);
+			cur_chan->eraseOperUser(user_to_kick);
+			cur_chan->eraseInvitedUser(user_to_kick);
+            user_to_kick->eraseChannel(cur_chan);
 		}
 	}
 	return 0;
@@ -1050,7 +1150,11 @@ int		Server::topic(int num)
     {
         if (cur_chan->getTopic() == "")
 			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
-		return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
+		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 0;
+		//return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
     }
     else
     {
@@ -1060,6 +1164,9 @@ int		Server::topic(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
+		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
+		sendToChanUsers(msg, cur_chan);
     }
 	return 0;
 }
@@ -1081,9 +1188,6 @@ int		Server::topic(int num)
 
 int		Server::mode_chan(int num)
 {
-	// Channel *test = new Channel("test"); //default channel - delete on production
-	// arr_channel.push_back(test);
-	/* this->arr_user[num] - обращение к классу User */
 	std::cout << "arr_channel.size()=" << arr_channel.size() << std::endl;
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
@@ -1101,16 +1205,23 @@ int		Server::mode_chan(int num)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (!isOper(this->arr_user[num], cur_chan)) //check if user is oper
 		return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
-	if ((args[1])[0] == '+') //флаги в true
+	std::string msg = ":" + this->arr_user[num]->getNickname() + \
+						"!" + this->arr_user[num]->getUsername() + \
+						"@" + this->arr_user[num]->getHostname() + \
+						" " + "MODE" + \
+						" #" + cur_chan->getName();
+						//" " + "+t" + "\r\n";
+	if ((args[1])[0] == '+') //флаги в true//sega
 	{
 		(args[1]).erase(0,1);
 		std::size_t found = (args[1]).find_first_not_of("opsitnmlvk");
 		if (found!=std::string::npos)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
 		if (args.size() > 2)
-			cur_chan->setParamTrue(args[1], args[2]);
+			msg = cur_chan->setParamTrue(args[1], args[2], msg);
 		else
-			cur_chan->setParamTrue(args[1]);
+			msg = cur_chan->setParamTrue(args[1], msg);	
+		sendToChanUsers(msg, cur_chan);
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{
@@ -1118,18 +1229,15 @@ int		Server::mode_chan(int num)
 		std::size_t found = (args[1]).find_first_not_of("psitnm");
 		if (found!=std::string::npos)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
-		cur_chan->setParamFalse(args[1]);
+		msg = cur_chan->setParamFalse(args[1], msg);
+		sendToChanUsers(msg, cur_chan);
 	}
+	std::string msg_final = MSG_CHANNELMODEIS;
+	msg_final = fillModes(msg_final, cur_chan->getModeParams());
+	sendToChanUsers(msg_final, cur_chan);
 	return 0;
 }
 
-// int		Server::version(int num)
-// {
-// 	std::string msg = "Server vesion: v1.0\n";
-// 	write(this->arr_user[num]->getFd(), msg.c_str(), msg.length());
-// 	std::cout << "version massage: " << msg;
-// 	return 0;
-// }
 
 // THE END
 

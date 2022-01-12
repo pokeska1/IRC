@@ -48,14 +48,15 @@ public:
     void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
     void    privmisg_for_one_person(int num,  std::string &name);
     void    privmisg_work(int num);
-            //INFO 302
-    // void    info_work(int num);
-            //JOIN 316
-    void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR it_b_channel, std::string topic);
+            //JOIN 322
+    void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR &it_b_channel, std::string topic);
     VEC_STR &parser_of_join_chanel(std::string &msg);
     VEC_STR &parser_of_join_chanel_key(std::string &msg);
     void    create_new_channel(int num, std::string &key, std::string &topic);
     void    join_work(int num);
+    bool    find_user_by_name_in_invited(std::string &name, int num_channel);
+    bool    check_invite_join(int num,std::string &name_channel);
+    int     check_how_many_channel_have_user(int num);
     void    join_pre_work(int num);
             //USER 537
     void    user_work(std::string &arg, int num);
@@ -84,8 +85,9 @@ private:
 
 public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str);
+	std::vector<std::string>	splitStr(std::string str, std::string delimiter);
 	Channel						*find_chan(std::string str);
-	// int		version(int num);
+	std::string					fillModes(std::string msg, ModeChan *flags);
 	int		part(int num);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
@@ -96,6 +98,8 @@ public: //rmerrie
     bool    isOper(User *usr, Channel *chan);
 	int		errPrint(const int fd, std::string msg) const;
 	int		rplPrint(const int fd, std::string msg) const;
+	void	sendToChanUsers(std::string msg, Channel *chan);
+	
 
 public: //epilar
 	bool	isNickUsed(const std::string& nickname);

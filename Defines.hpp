@@ -1,6 +1,7 @@
 #pragma once
 
 #define VEC_STR std::vector<std::string>
+#define VEC_ITER_STR std::vector<std::string>::iterator
 #define VEC_ITER_STR_ADR std::vector<std::string *>::iterator
 #define VEC_ITER_CHANEL_ADR std::vector<Channel *>::iterator
 #define VEC_ITER_USER_ADR std::vector<User *>::iterator
@@ -145,8 +146,19 @@
 
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
+//324
+#define MSG_CHANNELMODEIS ":localhost 324 " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName()
+//+ " +i" + "\r\n";
+
 //331
-#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
+#define MSG_NOTOPIC ":localhost 331 " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
++ " :" +  "notopic" + "\r\n"
+// #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
+// + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
+// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
+//#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
 
 //332
 #define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
@@ -169,8 +181,6 @@
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
-#define MSG_LIST_USER_IN_CHANELL_O_1 ":localhost 353 " + arr_user[num]->getNickname() + " = #" + topic \
-+ " :";
 //366
 #define MSG_END_OF_USER_LIST ":" + this->getHost() + " 366 " + arr_user[num]->getNickname() + " #" + topic \
 + " :END of /NAMES list\r\n";
@@ -180,8 +190,18 @@
 + " Нет такого челика \""
 //403
 #define MSG_NOSUCHCHANNEL ":" + this->arr_user[num]->getServername() + " " \
-+ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ ERR_CANNOTSENDTOCHAN + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <channel name> :No such channel\n"
+//404
+#define MSG_CANNOTSENDTOCHAN ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + \
+" :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
+//405 #define ERR_TOOMANYCHANNELS "405"
+#define MSG_TOOMANYCHANNELS ":" + this->arr_user[num]->getServername() + " " \
++ ERR_TOOMANYCHANNELS + " " + this->arr_user[num]->getHostname() + " " \
++  " :You're have too many channel.\n"
+
 //442
 #define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
@@ -198,6 +218,13 @@
 #define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
 + ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
 + cur_chan->getName() + " :You're not channel operator\n"
+#define MSG_CHANOPRIVSNEEDED_KICK ":" + this->arr_user[num]->getServername() + " " \
++ ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
++ cur_chan->getName() + " :You're not channel operator. And you dare to think about KIСK someone ?!\n"
+//473
+#define MSG_INVITEONLYCHAN ":" + this->arr_user[num]->getServername() + " " + ERR_INVITEONLYCHAN \
++ " " + this->arr_user[num]->getHostname() + " " + this->arr_user[num]->getNickname() +          \
+" :This channel (#" + this->arr_channel[num_channel]->getName() +  ") only for invite\r\n"
 //475
 #define MSG_BADCHANNELKEY ":" + this->arr_user[num]->getServername() + " " \
 + ERR_BADCHANNELKEY + " " + this->arr_user[num]->getHostname() + " " \
