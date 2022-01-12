@@ -5,6 +5,7 @@
 #include "User.hpp"
 
 class User;
+class Server;
 
 struct ModeChan
 {

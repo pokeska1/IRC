@@ -200,6 +200,11 @@
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + \
 " :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
+//405 #define ERR_TOOMANYCHANNELS "405"
+#define MSG_TOOMANYCHANNELS ":" + this->arr_user[num]->getServername() + " " \
++ ERR_TOOMANYCHANNELS + " " + this->arr_user[num]->getHostname() + " " \
++  " :You're have too many channel.\n"
+
 //442
 #define MSG_NOTONCHANNEL ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOTONCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
@@ -278,6 +283,11 @@
 //quit
 #define MSG_QUIT_DEFAULT "QUIT :" + this->arr_user[this->find_numb_iter(fd)]->getNickname()
 #define MSG_QUIT_MESSAGE "QUIT :" + args
+
+//part answer
+#define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "!" + \
+this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+" PART #" + cur_chan->getName() + " :" + this->arr_user[num]->getNickname() + "\r\n"
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
