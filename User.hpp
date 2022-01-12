@@ -57,7 +57,7 @@ private:
 	void	operator=(const User &cp);
 public:
     User(int            fd);
-	User(std::string	str);
+//	User(std::string	str);
 	~User();
 	//Getters
 	int	const    &getFd()                const;

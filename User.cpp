@@ -1,11 +1,11 @@
 #include "User.hpp"
 
-User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
-	msg_args(NULL), curr_buf(NULL){
-    password = false; name_init = false; access = false;
-    }
+//User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
+//	msg_args(NULL), curr_buf(NULL){
+//    password = false; name_init = false; access = false;
+//    }
 User::User(int fd):fd(fd){
-    nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
+//    nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
     password = false; name_init = false; access = false; full_massage = false;
 }
 User::~User(){}
@@ -81,7 +81,8 @@ bool		User::matchCommand(std::string str)
 {
 	std::string		com_array[] = { "PASS", "NICK", "USER", "OPER", "PRIVMSG",
 	"NOTICE", "JOIN", "MODE", "TOPIC", "INVITE", "KICK", "PART", "KILL",
-	"VERSION", "INFO" };
+	"VERSION", "INFO", "QUIT", "ISON" };
+  
 	unsigned len = sizeof(com_array) / sizeof(com_array[0]);
 	for (unsigned i = 0; i < len; ++i)
 	{
