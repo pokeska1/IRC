@@ -281,6 +281,10 @@
 #define MSG_QUIT_DEFAULT "QUIT :" + this->arr_user[this->find_numb_iter(fd)]->getNickname()
 #define MSG_QUIT_MESSAGE "QUIT :" + args
 
+//part answer
+// #define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + " PART " + cur_chan->getName() + "\r\n"
+#define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "PART :" + cur_chan->getName() + "\r\n"
+
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
 #define MSG_ACCESS_JOIN ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() + "@" \
