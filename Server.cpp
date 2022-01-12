@@ -1017,6 +1017,16 @@ bool    Server::isOper(User *usr, Channel *chan)
     return false;
 }
 
+User*		Server::findUser(std::string str)
+{
+	for (int i = 0; (unsigned long)i < arr_user.size(); ++i)
+	{
+		if (arr_user[i]->getNickname() == str)
+			return arr_user[i];
+	}
+	return NULL;
+}
+
 int		Server::part(int num) //добавить выход из нескльких каналов сразу
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
@@ -1073,18 +1083,21 @@ int 	Server::invite(int num) //добавить ответы
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->i == 1 ) //проверка: не хватает прав
 		return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
-	User * user_to_invite = cur_chan->findUserByName(args[1]);
-	User * user_allready_in = cur_chan->findUserByName(args[1], cur_chan->getInvitedVector());
+	User * user_to_invite = findUser(args[0]);
+	User * user_allready_in = cur_chan->findUserByName(args[0], cur_chan->getInvitedVector());
 	if (user_to_invite == NULL) //проверка: не существует такого юзера
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
-	else if (user_allready_in == NULL) //проверка: юзер уже в канале
+	if (user_allready_in != NULL) //проверка: юзер уже в канале
 		return (errPrint(this->arr_user[num]->getFd(), MSG_USERONCHANNEL));
 	else
 	{
-		//ADD notice message
 		cur_chan->addInvitedUser(user_to_invite);
+		std::string msg = ":" + this->arr_user[num]->getNickname() + \
+	"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+	" " + "INVITE" + " " + args[0] + " #" + cur_chan->getName() + "\r\n";
+		std::cout << "current msg is:" << msg << std::endl;
+		errPrint(this->arr_user[find_num_by_nickname(args[0])]->getFd(), msg);
 	}
-	// добавить в джоин проверку на инвайт-онли канал
 	return 0;
 }
 
@@ -1190,8 +1203,10 @@ int		Server::mode_chan(int num)
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
-	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
+	//if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
+	//	return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
+	if (args.size() == 1) //проверка нет аргументов - выход, иначе textual тупит
+		return 0;
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
@@ -1204,11 +1219,8 @@ int		Server::mode_chan(int num)
 	if (!isOper(this->arr_user[num], cur_chan)) //check if user is oper
 		return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
 	std::string msg = ":" + this->arr_user[num]->getNickname() + \
-						"!" + this->arr_user[num]->getUsername() + \
-						"@" + this->arr_user[num]->getHostname() + \
-						" " + "MODE" + \
-						" #" + cur_chan->getName();
-						//" " + "+t" + "\r\n";
+	"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+	" " + "MODE" + " #" + cur_chan->getName();
 	if ((args[1])[0] == '+') //флаги в true//sega
 	{
 		(args[1]).erase(0,1);

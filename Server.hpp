@@ -100,6 +100,7 @@ public: //rmerrie
 	int		errPrint(const int fd, std::string msg) const;
 	int		rplPrint(const int fd, std::string msg) const;
 	void	sendToChanUsers(std::string msg, Channel *chan);
+	User*	findUser(std::string str);
 	
 
 public: //epilar

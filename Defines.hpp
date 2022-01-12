@@ -178,6 +178,9 @@
 //332
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
+//341
+#define MSG_INVITING ":localhost 341 " + arr_user[num]->getNickname() + \
++ " :" +  "inviting" + "\r\n" 
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
