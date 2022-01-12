@@ -1,11 +1,11 @@
 #include "User.hpp"
 
-User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
-	msg_args(NULL), curr_buf(NULL){
-    password = false; name_init = false; access = false;
-    }
+//User::User(std::string	str):nickname(str), msg_from(NULL), msg_com(NULL),
+//	msg_args(NULL), curr_buf(NULL){
+//    password = false; name_init = false; access = false;
+//    }
 User::User(int fd):fd(fd){
-    nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
+//    nickname = "";msg_from = "";msg_com = "";msg_args = "";curr_buf = "";
     password = false; name_init = false; access = false; full_massage = false;
 }
 User::~User(){}

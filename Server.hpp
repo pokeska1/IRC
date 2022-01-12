@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstdlib>
 //////////////
+class User;
 
 class Server {
 public:

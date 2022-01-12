@@ -272,8 +272,8 @@ void Server::privmisg_work(int num) {
         it_begin = arr_channel_name.begin();
         it_end = arr_channel_name.end();
         while (it_begin != it_end) {
-            if (can_user_talk_in_channel(num, (*it_begin)) == true)//нужно проверить состоит ли юзер в канале
-                privmisg_for_one_channel(num , massage, (*it_begin));
+            if (can_user_talk_in_channel(num, (*it_begin)) == true) //нужно проверить состоит ли юзер в канале
+                privmisg_for_one_channel(num, massage, (*it_begin));
             it_begin++;
         }
     }//если сообщения для одного канала
@@ -731,6 +731,7 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
             privmisg_work(num);
             break;
         case NOTICE:
+            privmisg_work(num);
             break;
         case JOIN:
             join_pre_work(num);
@@ -1108,6 +1109,10 @@ int		Server::kick(int num) // that if user is oper?
 	{
 		if (!isOper(this->arr_user[num], cur_chan))//check if user is oper
             return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
+        if(user_speaking->getNickname() == args[1]) {// проверка что чел не пытается кикнуть сам себя
+            int num_channel = find_num_chan_by_name(cur_chan->getName());
+            return (errPrint(this->arr_user[num]->getFd(), MSG_CANNOTSENDTOCHAN_KICK));
+        }
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
@@ -1189,8 +1194,10 @@ int		Server::mode_chan(int num)
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
-	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
+    //if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
+        //  return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
+    if (args.size() == 1)
+            return 0;
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
@@ -1207,7 +1214,7 @@ int		Server::mode_chan(int num)
 						"@" + this->arr_user[num]->getHostname() + \
 						" " + "MODE" + \
 						" #" + cur_chan->getName();
-						//" " + "+t" + "\r\n";
+						//" " + "+t" + "\r\n"
 	if ((args[1])[0] == '+') //флаги в true//sega
 	{
 		(args[1]).erase(0,1);

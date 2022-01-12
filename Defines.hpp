@@ -197,7 +197,12 @@
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + \
 " :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
-//405 #define ERR_TOOMANYCHANNELS "405"
+//404 KICK
+#define MSG_CANNOTSENDTOCHAN_KICK ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + \
+" :you can't kick yourself out, use the PART command\n"
+//405 #define
 #define MSG_TOOMANYCHANNELS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_TOOMANYCHANNELS + " " + this->arr_user[num]->getHostname() + " " \
 +  " :You're have too many channel.\n"
