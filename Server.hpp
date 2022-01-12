@@ -48,6 +48,7 @@ public:
             //PRIVMSG 183
     void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
     void    privmisg_for_one_person(int num,  std::string &name);
+    void    privmisg_work(int num, bool is_it_notice);
     void    privmisg_work(int num);
             //JOIN 322
     void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR &it_b_channel, std::string topic);

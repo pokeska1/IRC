@@ -232,6 +232,8 @@ void Server::privmisg_for_one_person(int num,  std::string &name){
         send(arr_user[num]->getFd(), error.c_str(), error.length(), 0);
         return;
     }
+    if (num_friend == num)
+        return;
     // отправляем сообщеньку по фд
     msg = MSG_PRIVMSG;
     nbytes = send(this->arr_user[num_friend]->getFd(), msg.c_str(), msg.length(), 0);
@@ -272,8 +274,13 @@ void Server::privmisg_work(int num) {
         it_begin = arr_channel_name.begin();
         it_end = arr_channel_name.end();
         while (it_begin != it_end) {
-            if (can_user_talk_in_channel(num, (*it_begin)) == true)//нужно проверить состоит ли юзер в канале
-                privmisg_for_one_channel(num , massage, (*it_begin));
+            if (can_user_talk_in_channel(num, (*it_begin)) == true) {//нужно проверить состоит ли юзер в канале
+//                if (is_it_notice == true) { // если NOTICE в канал
+//                    it_begin++;
+//                    continue;
+//                }
+                privmisg_for_one_channel(num, massage, (*it_begin));
+            }
             it_begin++;
         }
     }//если сообщения для одного канала
@@ -282,9 +289,11 @@ void Server::privmisg_work(int num) {
         if (can_user_talk_in_channel(num, name) == true) {
             pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
             channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
+//            if (is_it_notice == true) // если NOTICE в канал
+//                return;
             privmisg_for_one_channel(num, massage, channel);
         }else{
-            num_channel = find_num_chan_by_name(name);
+
             msg = MSG_CANNOTSENDTOCHAN;
             send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
         }
@@ -1113,7 +1122,6 @@ int		Server::kick(int num) // that if user is oper?
 		if (!isOper(this->arr_user[num], cur_chan))//check if user is oper
             return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
         if(user_speaking->getNickname() == args[1]) {// проверка что чел не пытается кикнуть сам себя
-            int num_channel = find_num_chan_by_name(cur_chan->getName());
             return (errPrint(this->arr_user[num]->getFd(), MSG_CANNOTSENDTOCHAN_KICK));
         }
 		User * user_to_kick = cur_chan->findUserByName(args[1]);

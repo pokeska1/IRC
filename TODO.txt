@@ -23,13 +23,13 @@ This will allow you to first send the letters com, man, d\n.
 	TOPIC   +   сделано
 	VERSION +   сделано
 	INFO    +   сделано
+	NOTICE  +   сделано
+	KICK    +   сделано
 	PRIVMSG +   сделано     ?   jmarian
     JOIN    +   сделано     ?   jmarian
-    KICK    +   делается        jmarian
     MODE    +   делается        rmerrie
     INVITE  +   делается        rmerrie
     PART    +   делается        epilar
-    NOTICE  +   взял            jmarian
     WHO     -
     PING    -
     ISON    -
@@ -59,10 +59,9 @@ CHECKLIST:
     //2.2)множественное канальное сообщение -- сделал.
     2.3)
 3)KICK
-    //3.1) сам себя заблокировать только парт .
-    3.2)
+    //3.1)Заблокировать Возможно блокировки самого себя.
 4)NOTIC
-    4.1)
+    4.1)сделал под копирку с привмсг , оставил альтернативный вариант.
     4.2)
 
 
