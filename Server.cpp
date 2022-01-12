@@ -1552,7 +1552,8 @@ int				Server::info(int num, std::string& args)
 
 int		Server::quit(int num, std::string& args)
 {
-	// выйти из каналов, где был пользователь
+	// разослать уведомление всем остальным пользователям канала
+	// удалить пользователя из его каналов
 	// закрыть fd
 	// удалить пользователя
 
@@ -1564,12 +1565,24 @@ int		Server::quit(int num, std::string& args)
 		for (; itb != ite; ++itb)
 		{
 			std::string	arg("#" + (*itb)->getName());
+
+			Channel				*chn = *itb;
+			std::vector<User *>	chn_users = chn->getUsersVector();
+
+			std::vector<User *>::iterator	it_begin = chn_users.begin();
+			std::vector<User *>::iterator	it_end = chn_users.end();
+			for (; it_begin != it_end; ++it_begin)
+			{
+				std::string	quit_msg(args.length() ? args.erase(0,1) : this->arr_user[num]->getNickname());
+				if (this->arr_user[num]->getFd() != (*it_begin)->getFd())
+					rplPrint((*it_begin)->getFd(), MSG_QUIT);
+			}
+
 			this->part(num, arg);
 		}
 	}
 	close(this->arr_user[num]->getFd());
 	this->deleteClient(this->arr_user[num]->getFd());
 
-	args.clear();
 	return 0;
 }
