@@ -48,9 +48,7 @@ public:
     void    privmisg_for_one_channel(int num, std::string &massage, std::string &channel);
     void    privmisg_for_one_person(int num,  std::string &name);
     void    privmisg_work(int num);
-            //INFO 302
-    // void    info_work(int num);
-            //JOIN 316
+            //JOIN 322
     void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR &it_b_channel, std::string topic);
     VEC_STR &parser_of_join_chanel(std::string &msg);
     VEC_STR &parser_of_join_chanel_key(std::string &msg);
@@ -58,6 +56,7 @@ public:
     void    join_work(int num);
     bool    find_user_by_name_in_invited(std::string &name, int num_channel);
     bool    check_invite_join(int num,std::string &name_channel);
+    int     check_how_many_channel_have_user(int num);
     void    join_pre_work(int num);
             //USER 537
     void    user_work(std::string &arg, int num);
