@@ -1058,6 +1058,7 @@ int		Server::part(int num)
 			cur_chan->eraseUser(this->arr_user[num]);
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
+			this->arr_user[num]->eraseChannel(cur_chan);
 		}
 	}
 	return 0;
