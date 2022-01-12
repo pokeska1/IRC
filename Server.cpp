@@ -88,6 +88,7 @@ void Server::deleteClient(int fd){
     while (it_begin != it_end)
     {
         if (fd == (*it_begin)->getFd()) {
+			delete *it_begin;
             arr_user.erase(it_begin);
             return;
         }
@@ -840,7 +841,11 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
         }
         if (nbytes < 0) { perror("Server: meh nbytes < 0\n"); }
         else if (nbytes == 0) {
+///////////////////
+
+///////////////////
             deleteClient(fd);
+			close(fd);
             perror("\x1b[31;1mServer: meh nbytes == 0, and delete Client byby =^_^=\x1b[0m\n");
         } else if (arr_user[num]->getFullMassage() == true) {
             std::cout << "Serv got massage: |" << buf_str << "|\n";
@@ -1102,8 +1107,8 @@ int		Server::kick(int num) // that if user is oper?
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	else
 	{
-		if (!isOper(this->arr_user[num], cur_chan) && cur_chan->getModeParams()->t == 1 ) //check if user is oper
-			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
+		if (!isOper(this->arr_user[num], cur_chan))//check if user is oper
+            return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
@@ -1275,7 +1280,11 @@ int		Server::nick(int num, std::string& args)
 	{
 		std::string	msg(MSG_NICKCHANGED);
 		arr_user[num]->setNickname(nickname);
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+
+		std::vector<User *>::iterator	it_begin = arr_user.begin();
+		std::vector<User *>::iterator	it_end = arr_user.end();
+		for (; it_begin != it_end; it_begin++)
+			send((*it_begin)->getFd(), msg.c_str(), msg.length(), 0);
 	}
 	else
 	{
@@ -1423,7 +1432,6 @@ int				Server::info(int num, std::string& args)
 	if (this->getHost() != servername)
 	{
 		std::string	msg(MSG_NOSUCHSERVER);
-
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
