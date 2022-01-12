@@ -88,7 +88,7 @@ public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str, std::string delimiter);
 	Channel						*find_chan(std::string str);
 	std::string					fillModes(std::string msg, ModeChan *flags);
-	int		part(int num);
+	int		part(int num, std::string& arguments);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
 	int		mode_chan(int num);
