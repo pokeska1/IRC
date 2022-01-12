@@ -147,12 +147,12 @@
 ////////////// MESSAGES ///////////////////////////////////////////////////////
 
 //324
-#define MSG_CHANNELMODEIS ":localhost 324 " \
+#define MSG_CHANNELMODEIS ":" + this->getHost() + " 324 " \
 + this->arr_user[num]->getNickname() + " #" + cur_chan->getName()
 //+ " +i" + "\r\n";
 
 //331
-#define MSG_NOTOPIC ":localhost 331 " \
+#define MSG_NOTOPIC ":" + this->getHost() + " 331 " \
 + this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
 + " :" +  "notopic" + "\r\n"
 // #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
@@ -172,12 +172,17 @@
 + this->arr_user[num]->getNickname() + \
 "!" + this->arr_user[num]->getUsername() + "@" \
 + this->arr_user[num]->getHostname() + "\r\n";
-//001
+//303 #define RPL_ISON "303"
+//#define MSG_RPL_ISON ":"
+#define MSG_RPL_ISON ":" + this->getHost() + " " + RPL_ISON + " :"
 //332
-#define MSG_HELLO_AND_JOIN ":localhost 332 " + arr_user[num]->getNickname() + " #" + topic + " :No topic is set" + "\r\n"
+#define MSG_HELLO_AND_JOIN ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic + " :No topic is set" + "\r\n"
 //332
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
+//341
+#define MSG_INVITING ":localhost 341 " + arr_user[num]->getNickname() + \
++ " :" +  "inviting" + "\r\n" 
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
@@ -197,7 +202,12 @@
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + \
 " :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
-//405 #define ERR_TOOMANYCHANNELS "405"
+//404 KICK
+#define MSG_CANNOTSENDTOCHAN_KICK ":" + this->arr_user[num]->getServername() + " " \
++ ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + \
+" :you can't kick yourself out, use the PART command\n"
+//405 #define
 #define MSG_TOOMANYCHANNELS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_TOOMANYCHANNELS + " " + this->arr_user[num]->getHostname() + " " \
 +  " :You're have too many channel.\n"
