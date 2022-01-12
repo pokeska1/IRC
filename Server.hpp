@@ -31,6 +31,7 @@ public:
     //геторы 30
     std::string             &getHost();
     std::string const       &getPassword(int i);
+    std::vector<User *>     &getUserVector();
     std::vector<Channel *>  &getChannel();
     int                     &getPort(int i);
     bool                    getAccess(int fd);
@@ -60,8 +61,10 @@ public:
     bool    check_invite_join(int num,std::string &name_channel);
     int     check_how_many_channel_have_user(int num);
     void    join_pre_work(int num);
-            //USER 537
+            //USER 611
     void    user_work(std::string &arg, int num);
+            //ISON 638
+    void        ison_work(int num);
     // парсер 566
     int     name_verification(std::string &buf);
     int     password_verification(std::string &buf, int num);

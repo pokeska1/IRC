@@ -30,9 +30,9 @@ This will allow you to first send the letters com, man, d\n.
     MODE    +   делается        rmerrie
     INVITE  +   делается        rmerrie
     PART    +   делается        epilar
+    ISON    +   делается        jmarian
     WHO     -
     PING    -
-    ISON    -
 
 
 
