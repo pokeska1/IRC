@@ -272,8 +272,8 @@ void Server::privmisg_work(int num) {
         it_begin = arr_channel_name.begin();
         it_end = arr_channel_name.end();
         while (it_begin != it_end) {
-            if (can_user_talk_in_channel(num, (*it_begin)) == true) //нужно проверить состоит ли юзер в канале
-                privmisg_for_one_channel(num, massage, (*it_begin));
+            if (can_user_talk_in_channel(num, (*it_begin)) == true)//нужно проверить состоит ли юзер в канале
+                privmisg_for_one_channel(num , massage, (*it_begin));
             it_begin++;
         }
     }//если сообщения для одного канала
@@ -1052,6 +1052,9 @@ int		Server::part(int num) //добавить выход из нескльких
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
 		}
+		std::string	msg(MSG_PARTSUCCESS);
+		rplPrint(this->arr_user[num]->getFd(), msg);
+		cur_chan->eraseUser(this->arr_user[num]);
 	}
 	return 0;
 }
@@ -1194,10 +1197,8 @@ int		Server::mode_chan(int num)
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
-    //if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
-        //  return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
-    if (args.size() == 1)
-            return 0;
+	if (args.size() == 1)
+		return 0;
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 	(args[0]).erase(0,1); // удаляем символ #/&
@@ -1214,7 +1215,7 @@ int		Server::mode_chan(int num)
 						"@" + this->arr_user[num]->getHostname() + \
 						" " + "MODE" + \
 						" #" + cur_chan->getName();
-						//" " + "+t" + "\r\n"
+						//" " + "+t" + "\r\n";
 	if ((args[1])[0] == '+') //флаги в true//sega
 	{
 		(args[1]).erase(0,1);
@@ -1333,7 +1334,11 @@ std::vector<std::string>	Server::getSrvStat(void)
 	char*						clock_modif;
 
 	if (stat(PATH_TO_SERVER_FILE, &all_info) == -1)
+	{
+		ret.push_back("");
+		ret.push_back("");
 		return ret;
+	}
 	clock_create = ctime(&all_info.st_ctimespec.tv_sec);
 	clock_modif = ctime(&all_info.st_mtimespec.tv_sec);
 	ret.push_back(clock_create);
