@@ -128,73 +128,144 @@ User*		Channel::findUserByName(std::string str, const std::vector<User *> &v_use
 	return NULL;
 }
 
-void	Channel::setParamTrue(std::string flags, std::string flag_arg)
+std::string	Channel::setParamTrue(std::string flags, std::string flag_arg, std::string msg)
 {
+	msg += " +";
 	for (int i = 0; (unsigned long)i < flags.length(); ++i)
 	{
 		if ('p' == flags[i])
+		{
 			modeParams->p = 1;
+			msg += "p";
+		}
 		else if ('s' == flags[i])
+		{
 			modeParams->s = 1;
+				msg += "s";
+		}
 		else if ('i' == flags[i])
+		{
 			modeParams->i = 1;
+				msg += "i";
+		}
 		else if ('t' == flags[i])
+		{
 			modeParams->t = 1;
+			msg += "t";
+		}
 		else if ('n' == flags[i])
+		{
 			modeParams->n = 1;
+				msg += "n";
+		}
 		else if ('m' == flags[i])
+		{
 			modeParams->m = 1;
+				msg += "m";
+		}
 		else if ('l' == flags[i])//add check of number
+		{
 			modeParams->limit = atol(flag_arg.c_str());
+			msg += "l ";
+			msg += std::to_string(getModeParams()->limit);
+		}
 		else if ('o' == flags[i])
 		{
 			User * new_oper = findUserByName(flag_arg);
 			if (new_oper != NULL)
 				setOper(new_oper);
+			msg += "o ";
+			msg += flag_arg;
 		}
 		else if ('v' == flags[i])
 		{
 			User * user_to_add = findUserByName(flag_arg);
 			if (user_to_add != NULL)
 				addVoteUser(user_to_add);
+			msg += "v ";
+			msg += flag_arg;
 		}
 		else if ('k' == flags[i])
 			setPassword(flag_arg);
 	}
+	msg += "\r\n";
+	return msg;
 }
-void	Channel::setParamTrue(std::string str)
+std::string	Channel::setParamTrue(std::string str, std::string msg)
 {
+	msg += " +";
 	for (int i = 0; (unsigned long)i < str.length(); ++i)
 	{
 		if ('p' == str[i])
+		{
 			modeParams->p = 1;
+			msg += "p";
+		}
 		else if ('s' == str[i])
+		{
 			modeParams->s = 1;
+				msg += "s";
+		}
 		else if ('i' == str[i])
+		{
 			modeParams->i = 1;
+				msg += "i";
+		}
 		else if ('t' == str[i])
+		{
 			modeParams->t = 1;
+			msg += "t";
+		}
 		else if ('n' == str[i])
+		{
 			modeParams->n = 1;
+				msg += "n";
+		}
 		else if ('m' == str[i])
+		{
 			modeParams->m = 1;
+				msg += "m";
+		}
 	}
+	msg += "\r\n";
+	return msg;
 }
-void	Channel::setParamFalse(std::string str)
+std::string	Channel::setParamFalse(std::string str, std::string msg)
 {
+	msg += " -";
 	for (int i = 0; (unsigned long)i < str.length(); ++i)
 	{
 		if ('p' == str[i])
+		{
 			modeParams->p = 0;
+			msg += "p";
+		}
 		else if ('s' == str[i])
+		{
 			modeParams->s = 0;
+				msg += "s";
+		}
 		else if ('i' == str[i])
+		{
 			modeParams->i = 0;
+				msg += "i";
+		}
 		else if ('t' == str[i])
+		{
 			modeParams->t = 0;
+			msg += "t";
+		}
 		else if ('n' == str[i])
+		{
 			modeParams->n = 0;
+				msg += "n";
+		}
 		else if ('m' == str[i])
+		{
 			modeParams->m = 0;
+				msg += "m";
+		}
 	}
+	msg += "\r\n";
+	return msg;
 }

@@ -70,9 +70,9 @@ public:
 	void		eraseInvitedUser(User* usr);
 	void		setOper(User* usr);
 	void		removeOper(User* usr);
-	void		setParamTrue(std::string str, std::string str_arg);
-	void		setParamTrue(std::string str);
-	void		setParamFalse(std::string str);
+	std::string		setParamTrue(std::string str, std::string str_arg, std::string msg);
+	std::string		setParamTrue(std::string str, std::string msg);
+	std::string		setParamFalse(std::string str, std::string msg);
 	User*		findUserByName(std::string str);
 	User*		findUserByName(std::string str, const std::vector<User *> &v_users);
 };

@@ -1185,7 +1185,7 @@ int		Server::mode_chan(int num)
 
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
-	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов
+	if (this->arr_user[num]->getMsgArgs() == "") //проверка нет аргументов//sega
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
 	if (is_chan(args[0]) == false) //проверка: не канал (args[0] - храниться имя канала)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
@@ -1198,16 +1198,23 @@ int		Server::mode_chan(int num)
 		return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 	if (!isOper(this->arr_user[num], cur_chan)) //check if user is oper
 		return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED));
-	if ((args[1])[0] == '+') //флаги в true
+	std::string msg = ":" + this->arr_user[num]->getNickname() + \
+						"!" + this->arr_user[num]->getUsername() + \
+						"@" + this->arr_user[num]->getHostname() + \
+						" " + "MODE" + \
+						" #" + cur_chan->getName();
+						//" " + "+t" + "\r\n";
+	if ((args[1])[0] == '+') //флаги в true//sega
 	{
 		(args[1]).erase(0,1);
 		std::size_t found = (args[1]).find_first_not_of("opsitnmlvk");
 		if (found!=std::string::npos)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
 		if (args.size() > 2)
-			cur_chan->setParamTrue(args[1], args[2]);
+			msg = cur_chan->setParamTrue(args[1], args[2], msg);
 		else
-			cur_chan->setParamTrue(args[1]);	
+			msg = cur_chan->setParamTrue(args[1], msg);	
+		sendToChanUsers(msg, cur_chan);
 	}
 	if ((args[1])[0] == '-') //флаги в false
 	{
@@ -1215,11 +1222,12 @@ int		Server::mode_chan(int num)
 		std::size_t found = (args[1]).find_first_not_of("psitnm");
 		if (found!=std::string::npos)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_UMODEUNKNOWNFLAG));
-		cur_chan->setParamFalse(args[1]);
+		msg = cur_chan->setParamFalse(args[1], msg);
+		sendToChanUsers(msg, cur_chan);
 	}
-	std::string msg = MSG_CHANNELMODEIS;
-	msg = fillModes(msg, cur_chan->getModeParams());
-	sendToChanUsers(msg, cur_chan);
+	std::string msg_final = MSG_CHANNELMODEIS;
+	msg_final = fillModes(msg_final, cur_chan->getModeParams());
+	sendToChanUsers(msg_final, cur_chan);
 	return 0;
 }
 
