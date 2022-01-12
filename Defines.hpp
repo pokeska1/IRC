@@ -250,6 +250,9 @@
 " Elapsed time: " + time_elapsed + "\r\n"
 #define MSG_ENDOFINFO ":" + this->getHost() + " 374 " + this->arr_user[num]->getNickname() + " :End of /INFO list\r\n"
 
+//quit
+#define MSG_QUIT_DEFAULT "QUIT :" + this->arr_user[this->find_numb_iter(fd)]->getNickname()
+#define MSG_QUIT_MESSAGE "QUIT :" + args
 
 ////////////// NON ERROR MESSAGES ///////////////////////////////////////////////////////
 //Подтверждение что join произошел удачно
