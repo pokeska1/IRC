@@ -757,11 +757,11 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
         }
     } else if (arr_user[num]->getMsgCom() == "USER") {
 		std::string	args = arr_user[num]->getMsgArgs();
-		if (args.empty() || !isNickCorrect(args))
-		{
-			std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
-				return;
-		}
+		// if (args.empty() || !isNickCorrect(args))
+		// {
+		// 	std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+		// 		return;
+		// }
         user_work(args, num);
         send_msg = MSG_WEL_COME_DEFAULT;
         send(fd, send_msg.c_str(), send_msg.length(), 0);
