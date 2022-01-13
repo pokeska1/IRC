@@ -1260,7 +1260,7 @@ int		Server::topic(int num)
     {
         if (cur_chan->getTopic() == "")
 			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
-		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		std::string msg = ":" + this->getHost() + " 332 " + this->arr_user[num]->getNickname() \
 		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 0;
@@ -1274,7 +1274,7 @@ int		Server::topic(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
-		std::string msg = ":localhost 332 " + this->arr_user[num]->getNickname() \
+		std::string msg = ":" + this->getHost() + " 332 " + this->arr_user[num]->getNickname() \
 		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
 		sendToChanUsers(msg, cur_chan);
     }
