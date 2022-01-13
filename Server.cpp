@@ -1124,7 +1124,7 @@ int		Server::part(int num, std::string& arguments)
 			std::string mg = ":" + this->arr_user[num]->getNickname() + \
 			"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
 			" " + "MODE" + " #" + cur_chan->getName() + " +o ";
-			if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
+			if (this->arr_user[num] == cur_chan->getOperModer() && cur_chan->getUsersVector().size() > 1) //уходит модератороператор
 			{
 				if (cur_chan->getOpersVector().empty()) //there are no operusers
 				{
@@ -1152,7 +1152,7 @@ int		Server::part(int num, std::string& arguments)
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
 			this->arr_user[num]->eraseChannel(cur_chan);
-			if (this->arr_user.empty())
+			if (cur_chan->getUsersVector().empty())
 				deleteChannel(cur_chan->getName());
 		}
 	}
