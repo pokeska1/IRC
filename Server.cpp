@@ -1117,8 +1117,7 @@ int		Server::part(int num, std::string& arguments)
 		if (chan_in_list(exitChans[i], arr_channel) == false) //проверка: нет в списке каналов
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 		Channel *cur_chan = find_chan(exitChans[i]);
-		//проверка: юзер не состоит в канале или в канале только 1 юзер
-		if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
+		if (cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) //проверка: юзер не состоит в канале
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 		else
 		{
@@ -1139,7 +1138,6 @@ int		Server::part(int num, std::string& arguments)
 					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
 					mg += (cur_chan->getOpersVector()[0])->getNickname() + "\r\n";
 					sendToChanUsers(mg, cur_chan);
-					
 				}
 			}
 
@@ -1154,6 +1152,8 @@ int		Server::part(int num, std::string& arguments)
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
 			this->arr_user[num]->eraseChannel(cur_chan);
+			if (this->arr_user.empty())
+				deleteChannel(cur_chan->getName());
 		}
 	}
 	return 0;
