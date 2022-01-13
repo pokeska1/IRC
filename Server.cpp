@@ -758,7 +758,13 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
             }
         }
     } else if (arr_user[num]->getMsgCom() == "USER") {
-        user_work(arr_user[num]->getMsgArgs(), num);
+		std::string	args = arr_user[num]->getMsgArgs();
+		if (args.empty() || !isNickCorrect(args))
+		{
+			std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+				return;
+		}
+        user_work(args, num);
         send_msg = MSG_WEL_COME_DEFAULT;
         send(fd, send_msg.c_str(), send_msg.length(), 0);
         this->arr_user[num]->setAccess(true);
@@ -1587,12 +1593,12 @@ int				Server::info(int num, std::string& args)
 
 int		Server::quit(int num, std::string& args)
 {
-	// разослать уведомление всем остальным пользователям канала
-	// удалить пользователя из его каналов
+	// разослать уведомление о QUIT всем остальным пользователям канала
+	// удалить пользователя из его каналов (PART)
 	// закрыть fd
 	// удалить пользователя
-	std::string	symbol("#");
-	std::string	arg;
+
+	std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
 
 	std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
 	if (!userChannels.empty())
@@ -1601,27 +1607,35 @@ int		Server::quit(int num, std::string& args)
 		std::vector<Channel *>::iterator ite = userChannels.end();
 		for (; itb != ite; ++itb)
 		{
-			arg = symbol + (*itb)->getName();
-			this->part(num, arg);
-
 			Channel				*chn = *itb;
 			std::vector<User *>	chn_users = chn->getUsersVector();
-
+			
 			std::vector<User *>::iterator	it_begin = chn_users.begin();
 			std::vector<User *>::iterator	it_end = chn_users.end();
 			for (; it_begin != it_end; ++it_begin)
-			{
-				std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
-				if (this->arr_user[num]->getFd() != (*it_begin)->getFd())
-					rplPrint((*it_begin)->getFd(), MSG_QUIT);
-			}
-			// this->arr_user[num]->setMsgCom("PART");
-			// this->arr_user[num]->setMsgArgs(arg);
-			// this->part(num, arg);
+				this->rplPrint(chn_users[0]->getFd(), MSG_QUIT);
 		}
 	}
-	// close(this->arr_user[num]->getFd());
-	// this->deleteClient(this->arr_user[num]->getFd());
+
+	std::string	part_arg;
+
+	if (!userChannels.empty())
+	{
+		std::vector<Channel *>::iterator itb = userChannels.begin();
+		std::vector<Channel *>::iterator ite = userChannels.end();
+		for (; itb != ite; ++itb)
+		{
+			part_arg += "#";
+			part_arg += (*itb)->getName();
+			if ((*itb)->getName() != userChannels[userChannels.size() - 1]->getName()) // если
+				part_arg += ","; //не последнее имя канала в списке
+		}
+	}
+
+	part(num, part_arg);
+	
+	close(this->arr_user[num]->getFd());
+	this->deleteClient(this->arr_user[num]->getFd());
 
 	return 0;
 }
