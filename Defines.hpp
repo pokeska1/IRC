@@ -261,6 +261,12 @@
 + ERR_NICKNAMEINUSE + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + " " + nickname + " :Nickname is already in use\r\n"
 
+//432
+#define MSG_ERRNICKNAME ":" + this->arr_user[num]->getServername() + " " \
++ ERR_ERRONEUSNICKNAME + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + nickname + \
+" :Nickname is incorrect(not more 9 symbols: letters,numbers)\r\n"
+
 //nick answer
 #define MSG_NICKCHANGED ":" + this->arr_user[num]->getNickname() + " NICK " + nickname + "\r\n" 
 
