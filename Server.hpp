@@ -14,6 +14,7 @@
 #include <ctime>
 #include <cmath>
 #include <cstdlib>
+#include <cctype>
 //////////////
 class User;
 
@@ -111,6 +112,8 @@ public: //rmerrie
 
 public: //epilar
 	bool	isNickUsed(const std::string& nickname);
+	bool	isLettersNumbers(std::string& nick);
+	bool	isNickCorrect(std::string& nick);
 	int		nick(int num, std::string& args);
 
 	int		version(int num, std::string& args);

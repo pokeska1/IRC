@@ -82,8 +82,6 @@ enum forms{NOT_DEFINED, \
 		VERSION,        \
 		INFO,           \
         ISON,           \
-        WHO,            \
-        PING,           \
 		QUIT};
 
 void Server::deleteClient(int fd){
@@ -694,20 +692,6 @@ void        Server::ison_work(int num)
         << "\"\x1b[32;1m Send ISON. Reply is \x1b[0m" << reply ;
     send(arr_user[num]->getFd(), reply.c_str(), reply.length(), 0);
 }
-                                        //  WHO
-//
-void        Server::who_work(int num) {
-  num += 1;
-  num -= 1;
-}
-
-                                       // PING
-//
-void        Server::ping_work(int num){
-    num += 1;
-    num -= 1;
-}
-
 
 // ############################################################################################################
                                     // Парсер
@@ -715,6 +699,11 @@ void        Server::ping_work(int num){
 
 int Server::name_verification(std::string &buf)
 {
+	if (!isNickCorrect(buf))
+	{
+		std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+        return (-1);
+	}
     std::vector<User *>::iterator it_begin = arr_user.begin();
     std::vector<User *>::iterator it_end = arr_user.end();
     int fd;
@@ -785,24 +774,22 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
 //вторая часть парсера отвечает за выполнение команд
 void Server::parser_switch(int num ,int fd, fd_set &writefds){
     std::map<std::string, forms> map_forms;
-    map_forms["NICK"]       = NICK;
-    map_forms["WHO"]        =  WHO;
-    map_forms["PING"]       = PING;
-    map_forms["ISON"]       = ISON;
-    map_forms["USER"]       = USER;
-    map_forms["OPER"]       = OPER;
-    map_forms["PRIVMSG"]    = PRIVMSG;
-    map_forms["NOTICE"]     = NOTICE;
-    map_forms["JOIN"]       = JOIN;
-    map_forms["MODE"]       = MODE;
-    map_forms["TOPIC"]      = TOPIC;
-    map_forms["INVITE"]     = INVITE;
-    map_forms["KICK"]       = KICK;
-    map_forms["PART"]       = PART;
-    map_forms["KILL"]       = KILL;
-    map_forms["VERSION"]    = VERSION;
-    map_forms["INFO"]       = INFO;
-	map_forms["QUIT"]       = QUIT;
+    map_forms["NICK"] = NICK;
+    map_forms["ISON"] = ISON;
+    map_forms["USER"] = USER;
+    map_forms["OPER"] = OPER;
+    map_forms["PRIVMSG"] = PRIVMSG;
+    map_forms["NOTICE"] = NOTICE;
+    map_forms["JOIN"] = JOIN;
+    map_forms["MODE"] = MODE;
+    map_forms["TOPIC"] = TOPIC;
+    map_forms["INVITE"] = INVITE;
+    map_forms["KICK"] = KICK;
+    map_forms["PART"] = PART;
+    map_forms["KILL"] = KILL;
+    map_forms["VERSION"] = VERSION;
+    map_forms["INFO"] = INFO;
+	map_forms["QUIT"] = QUIT;
 
     switch (map_forms[arr_user[num]->getMsgCom()]) {
         case NICK:
@@ -810,12 +797,6 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
             break;
         case ISON:
             ison_work(num);
-            break;
-        case WHO:
-            who_work(num);
-            break;
-        case PING:
-            ping_work(num);
             break;
         case USER:
             user_work(arr_user[num]->getMsgArgs(), num);
@@ -1139,20 +1120,27 @@ int		Server::part(int num, std::string& arguments)
 		if (chan_in_list(exitChans[i], arr_channel) == false) //проверка: нет в списке каналов
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHCHANNEL));
 		Channel *cur_chan = find_chan(exitChans[i]);
-		//проверка: юзер не состоит в канале или в канале только 1 юзер
-		if ((cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) || this->arr_user.size() < 2)
+		if (cur_chan->findUserByName(this->arr_user[num]->getNickname()) == NULL) //проверка: юзер не состоит в канале
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NOTONCHANNEL));
 		else
 		{
-			//ADD notice message
-			if (this->arr_user[num] == cur_chan->getOperModer()) //уходит модератороператор
+			std::string mg = ":" + this->arr_user[num]->getNickname() + \
+			"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
+			" " + "MODE" + " #" + cur_chan->getName() + " +o ";
+			if (this->arr_user[num] == cur_chan->getOperModer() && cur_chan->getUsersVector().size() > 1) //уходит модератороператор
 			{
 				if (cur_chan->getOpersVector().empty()) //there are no operusers
+				{
 					cur_chan->setOper(cur_chan->getUsersVector()[1]);
+					mg += (cur_chan->getUsersVector()[1])->getNickname() + "\r\n";
+					sendToChanUsers(mg, cur_chan);
+				}
 				else
 				{
 					cur_chan->setOper(cur_chan->getOpersVector()[0]);
 					cur_chan->eraseOperUser(cur_chan->getOpersVector()[0]);
+					mg += (cur_chan->getOpersVector()[0])->getNickname() + "\r\n";
+					sendToChanUsers(mg, cur_chan);
 				}
 			}
 
@@ -1167,6 +1155,8 @@ int		Server::part(int num, std::string& arguments)
 			cur_chan->eraseVoteUser(this->arr_user[num]);
 			cur_chan->eraseOperUser(this->arr_user[num]);
 			this->arr_user[num]->eraseChannel(cur_chan);
+			if (cur_chan->getUsersVector().empty())
+				deleteChannel(cur_chan->getName());
 		}
 	}
 	return 0;
@@ -1379,6 +1369,21 @@ bool	Server::isNickUsed(const std::string& nickname)
 	return false;
 }
 
+bool	Server::isLettersNumbers(std::string& nick)
+{
+	for (size_t i = 0; i < nick.length(); ++i)
+	{
+		if (!isalnum(nick[i]))
+			return false;
+	}
+	return true;
+}
+
+bool	Server::isNickCorrect(std::string& nick)
+{
+	return (nick.length() <= 9 && isLettersNumbers(nick));
+}
+
 int		Server::nick(int num, std::string& args)
 {
 	// std::cout << "args: " << args << std::endl;
@@ -1395,7 +1400,13 @@ int		Server::nick(int num, std::string& args)
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
-	if (!Server::isNickUsed(nickname))
+	else if (!isNickCorrect(nickname))
+	{
+		std::string	msg(MSG_ERRNICKNAME);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else if (!Server::isNickUsed(nickname))
 	{
 		std::string	msg(MSG_NICKCHANGED);
 		arr_user[num]->setNickname(nickname);
@@ -1578,6 +1589,8 @@ int		Server::quit(int num, std::string& args)
 	// удалить пользователя из его каналов
 	// закрыть fd
 	// удалить пользователя
+	std::string	symbol("#");
+	std::string	arg;
 
 	std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
 	if (!userChannels.empty())
@@ -1586,7 +1599,8 @@ int		Server::quit(int num, std::string& args)
 		std::vector<Channel *>::iterator ite = userChannels.end();
 		for (; itb != ite; ++itb)
 		{
-			std::string	arg("#" + (*itb)->getName());
+			arg = symbol + (*itb)->getName();
+			this->part(num, arg);
 
 			Channel				*chn = *itb;
 			std::vector<User *>	chn_users = chn->getUsersVector();
@@ -1595,16 +1609,17 @@ int		Server::quit(int num, std::string& args)
 			std::vector<User *>::iterator	it_end = chn_users.end();
 			for (; it_begin != it_end; ++it_begin)
 			{
-				std::string	quit_msg(args.length() ? args.erase(0,1) : this->arr_user[num]->getNickname());
+				std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
 				if (this->arr_user[num]->getFd() != (*it_begin)->getFd())
 					rplPrint((*it_begin)->getFd(), MSG_QUIT);
 			}
-            this->arr_user[num]->setMsgArgs(arg);
-			this->part(num, arg);
+			// this->arr_user[num]->setMsgCom("PART");
+			// this->arr_user[num]->setMsgArgs(arg);
+			// this->part(num, arg);
 		}
 	}
-	close(this->arr_user[num]->getFd());
-	this->deleteClient(this->arr_user[num]->getFd());
+	// close(this->arr_user[num]->getFd());
+	// this->deleteClient(this->arr_user[num]->getFd());
 
 	return 0;
 }
