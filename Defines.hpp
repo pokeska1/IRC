@@ -169,6 +169,8 @@
 //303 #define RPL_ISON "303"
 //#define MSG_RPL_ISON ":"
 #define MSG_RPL_ISON ":" + this->getHost() + " " + RPL_ISON + " :"
+//315 #define RPL_ENDOFWHO "315"
+#define MSG_ENDOFWHO ":" + this->getHost() + " 315 " + arr_user[num]->getNickname() + " " + channel + " :End of /WHO list"
 //332
 #define MSG_HELLO_AND_JOIN ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic + " :No topic is set" + "\r\n"
 //332
@@ -176,7 +178,9 @@
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
 //341
 #define MSG_INVITING ":" + this->getHost() + " " + RPL_INVITING + " " \
-+ arr_user[num]->getNickname() + " :" +  "inviting" + "\r\n" 
++ arr_user[num]->getNickname() + " :" +  "inviting" + "\r\n"
+//352     RPL_WHOREPLY
+#define MSG_WHOREPLY ":" + this->getHost() + " 352 " + arr_user[num]->getNickname() + " = " + channel + " :"
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";
@@ -255,6 +259,12 @@
 + ERR_NICKNAMEINUSE + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + " " + nickname + " :Nickname is already in use\r\n"
 
+//432
+#define MSG_ERRNICKNAME ":" + this->arr_user[num]->getServername() + " " \
++ ERR_ERRONEUSNICKNAME + " " + this->arr_user[num]->getHostname() + " " \
++ this->arr_user[num]->getNickname() + " " + nickname + \
+" :Nickname is incorrect(not more 9 symbols: letters,numbers)\r\n"
+
 //nick answer
 #define MSG_NICKCHANGED ":" + this->arr_user[num]->getNickname() + " NICK " + nickname + "\r\n" 
 
@@ -282,7 +292,9 @@
 #define MSG_ENDOFINFO ":" + this->getHost() + " 374 " + this->arr_user[num]->getNickname() + " :End of /INFO list\r\n"
 
 //quit
-#define MSG_QUIT "QUIT " + quit_msg
+#define MSG_QUIT ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
++ "@" + arr_user[num]->getHostname() + \
+" QUIT " + quit_msg + "\r\n"
 
 //part answer
 #define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "!" + \

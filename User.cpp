@@ -81,8 +81,7 @@ bool		User::matchCommand(std::string str)
 {
 	std::string		com_array[] = { "PASS", "NICK", "USER", "OPER", "PRIVMSG",
 	"NOTICE", "JOIN", "MODE", "TOPIC", "INVITE", "KICK", "PART", "KILL",
-	"VERSION", "INFO", "QUIT", "ISON" };
-  
+	"VERSION", "INFO", "QUIT", "ISON", "WHO", "PING" };
 	unsigned len = sizeof(com_array) / sizeof(com_array[0]);
 	for (unsigned i = 0; i < len; ++i)
 	{

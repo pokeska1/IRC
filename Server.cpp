@@ -379,8 +379,7 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 }
 
-std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
-    std::vector<std::string> *name_chan = new std::vector<std::string>;
+void       Server::parser_of_join_chanel(std::string &arg, std::vector<std::string> &name_chan){
     int pos_til = arg.find_first_of("#&");
     int pos_dot = arg.find_first_of(",");
     int pos_space = arg.find_first_of(" ");
@@ -388,21 +387,19 @@ std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
     while (pos_til != -1 && pos_dot != -1) {
         if (pos_space != -1 && pos_space < pos_dot)
             pos_dot = pos_space;
-        name_chan->push_back(arg.substr(pos_til, pos_dot - (pos_til)));
+        name_chan.push_back(arg.substr(pos_til, pos_dot - (pos_til)));
         pos_til = arg.find_first_of("#&", pos_til + 1);
         pos_dot = arg.find_first_of(",", pos_dot + 1);
     }
 
     if (pos_til != -1 && pos_dot == -1)
-        name_chan->push_back(arg.substr(pos_til, pos_space - (pos_til)));
-    return *name_chan;
+        name_chan.push_back(arg.substr(pos_til, pos_space - (pos_til)));
 }
 
 //1) если после пробела нет запятых
 //2 ) там одна запятая
 //3) там много запятых
-std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
-    std::vector<std::string> *key_chan = new std::vector<std::string>;
+void Server::parser_of_join_chanel_key(std::string &arg, std::vector<std::string> &key_chan){
     int pos_space = 0, pos_dot = 0, pos_dot_two = 0;
 
     pos_space = arg.find_first_of(" ");
@@ -410,23 +407,23 @@ std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
         pos_dot = arg.find_first_of(",", pos_space);
 
         if (pos_dot == -1){
-            key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
-            return *key_chan;
+            key_chan.push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+            return ;
         }
-        key_chan->push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
+        key_chan.push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
         pos_dot_two = arg.find_first_of(",", pos_dot + 1);
         if (pos_dot_two == -1) {
-            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
-            return *key_chan;
+            key_chan.push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+            return ;
         }
         while (pos_dot_two != -1) {
-            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+            key_chan.push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
             pos_dot = pos_dot_two;
             pos_dot_two = arg.find_first_of(",", pos_dot + 1);
         }
-        key_chan->push_back(arg.substr(pos_dot + 1, arg.length() - (pos_dot + 1)));
+        key_chan.push_back(arg.substr(pos_dot + 1, arg.length() - (pos_dot + 1)));
     }
-    return *key_chan;
+    return ;
 }
 
 //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
@@ -589,8 +586,8 @@ void Server::join_pre_work(int num){
     std::vector<std::string>::iterator it_begin, it_begin_key, end_begin_key;
 
     if (many_or_solo_join(arr_user[num]->getMsgArgs()) == 2) {
-        name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
-        key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
+        parser_of_join_chanel(arr_user[num]->getMsgArgs(), name_channel);
+        parser_of_join_chanel_key(arr_user[num]->getMsgArgs(), key_channel);
         i = name_channel.size();
         it_begin = name_channel.begin();
         it_begin_key = key_channel.begin();
@@ -691,7 +688,8 @@ void        Server::ison_work(int num)
         mimic_begin++;
     }
     reply += "\r\n";
-    std::cout << "\x1b[32;1mUser\x1b[0m \""<< arr_user[num]->getNickname() << "\"\x1b[32;1m Send ISON. Reply is \x1b[0m" << reply ;
+    std::cout << "\x1b[32;1mUser\x1b[0m \""<< arr_user[num]->getNickname()
+        << "\"\x1b[32;1m Send ISON. Reply is \x1b[0m" << reply ;
     send(arr_user[num]->getFd(), reply.c_str(), reply.length(), 0);
 }
 
@@ -701,6 +699,11 @@ void        Server::ison_work(int num)
 
 int Server::name_verification(std::string &buf)
 {
+	if (!isNickCorrect(buf))
+	{
+		std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+        return (-1);
+	}
     std::vector<User *>::iterator it_begin = arr_user.begin();
     std::vector<User *>::iterator it_end = arr_user.end();
     int fd;
@@ -753,7 +756,13 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
             }
         }
     } else if (arr_user[num]->getMsgCom() == "USER") {
-        user_work(arr_user[num]->getMsgArgs(), num);
+		std::string	args = arr_user[num]->getMsgArgs();
+		if (args.empty() || !isNickCorrect(args))
+		{
+			std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+				return;
+		}
+        user_work(args, num);
         send_msg = MSG_WEL_COME_DEFAULT;
         send(fd, send_msg.c_str(), send_msg.length(), 0);
         this->arr_user[num]->setAccess(true);
@@ -1350,6 +1359,21 @@ bool	Server::isNickUsed(const std::string& nickname)
 	return false;
 }
 
+bool	Server::isLettersNumbers(std::string& nick)
+{
+	for (size_t i = 0; i < nick.length(); ++i)
+	{
+		if (!isalnum(nick[i]))
+			return false;
+	}
+	return true;
+}
+
+bool	Server::isNickCorrect(std::string& nick)
+{
+	return (nick.length() <= 9 && isLettersNumbers(nick));
+}
+
 int		Server::nick(int num, std::string& args)
 {
 	// std::cout << "args: " << args << std::endl;
@@ -1366,7 +1390,13 @@ int		Server::nick(int num, std::string& args)
 		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 		return 1;
 	}
-	if (!Server::isNickUsed(nickname))
+	else if (!isNickCorrect(nickname))
+	{
+		std::string	msg(MSG_ERRNICKNAME);
+		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
+		return 1;
+	}
+	else if (!Server::isNickUsed(nickname))
 	{
 		std::string	msg(MSG_NICKCHANGED);
 		arr_user[num]->setNickname(nickname);
@@ -1545,10 +1575,12 @@ int				Server::info(int num, std::string& args)
 
 int		Server::quit(int num, std::string& args)
 {
-	// разослать уведомление всем остальным пользователям канала
-	// удалить пользователя из его каналов
+	// разослать уведомление о QUIT всем остальным пользователям канала
+	// удалить пользователя из его каналов (PART)
 	// закрыть fd
 	// удалить пользователя
+
+	std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
 
 	std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
 	if (!userChannels.empty())
@@ -1557,23 +1589,33 @@ int		Server::quit(int num, std::string& args)
 		std::vector<Channel *>::iterator ite = userChannels.end();
 		for (; itb != ite; ++itb)
 		{
-			std::string	arg("#" + (*itb)->getName());
-
 			Channel				*chn = *itb;
 			std::vector<User *>	chn_users = chn->getUsersVector();
-
+			
 			std::vector<User *>::iterator	it_begin = chn_users.begin();
 			std::vector<User *>::iterator	it_end = chn_users.end();
 			for (; it_begin != it_end; ++it_begin)
-			{
-				std::string	quit_msg(args.length() ? args.erase(0,1) : this->arr_user[num]->getNickname());
-				if (this->arr_user[num]->getFd() != (*it_begin)->getFd())
-					rplPrint((*it_begin)->getFd(), MSG_QUIT);
-			}
-
-			this->part(num, arg);
+				this->rplPrint(chn_users[0]->getFd(), MSG_QUIT);
 		}
 	}
+
+	std::string	part_arg;
+
+	if (!userChannels.empty())
+	{
+		std::vector<Channel *>::iterator itb = userChannels.begin();
+		std::vector<Channel *>::iterator ite = userChannels.end();
+		for (; itb != ite; ++itb)
+		{
+			part_arg += "#";
+			part_arg += (*itb)->getName();
+			if ((*itb)->getName() != userChannels[userChannels.size() - 1]->getName()) // если
+				part_arg += ","; //не последнее имя канала в списке
+		}
+	}
+
+	part(num, part_arg);
+	
 	close(this->arr_user[num]->getFd());
 	this->deleteClient(this->arr_user[num]->getFd());
 
