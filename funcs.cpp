@@ -53,7 +53,7 @@
 		// {
 		// 	std::string msg = "<channel name> :No such channel\n";
 		// 	write(num, msg.c_str(), msg.length());
-		// 	return 1;
+		// 	return 1
 		// }
 		if (is_chan(args[0]) == false) //проверка: не канал
 		{

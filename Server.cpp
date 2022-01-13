@@ -921,7 +921,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
             arr_user[num]->setMsgFrom(new_args);
             if (buf_str_bad.find_first_of("\n") != std::string::npos) {
                 arr_user[num]->setFullMassage(true);
-                buf_str = arr_user[num]->getMsgFrom();
+                buf_str = arr_user[num]->getMsgFrom().substr(0, arr_user[num]->getMsgFrom().length() - 1);
             }
         } else {
             arr_user[num]->setFullMassage(true);
