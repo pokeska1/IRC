@@ -16,7 +16,6 @@ struct ModeChan
 	bool	n;
 	bool	m;
 	size_t	limit;
-	//std::string	ban_mask; //is it neccessary?
 	ModeChan():p(0), s(0), i(0), t(0), n(0), m(0), limit(-1) {}
 	~ModeChan() {}
 };
