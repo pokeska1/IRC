@@ -20,28 +20,6 @@ User.hpp
 
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp
-Server.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-User.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
-Channel.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
-sys/types.h
--
-sys/stat.h
--
-ctime
--
-cmath
--
-cstdlib
--
-cctype
--
-
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
 User.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
@@ -87,12 +65,4 @@ Defines.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
 Channel.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Channel.hpp
-
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/main.cpp
-iostream
--
-Server.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
-User.hpp
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
 
