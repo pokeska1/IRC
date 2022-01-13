@@ -199,7 +199,7 @@
 #define MSG_CANNOTSENDTOCHAN ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname() + \
-" :To send messages, JOIN the channel" + " #" + this->arr_channel[num_channel]->getName() +" \n"
+" :To send messages, JOIN the channel" + " #" + name +" \n"
 //404 KICK
 #define MSG_CANNOTSENDTOCHAN_KICK ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NOSUCHCHANNEL + " " + this->arr_user[num]->getHostname() + " " \
@@ -222,6 +222,10 @@
 #define MSG_NEEDMOREPARAMS ":" + this->arr_user[num]->getServername() + " " \
 + ERR_NEEDMOREPARAMS + " " + this->arr_user[num]->getHostname() + " " \
 + this->arr_user[num]->getNickname()  +  " <command> :Not enough parameters\n"
+//#define ERR_CHANNELISFULL "471"
+#define MSG_CHANNELISFULL ":" + this->arr_user[num]->getServername() + " 471 "\
++ this->arr_user[num]->getHostname() + " " \
++  " :This channel can have maximum :" + limit + " Users, and you are not one of them Hehehehhehehe :D\n"
 //482
 #define MSG_CHANOPRIVSNEEDED ":" + this->arr_user[num]->getServername() + " " \
 + ERR_CHANOPRIVSNEEDED + " " + this->arr_user[num]->getHostname() + " " \
