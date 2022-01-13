@@ -175,6 +175,8 @@
 //303 #define RPL_ISON "303"
 //#define MSG_RPL_ISON ":"
 #define MSG_RPL_ISON ":" + this->getHost() + " " + RPL_ISON + " :"
+//315 #define RPL_ENDOFWHO "315"
+#define MSG_ENDOFWHO ":" + this->getHost() + " 315 " + arr_user[num]->getNickname() + " " + channel + " :End of /WHO list"
 //332
 #define MSG_HELLO_AND_JOIN ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic + " :No topic is set" + "\r\n"
 //332
@@ -182,7 +184,9 @@
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
 //341
 #define MSG_INVITING ":localhost 341 " + arr_user[num]->getNickname() + \
-+ " :" +  "inviting" + "\r\n" 
++ " :" +  "inviting" + "\r\n"
+//352     RPL_WHOREPLY
+#define MSG_WHOREPLY ":" + this->getHost() + " 352 " + arr_user[num]->getNickname() + " = " + channel + " :"
 //353
 #define MSG_LIST_USER_IN_CHANELL ":" + this->getHost() + " 353 " + arr_user[num]->getNickname() + " = #" + topic \
 + " :";

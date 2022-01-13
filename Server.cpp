@@ -82,6 +82,8 @@ enum forms{NOT_DEFINED, \
 		VERSION,        \
 		INFO,           \
         ISON,           \
+        WHO,            \
+        PING,           \
 		QUIT};
 
 void Server::deleteClient(int fd){
@@ -379,8 +381,7 @@ void Server::say_hello_to_new_in_channel(int num, std::vector<Channel *>::iterat
     send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
 }
 
-std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
-    std::vector<std::string> *name_chan = new std::vector<std::string>;
+void       Server::parser_of_join_chanel(std::string &arg, std::vector<std::string> &name_chan){
     int pos_til = arg.find_first_of("#&");
     int pos_dot = arg.find_first_of(",");
     int pos_space = arg.find_first_of(" ");
@@ -388,21 +389,19 @@ std::vector<std::string> &Server::parser_of_join_chanel(std::string &arg){
     while (pos_til != -1 && pos_dot != -1) {
         if (pos_space != -1 && pos_space < pos_dot)
             pos_dot = pos_space;
-        name_chan->push_back(arg.substr(pos_til, pos_dot - (pos_til)));
+        name_chan.push_back(arg.substr(pos_til, pos_dot - (pos_til)));
         pos_til = arg.find_first_of("#&", pos_til + 1);
         pos_dot = arg.find_first_of(",", pos_dot + 1);
     }
 
     if (pos_til != -1 && pos_dot == -1)
-        name_chan->push_back(arg.substr(pos_til, pos_space - (pos_til)));
-    return *name_chan;
+        name_chan.push_back(arg.substr(pos_til, pos_space - (pos_til)));
 }
 
 //1) если после пробела нет запятых
 //2 ) там одна запятая
 //3) там много запятых
-std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
-    std::vector<std::string> *key_chan = new std::vector<std::string>;
+void Server::parser_of_join_chanel_key(std::string &arg, std::vector<std::string> &key_chan){
     int pos_space = 0, pos_dot = 0, pos_dot_two = 0;
 
     pos_space = arg.find_first_of(" ");
@@ -410,23 +409,23 @@ std::vector<std::string> &Server::parser_of_join_chanel_key(std::string &arg){
         pos_dot = arg.find_first_of(",", pos_space);
 
         if (pos_dot == -1){
-            key_chan->push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
-            return *key_chan;
+            key_chan.push_back(arg.substr(pos_space + 1, arg.length() - (pos_space + 1)));
+            return ;
         }
-        key_chan->push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
+        key_chan.push_back(arg.substr(pos_space + 1, pos_dot - (pos_space + 1)));
         pos_dot_two = arg.find_first_of(",", pos_dot + 1);
         if (pos_dot_two == -1) {
-            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
-            return *key_chan;
+            key_chan.push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+            return ;
         }
         while (pos_dot_two != -1) {
-            key_chan->push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
+            key_chan.push_back(arg.substr(pos_dot + 1, pos_dot_two - (pos_dot + 1)));
             pos_dot = pos_dot_two;
             pos_dot_two = arg.find_first_of(",", pos_dot + 1);
         }
-        key_chan->push_back(arg.substr(pos_dot + 1, arg.length() - (pos_dot + 1)));
+        key_chan.push_back(arg.substr(pos_dot + 1, arg.length() - (pos_dot + 1)));
     }
-    return *key_chan;
+    return ;
 }
 
 //создаем канал, заполняем topic, пароль если есть, опера , и юзера в список, вносим канал в список сервера
@@ -589,8 +588,8 @@ void Server::join_pre_work(int num){
     std::vector<std::string>::iterator it_begin, it_begin_key, end_begin_key;
 
     if (many_or_solo_join(arr_user[num]->getMsgArgs()) == 2) {
-        name_channel = parser_of_join_chanel(arr_user[num]->getMsgArgs());
-        key_channel = parser_of_join_chanel_key(arr_user[num]->getMsgArgs());
+        parser_of_join_chanel(arr_user[num]->getMsgArgs(), name_channel);
+        parser_of_join_chanel_key(arr_user[num]->getMsgArgs(), key_channel);
         i = name_channel.size();
         it_begin = name_channel.begin();
         it_begin_key = key_channel.begin();
@@ -691,9 +690,24 @@ void        Server::ison_work(int num)
         mimic_begin++;
     }
     reply += "\r\n";
-    std::cout << "\x1b[32;1mUser\x1b[0m \""<< arr_user[num]->getNickname() << "\"\x1b[32;1m Send ISON. Reply is \x1b[0m" << reply ;
+    std::cout << "\x1b[32;1mUser\x1b[0m \""<< arr_user[num]->getNickname()
+        << "\"\x1b[32;1m Send ISON. Reply is \x1b[0m" << reply ;
     send(arr_user[num]->getFd(), reply.c_str(), reply.length(), 0);
 }
+                                        //  WHO
+//
+void        Server::who_work(int num) {
+  num += 1;
+  num -= 1;
+}
+
+                                       // PING
+//
+void        Server::ping_work(int num){
+    num += 1;
+    num -= 1;
+}
+
 
 // ############################################################################################################
                                     // Парсер
@@ -771,22 +785,24 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
 //вторая часть парсера отвечает за выполнение команд
 void Server::parser_switch(int num ,int fd, fd_set &writefds){
     std::map<std::string, forms> map_forms;
-    map_forms["NICK"] = NICK;
-    map_forms["ISON"] = ISON;
-    map_forms["USER"] = USER;
-    map_forms["OPER"] = OPER;
-    map_forms["PRIVMSG"] = PRIVMSG;
-    map_forms["NOTICE"] = NOTICE;
-    map_forms["JOIN"] = JOIN;
-    map_forms["MODE"] = MODE;
-    map_forms["TOPIC"] = TOPIC;
-    map_forms["INVITE"] = INVITE;
-    map_forms["KICK"] = KICK;
-    map_forms["PART"] = PART;
-    map_forms["KILL"] = KILL;
-    map_forms["VERSION"] = VERSION;
-    map_forms["INFO"] = INFO;
-	map_forms["QUIT"] = QUIT;
+    map_forms["NICK"]       = NICK;
+    map_forms["WHO"]        =  WHO;
+    map_forms["PING"]       = PING;
+    map_forms["ISON"]       = ISON;
+    map_forms["USER"]       = USER;
+    map_forms["OPER"]       = OPER;
+    map_forms["PRIVMSG"]    = PRIVMSG;
+    map_forms["NOTICE"]     = NOTICE;
+    map_forms["JOIN"]       = JOIN;
+    map_forms["MODE"]       = MODE;
+    map_forms["TOPIC"]      = TOPIC;
+    map_forms["INVITE"]     = INVITE;
+    map_forms["KICK"]       = KICK;
+    map_forms["PART"]       = PART;
+    map_forms["KILL"]       = KILL;
+    map_forms["VERSION"]    = VERSION;
+    map_forms["INFO"]       = INFO;
+	map_forms["QUIT"]       = QUIT;
 
     switch (map_forms[arr_user[num]->getMsgCom()]) {
         case NICK:
@@ -794,6 +810,12 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
             break;
         case ISON:
             ison_work(num);
+            break;
+        case WHO:
+            who_work(num);
+            break;
+        case PING:
+            ping_work(num);
             break;
         case USER:
             user_work(arr_user[num]->getMsgArgs(), num);
@@ -1577,7 +1599,7 @@ int		Server::quit(int num, std::string& args)
 				if (this->arr_user[num]->getFd() != (*it_begin)->getFd())
 					rplPrint((*it_begin)->getFd(), MSG_QUIT);
 			}
-
+            this->arr_user[num]->setMsgArgs(arg);
 			this->part(num, arg);
 		}
 	}

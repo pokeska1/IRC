@@ -53,8 +53,8 @@ public:
     void    privmisg_work(int num);
             //JOIN 322
     void    say_hello_to_new_in_channel(int num, VEC_ITER_CHANEL_ADR &it_b_channel, std::string topic);
-    VEC_STR &parser_of_join_chanel(std::string &msg);
-    VEC_STR &parser_of_join_chanel_key(std::string &msg);
+    void    parser_of_join_chanel(std::string &msg, std::vector<std::string> &name_chan);
+    void    parser_of_join_chanel_key(std::string &msg, std::vector<std::string> &key_chan);
     void    create_new_channel(int num, std::string &key, std::string &topic);
     void    join_work(int num);
     bool    find_user_by_name_in_invited(std::string &name, int num_channel);
@@ -65,6 +65,8 @@ public:
     void    user_work(std::string &arg, int num);
             //ISON 638
     void        ison_work(int num);
+    void        who_work(int num);
+    void        ping_work(int num);
     // парсер 566
     int     name_verification(std::string &buf);
     int     password_verification(std::string &buf, int num);
