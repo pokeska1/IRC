@@ -298,7 +298,9 @@
 #define MSG_ENDOFINFO ":" + this->getHost() + " 374 " + this->arr_user[num]->getNickname() + " :End of /INFO list\r\n"
 
 //quit
-#define MSG_QUIT "QUIT " + quit_msg
+#define MSG_QUIT ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
++ "@" + arr_user[num]->getHostname() + \
+" QUIT " + quit_msg + "\r\n"
 
 //part answer
 #define MSG_PARTSUCCESS ":" + this->arr_user[num]->getNickname() + "!" + \
