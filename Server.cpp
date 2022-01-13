@@ -757,11 +757,11 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
         }
     } else if (arr_user[num]->getMsgCom() == "USER") {
 		std::string	args = arr_user[num]->getMsgArgs();
-		if (args.empty() || !isNickCorrect(args))
-		{
-			std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
-				return;
-		}
+		// if (args.empty() || !isNickCorrect(args))
+		// {
+		// 	std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
+		// 		return;
+		// }
         user_work(args, num);
         send_msg = MSG_WEL_COME_DEFAULT;
         send(fd, send_msg.c_str(), send_msg.length(), 0);
@@ -1188,7 +1188,7 @@ int 	Server::invite(int num) //добавить ответы
 	User * user_to_invite = findUser(args[0]);
 	User * user_allready_in = cur_chan->findUserByName(args[0], cur_chan->getInvitedVector());
 	if (user_to_invite == NULL) //проверка: не существует такого юзера
-		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
+		return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK + args[0] + "\"\r\n"));
 	if (user_allready_in != NULL) //проверка: юзер уже в канале
 		return (errPrint(this->arr_user[num]->getFd(), MSG_USERONCHANNEL));
 	else
@@ -1203,7 +1203,7 @@ int 	Server::invite(int num) //добавить ответы
 	return 0;
 }
 
-int		Server::kick(int num) // that if user is oper?
+int		Server::kick(int num)
 {
 	std::vector<std::string> args = splitStr(this->arr_user[num]->getMsgArgs());
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
@@ -1228,8 +1228,11 @@ int		Server::kick(int num) // that if user is oper?
             return (errPrint(this->arr_user[num]->getFd(), MSG_CANNOTSENDTOCHAN_KICK));
         }
 		User * user_to_kick = cur_chan->findUserByName(args[1]);
+		User * user_to_ = cur_chan->getOperModer();
+		if (user_to_kick == user_to_)
+			return (errPrint(this->arr_user[num]->getFd(), MSG_CHANOPRIVSNEEDED_KICK));
 		if (user_to_kick == NULL) //проверка: не существует такого юзера
-			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK));
+			return (errPrint(this->arr_user[num]->getFd(), MSG_NOSUCHNICK + args[1] + "\"\r\n"));
 		else
 		{
             std::string msg = MSG_PRIVMSG_CHANNEL;
@@ -1266,11 +1269,7 @@ int		Server::topic(int num)
     {
         if (cur_chan->getTopic() == "")
 			return (rplPrint(this->arr_user[num]->getFd(), MSG_NOTOPIC));
-		std::string msg = ":" + this->getHost() + " 332 " + this->arr_user[num]->getNickname() \
-		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
-		send(this->arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
-		return 0;
-		//return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
+		return (rplPrint(this->arr_user[num]->getFd(), MSG_TOPIC));
     }
     else
     {
@@ -1280,27 +1279,10 @@ int		Server::topic(int num)
 			return (errPrint(this->arr_user[num]->getFd(), MSG_NEEDMOREPARAMS));
         (args[1]).erase(0,1);
         cur_chan->setTopic(args[1]);
-		std::string msg = ":" + this->getHost() + " 332 " + this->arr_user[num]->getNickname() \
-		 + " #" + cur_chan->getName() + " :" + cur_chan->getTopic() + " \r\n";
-		sendToChanUsers(msg, cur_chan);
+		sendToChanUsers(MSG_TOPIC, cur_chan);
     }
 	return 0;
 }
-
-//// ВАРИАНТЫ ВВОДА MODE ////////////
-//  ВАР.1: установка флагов в + -
-//  MODE #Finnish +im                 // Делает канал #Finnish модерируемым и 'invite-only'.
-//  MODE #Fins -s                     // Убирает флаг 'secret' с канала #Fins.
-//  ВАР.2: установка флагов в + - с указанием юзера
-//  MODE #Finnish +o Kilroy           // Дает привилегии оператора Kilroy на канале #Finnish.
-//  MODE #Finnish +v Wiz              // Дает WiZ право голоса на канале #Finnish.
-//  ВАР.3: установка флагов в + - с указанием параметра
-//  MODE #42 +k oulu                  // Устанавливает на канал пароль "oulu".
-//  MODE #eu-opers +l 10              // Устанавливает максимальное количество пользователей на канале (10).
-//  ВАР.4: установка флагов для бана канала (пока не делаем)
-//  MODE &oulu +b                     // Вывод списка масок бана для канала.
-//  MODE &oulu +b *!*@*               // Предотвращает вход на канал для любого пользователя.
-//  MODE &oulu +b *!*@*.edu           // Предотвращает вход любого пользователя подходящего под маску хоста *.edu.
 
 int		Server::mode_chan(int num)
 {
@@ -1324,7 +1306,7 @@ int		Server::mode_chan(int num)
 	std::string msg = ":" + this->arr_user[num]->getNickname() + \
 	"!" + this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + \
 	" " + "MODE" + " #" + cur_chan->getName();
-	if ((args[1])[0] == '+') //флаги в true//sega
+	if ((args[1])[0] == '+') //флаги в true
 	{
 		(args[1]).erase(0,1);
 		std::size_t found = (args[1]).find_first_not_of("opsitnmlvk");
@@ -1333,7 +1315,9 @@ int		Server::mode_chan(int num)
 		if (args.size() > 2)
 			msg = cur_chan->setParamTrue(args[1], args[2], msg);
 		else
-			msg = cur_chan->setParamTrue(args[1], msg);	
+			msg = cur_chan->setParamTrue(args[1], msg);
+		if (msg == "MSG_NOSUCHNICK\r\n")
+			return (errPrint(this->arr_user[num]->getFd(), (MSG_NOSUCHNICK + args[2] + "\"\r\n")));
 		sendToChanUsers(msg, cur_chan);
 	}
 	if ((args[1])[0] == '-') //флаги в false

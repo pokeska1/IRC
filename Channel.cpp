@@ -27,9 +27,10 @@ void		Channel::setTopic(std::string str) { topic = str; }
 void		Channel::setPassword(std::string str) { password = str; }
 void		Channel::addUser(User* usr)
 {
-
-	//TODO if
-	users.push_back(usr);
+	std::vector<User *>::iterator	it;
+	it = find(users.begin(), users.end(), usr);
+	if (it == users.end())
+		users.push_back(usr);
 }
 void		Channel::eraseUser(User* usr)
 {
@@ -43,20 +44,26 @@ void		Channel::eraseUser(User* usr)
 }
 void		Channel::addOperUser(User* usr)
 {
-	//TODO if allready in
-	operUsers.push_back(usr);
+	std::vector<User *>::iterator	it;
+	it = find(operUsers.begin(), operUsers.end(), usr);
+	if (it == operUsers.end())
+		operUsers.push_back(usr);
 }
 void		Channel::addVoteUser(User* usr)
 {
-	//TODO if
 	if (voteUsers.empty())
 		voteUsers.push_back(operModer);
-	voteUsers.push_back(usr);
+	std::vector<User *>::iterator	it;
+	it = find(voteUsers.begin(), voteUsers.end(), usr);
+	if (it == voteUsers.end())
+		voteUsers.push_back(usr);
 }
 void		Channel::addInvitedUser(User* usr)
 {
-	//TODO if allready in
-	invitedUsers.push_back(usr);
+	std::vector<User *>::iterator	it;
+	it = find(invitedUsers.begin(), invitedUsers.end(), usr);
+	if (it == invitedUsers.end())
+		invitedUsers.push_back(usr);
 }
 void		Channel::eraseVoteUser(User* usr)
 {
@@ -163,7 +170,7 @@ std::string	Channel::setParamTrue(std::string flags, std::string flag_arg, std::
 			modeParams->m = 1;
 				msg += "m";
 		}
-		else if ('l' == flags[i])//add check of number
+		else if ('l' == flags[i])
 		{
 			modeParams->limit = atol(flag_arg.c_str());
 			msg += "l ";
@@ -173,17 +180,25 @@ std::string	Channel::setParamTrue(std::string flags, std::string flag_arg, std::
 		{
 			User * new_oper = findUserByName(flag_arg);
 			if (new_oper != NULL)
-				setOper(new_oper);
-			msg += "o ";
-			msg += flag_arg;
+			{
+				addOperUser(new_oper);
+				msg += "o ";
+				msg += flag_arg;
+			}
+			else
+				msg = "MSG_NOSUCHNICK";
 		}
 		else if ('v' == flags[i])
 		{
 			User * user_to_add = findUserByName(flag_arg);
 			if (user_to_add != NULL)
+			{
 				addVoteUser(user_to_add);
-			msg += "v ";
-			msg += flag_arg;
+				msg += "v ";
+				msg += flag_arg;
+			}
+			else
+				msg = "MSG_NOSUCHNICK";
 		}
 		else if ('k' == flags[i])
 			setPassword(flag_arg);

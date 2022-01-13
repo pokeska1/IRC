@@ -149,22 +149,16 @@
 //324
 #define MSG_CHANNELMODEIS ":" + this->getHost() + " 324 " \
 + this->arr_user[num]->getNickname() + " #" + cur_chan->getName()
-//+ " +i" + "\r\n";
 
 //331
-#define MSG_NOTOPIC ":" + this->getHost() + " 331 " \
+#define MSG_NOTOPIC ":" + this->getHost() + " " + RPL_NOTOPIC + " " \
 + this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
-+ " :" +  "notopic" + "\r\n"
-// #define MSG_NOTOPIC ":" + this->arr_user[num]->getServername() + " " \
-// + RPL_NOTOPIC + " " + this->arr_user[num]->getHostname() + " " \
-// + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  " :No topic is set" + "\r\n"
-//#define MSG_NOTOPIC ":" + this->getHost() + " 331 " + arr_user[num]->getNickname() + " #" + cur_chan->getName() +  "notopic" + "\r\n"
++ " :" +  "No topic is set" + "\r\n"
 
 //332
-#define MSG_TOPIC ":localhost 332 " + this->arr_user[num]->getNickname()  +  " <channel name2> :\n"
-// #define MSG_TOPIC ":" + this->arr_user[num]->getServername() + " " \
-// + RPL_TOPIC + " " + this->arr_user[num]->getHostname() + " " \
-// + this->arr_user[num]->getNickname()  +  " <channel name> :"
+#define MSG_TOPIC ":" + this->getHost() + " " + RPL_TOPIC + " " \
++ this->arr_user[num]->getNickname() + " #" + cur_chan->getName() \
++ " :" + cur_chan->getTopic() + " \r\n"
 
 //001 если имя хоста не задано
 #define MSG_WEL_COME_DEFAULT ":" + this->getHost() + " 001 " + this->arr_user[num]->getNickname() \
@@ -183,8 +177,8 @@
 #define MSG_HELLO_AND_JOIN_THITH_TOPIC ":" + this->getHost() + " 332 " + arr_user[num]->getNickname() + " #" + topic \
 + " :" + (*it_b_channel)->getTopic() + "\r\n"
 //341
-#define MSG_INVITING ":localhost 341 " + arr_user[num]->getNickname() + \
-+ " :" +  "inviting" + "\r\n"
+#define MSG_INVITING ":" + this->getHost() + " " + RPL_INVITING + " " \
++ arr_user[num]->getNickname() + " :" +  "inviting" + "\r\n"
 //352     RPL_WHOREPLY
 #define MSG_WHOREPLY ":" + this->getHost() + " 352 " + arr_user[num]->getNickname() + " = " + channel + " :"
 //353
