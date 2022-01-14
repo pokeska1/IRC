@@ -248,7 +248,7 @@ void Server::privmisg_for_one_person(int num,  std::string &name){
 }
 
 void Server::privmisg_work(int num) {
-    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0, num_channel = 0;
+    int  pos = 0, pos_space = 0, pos_two = 0, pos_dot = 0, pos2 = 0;
     std::string name = "", massage = "", error = "" , msg = "", channel = "";
     std::vector<std::string> arr_channel_name;
     std::vector<std::string>::iterator it_begin, it_end;
@@ -477,7 +477,7 @@ void Server::join_work(int num) {
     std::vector<Channel *>::iterator it_b_channel, it_e_channel, it_b_u_channel, it_e_u_channel;
     std::vector<User *>::iterator it_begin, it_end;
     std::string msg = "", error = "", topic = "", key = "", limit = "";
-    int pos = 0, pos2 = 0, nbytes = 0,have_user = 0;
+    int pos = 0, pos2 = 0, nbytes = 0;
 
     msg = this->arr_user[num]->getMsgArgs();
     pos = msg.find_first_of(" ");
