@@ -832,7 +832,7 @@ void Server::parser_switch(int num ,int fd, fd_set &writefds){
             kick(num);
             break;
         case PART:
-            part(num, arr_user[num]->getMsgArgs());
+            part(num, arr_user[num]->getMsgArgs(), false, fd);
             break;
         case KILL: // предлагаю исключить
             break;
@@ -903,7 +903,7 @@ void Server::get_new_client(int &ls, int &fd, fd_set &activfds){
 // ловим что написал старый клиент , проверяем на доступ и распределяем, что с ним делать.
 int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, char **buf){
     int num = 0, nbytes = 0;
-    std::string buf_str = "", buf_str_bad = "", new_args = "";
+    std::string buf_str = "", buf_str_bad = "", new_args = "", error = "";
 
     if (FD_ISSET(fd, &activfds)) {//если фд есть в списке акитвистов то начнем с ним работать
         num = find_numb_iter(fd);// найдем порядковый номер этого клиента в массиве
@@ -928,8 +928,9 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
 ///////////////////
 
 ///////////////////
-            deleteClient(fd);
-			close(fd);
+//            deleteClient(fd);
+            quit_c(num, error, fd);
+			//close(fd);
             perror("\x1b[31;1mServer: meh nbytes == 0, and delete Client byby =^_^=\x1b[0m\n");
         } else if (arr_user[num]->getFullMassage() == true) {
             std::cout << "\n\x1b[36;1mServ got massage: \x1b[0m|" << buf_str << "|\n";
@@ -1103,7 +1104,7 @@ User*		Server::findUser(std::string str)
 	return NULL;
 }
 
-int		Server::part(int num, std::string& arguments)
+int		Server::part(int num, std::string& arguments, bool it_ctrl_c, int fd)
 {
 	std::vector<std::string> args = splitStr(arguments);
 	std::cout << this->arr_user[num]->getMsgArgs() << "***" << args.size() << std::endl;
@@ -1146,8 +1147,14 @@ int		Server::part(int num, std::string& arguments)
 											//	канал
 			std::vector<User *>::const_iterator itb = cur_chan->getUsersVector().begin();
 			std::vector<User *>::const_iterator ite = cur_chan->getUsersVector().end();
-			for (; itb != ite; ++itb)
-				rplPrint((*itb)->getFd(), msg);
+			for (; itb != ite; ++itb) {
+                if (it_ctrl_c == true){
+                    if (fd != (*itb)->getFd()) {
+                        rplPrint((*itb)->getFd(), msg);
+                    }
+                }else
+                    rplPrint((*itb)->getFd(), msg);
+            }
 
 			cur_chan->eraseUser(this->arr_user[num]);
 			cur_chan->eraseVoteUser(this->arr_user[num]);
@@ -1553,16 +1560,67 @@ int				Server::info(int num, std::string& args)
 	return 0;
 }
 
+int		Server::quit_c(int num, std::string& args, int fd)
+{
+    // разослать уведомление о QUIT всем остальным пользователям канала
+    // удалить пользователя из его каналов (PART)
+    // закрыть fd
+    // удалить пользователя
+
+    std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
+    std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
+    std::string	part_arg;
+
+    if (!userChannels.empty())
+    {
+        std::vector<Channel *>::iterator itb = userChannels.begin();
+        std::vector<Channel *>::iterator ite = userChannels.end();
+        for (; itb != ite; ++itb)
+        {
+            part_arg += "#";
+            part_arg += (*itb)->getName();
+            if ((*itb)->getName() != userChannels[userChannels.size() - 1]->getName()) // если
+                part_arg += ","; //не последнее имя канала в списке
+        }
+    }
+    part(num, part_arg, true, fd);
+
+
+    if (!userChannels.empty())
+    {
+        std::vector<Channel *>::iterator itb = userChannels.begin();
+        std::vector<Channel *>::iterator ite = userChannels.end();
+        for (; itb != ite; ++itb)
+        {
+            Channel				*chn = *itb;
+            std::vector<User *>	chn_users = chn->getUsersVector();
+
+            std::vector<User *>::iterator	it_begin = chn_users.begin();
+            std::vector<User *>::iterator	it_end = chn_users.end();
+            for (; it_begin != it_end; ++it_begin) {
+                if (fd != (*it_begin)->getFd())
+                    this->rplPrint((*it_begin)->getFd(), MSG_QUIT);
+            }
+        }
+    }
+
+    close(this->arr_user[num]->getFd());
+    this->deleteClient(this->arr_user[num]->getFd());
+
+    return 0;
+}
+
 int		Server::quit(int num, std::string& args)
 {
 	// разослать уведомление о QUIT всем остальным пользователям канала
 	// удалить пользователя из его каналов (PART)
 	// закрыть fd
 	// удалить пользователя
-
+    int fd = 0;
 	std::string	quit_msg(args.length() ? args : this->arr_user[num]->getNickname());
 
 	std::vector<Channel *>	userChannels = this->arr_user[num]->getVecChannel();
+    fd = arr_user[num]->getFd();
 	if (!userChannels.empty())
 	{
 		std::vector<Channel *>::iterator itb = userChannels.begin();
@@ -1575,7 +1633,7 @@ int		Server::quit(int num, std::string& args)
 			std::vector<User *>::iterator	it_begin = chn_users.begin();
 			std::vector<User *>::iterator	it_end = chn_users.end();
 			for (; it_begin != it_end; ++it_begin)
-				this->rplPrint(chn_users[0]->getFd(), MSG_QUIT);
+                this->rplPrint(chn_users[0]->getFd(), MSG_QUIT);
 		}
 	}
 
@@ -1594,7 +1652,7 @@ int		Server::quit(int num, std::string& args)
 		}
 	}
 
-	part(num, part_arg);
+	part(num, part_arg, false, fd);
 	
 	close(this->arr_user[num]->getFd());
 	this->deleteClient(this->arr_user[num]->getFd());

@@ -96,7 +96,7 @@ public: //rmerrie
 	std::vector<std::string>	splitStr(std::string str, std::string delimiter);
 	Channel						*find_chan(std::string str);
 	std::string					fillModes(std::string msg, ModeChan *flags);
-	int		part(int num, std::string& arguments);
+	int		part(int num, std::string& arguments, bool is_ctrl_c, int fd);
 	bool	is_chan(std::string str);
 	bool	chan_in_list(std::string str, std::vector<Channel *> &arr_channel);
 	int		mode_chan(int num);
@@ -123,6 +123,7 @@ public: //epilar
 	int							info(int num, std::string& args);
 
 	int		quit(int num, std::string& args);
+    int		quit_c(int num, std::string& args, int fd);
 };
 
 #endif //IRC_SERVER_HPP
