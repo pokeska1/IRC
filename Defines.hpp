@@ -313,7 +313,8 @@ this->arr_user[num]->getUsername() + "@" + this->arr_user[num]->getHostname() + 
 //собщение одному человеку
 #define MSG_PRIVMSG ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \
-+ arr_user[num_friend]->getNickname() + arr_user[num]->getMsgArgs() + "\r\n"
++ arr_user[num]->getMsgArgs() + "\r\n"  \
+//+ arr_user[num_friend]->getNickname() + arr_user[num]->getMsgArgs() + "\r\n"
 //сообщение по каналу
 #define MSG_PRIVMSG_CHANNEL ":" + arr_user[num]->getNickname() + "!" + arr_user[num]->getUsername() \
 + "@" + arr_user[num]->getHostname() + " " + arr_user[num]->getMsgCom() + " " \

@@ -279,10 +279,6 @@ void Server::privmisg_work(int num) {
         it_end = arr_channel_name.end();
         while (it_begin != it_end) {
             if (can_user_talk_in_channel(num, (*it_begin)) == true) {//нужно проверить состоит ли юзер в канале
-//                if (is_it_notice == true) { // если NOTICE в канал
-//                    it_begin++;
-//                    continue;
-//                }
                 privmisg_for_one_channel(num, massage, (*it_begin));
             }
             it_begin++;
@@ -293,8 +289,6 @@ void Server::privmisg_work(int num) {
         if (can_user_talk_in_channel(num, name) == true) {
             pos2 = this->arr_user[num]->getMsgArgs().find_first_of(' ');
             channel = arr_user[num]->getMsgArgs().substr(pos + 1, pos2 - 1);
-//            if (is_it_notice == true) // если NOTICE в канал
-//                return;
             privmisg_for_one_channel(num, massage, channel);
         }else{
             msg = MSG_CANNOTSENDTOCHAN;
@@ -512,7 +506,7 @@ void Server::join_work(int num) {
                     it_e_u_channel = this->arr_user[num]->getVecChannel().end();
                     while (it_b_u_channel != it_e_u_channel) {
                         if ((*it_b_u_channel)->getName() ==
-                            topic)//3.1.1.1//я так и не нашёл как обрабатывать join в канал в котором ты уже состоишь
+                            topic)//3.1.1.1
                             return;
                         it_b_u_channel++;
                     }
@@ -651,7 +645,7 @@ void    Server::user_work(std::string &arg, int num)
 void        Server::ison_work(int num)
 {
     int pos_sp = 0, pos_sec_sp = 0, i = 0;
-    std::string msg = "", reply = MSG_RPL_ISON;
+    std::string msg = "", reply = MSG_RPL_ISON, name_in_base = "", nick_name = "";
     std::vector<std::string> arr_nickname;
     std::vector<std::string>::iterator mimic_begin, mimc_end;
     std::vector<User *>::iterator it_begin, it_end;
@@ -660,12 +654,12 @@ void        Server::ison_work(int num)
     pos_sp = msg.find_first_of(" ");
     if (pos_sp != -1){
         if(pos_sp != pos_sec_sp - 1) {
-            arr_nickname.push_back(msg.substr(0, pos_sp - 1));
+            arr_nickname.push_back(msg.substr(0, pos_sp));
             pos_sec_sp = msg.find_first_of(" ", pos_sp + 1);
             while (pos_sec_sp != -1) {
-                arr_nickname.push_back(msg.substr(pos_sp + 1, pos_sec_sp - 1));
-                pos_sp = pos_sec_sp + 1;
-                pos_sec_sp = msg.find_first_of(" ", pos_sp);
+                arr_nickname.push_back(msg.substr(pos_sp + 1, pos_sec_sp - (pos_sp + 1)));
+                pos_sp = pos_sec_sp;
+                pos_sec_sp = msg.find_first_of(" ", pos_sp + 1);
                 if(pos_sp == pos_sec_sp - 1)
                     break;
             }
@@ -681,10 +675,12 @@ void        Server::ison_work(int num)
     mimc_end = arr_nickname.end();
     while (mimic_begin != mimc_end){
         while(it_begin != it_end) {
-            if ((*mimic_begin) == (*it_begin)->getNickname()) {
-                reply += (*mimic_begin);
+            nick_name = (*mimic_begin);
+            name_in_base = (*it_begin)->getNickname();
+            if (nick_name == name_in_base) {
                 if (i > 0)
                     reply += " ";
+                reply += (*mimic_begin);
                 i++;
                 break;
             }
@@ -751,7 +747,9 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
             std::cout << "\x1b[31;1mFirst write PASS_WORD\x1b[0m\n";
             return;
         }
-    } else if (this->arr_user[num]->getName_init() == false) {
+        return;
+    }
+    if (this->arr_user[num]->getName_init() == false) {
         if (arr_user[num]->getMsgCom() == "NICK") {
             if (name_verification(arr_user[num]->getMsgArgs()) == -1)//проверяем вводил ли он не занятый ник
                 return;
@@ -761,26 +759,23 @@ void Server::parser_check_pas_nick_user(int num, int fd) {
                 std::cout << "\x1b[32;1mOK nickname\x1b[0m\n";
             }
         }
-    } else if (arr_user[num]->getMsgCom() == "USER") {
+        return;
+    }
+    if (arr_user[num]->getMsgCom() == "USER") {
 		std::string	args = arr_user[num]->getMsgArgs();
-		// if (args.empty() || !isNickCorrect(args))
-		// {
-		// 	std::cout << "\x1b[31;1mThis name is incorrect(not more 9 symbols: letters,numbers)\x1b[0m\n";
-		// 		return;
-		// }
         user_work(args, num);
         send_msg = MSG_WEL_COME_DEFAULT;
         send(fd, send_msg.c_str(), send_msg.length(), 0);
         this->arr_user[num]->setAccess(true);
-    } else {
-        if (this->arr_user[num]->getPassword_init() == false)
-            std::cout << "\x1b[31;1mNO password NO\x1b[0m\n";
-        else if (this->arr_user[num]->getName_init() == false)
-            std::cout << "\x1b[31;1mNO nickname NO\x1b[0m\n";
-        else
-            std::cout << "\x1b[31;1mNO username NO\x1b[0m\n";
-        return;
+       return;
     }
+    if (this->arr_user[num]->getPassword_init() == false)
+        std::cout << "\x1b[31;1mNO password NO\x1b[0m\n";
+    else if (this->arr_user[num]->getName_init() == false)
+        std::cout << "\x1b[31;1mNO nickname NO\x1b[0m\n";
+    else
+        std::cout << "\x1b[31;1mNO username NO\x1b[0m\n";
+    return;
 }
 
 //вторая часть парсера отвечает за выполнение команд
@@ -913,7 +908,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
     if (FD_ISSET(fd, &activfds)) {//если фд есть в списке акитвистов то начнем с ним работать
         num = find_numb_iter(fd);// найдем порядковый номер этого клиента в массиве
         nbytes = recv(fd, *buf, 512, 0);// прочтем в массив чаров его сообщение (не обробатывал переполнение буфера)
-//        std::cout << "\n\x1b[37;1mrecv catch :\x1b[0m" << *buf;
+                                        // std::cout << "\n\x1b[37;1mrecv catch :\x1b[0m" << *buf;
         buf_str_bad = *buf;
         if ((buf_str_bad.find_first_of("\n") == std::string::npos) || (arr_user[num]->getMsgFrom() != "")) {
             arr_user[num]->setFullMassage(false);
@@ -939,7 +934,6 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
         } else if (arr_user[num]->getFullMassage() == true) {
             std::cout << "\n\x1b[36;1mServ got massage: \x1b[0m|" << buf_str << "|\n";
             parser(num, buf_str, fd, writefds);
-            //"\x1b[31;1mНет такого челика\x1b[0m\n";
         }
         return (fd);
     }
@@ -980,17 +974,9 @@ void Server::work(int ls) {
                 this->arr_user[num]->cleaner();
         }
         free(buf);
+        usleep(1);
     }
 }
-
-
-//		########  ##     ## ######## ########  ########  #### ########
-//		##     ## ###   ### ##       ##     ## ##     ##  ##  ##
-//		##     ## #### #### ##       ##     ## ##     ##  ##  ##
-//		########  ## ### ## ######   ########  ########   ##  ######
-//		##   ##   ##     ## ##       ##   ##   ##   ##    ##  ##
-//		##    ##  ##     ## ##       ##    ##  ##    ##   ##  ##
-//		##     ## ##     ## ######## ##     ## ##     ## #### ########
 
 int		Server::errPrint(const int fd, std::string msg) const
 {
@@ -1341,17 +1327,6 @@ int		Server::mode_chan(int num)
 	return 0;
 }
 
-
-// THE END
-
-// ####### ######  ### #          #    ######  
-// #       #     #  #  #         # #   #     # 
-// #       #     #  #  #        #   #  #     # 
-// #####   ######   #  #       #     # ######  
-// #       #        #  #       ####### #   #   
-// #       #        #  #       #     # #    #  
-// ####### #       ### ####### #     # #     # 
-
 bool	Server::isNickUsed(const std::string& nickname)
 {
 	std::vector<User *>::iterator	it_begin = arr_user.begin();
@@ -1382,7 +1357,6 @@ bool	Server::isNickCorrect(std::string& nick)
 
 int		Server::nick(int num, std::string& args)
 {
-	// std::cout << "args: " << args << std::endl;
 	if (args.empty())
 	{
 		std::string	msg(MSG_NONICKNAME);
