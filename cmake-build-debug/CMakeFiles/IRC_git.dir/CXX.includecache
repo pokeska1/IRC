@@ -16,7 +16,11 @@ User.hpp
 
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/Defines.hpp
 
-/Users/jmarian/Desktop/21/5_lvl/IRC_git/User.cpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.cpp
+Server.hpp
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
+
+/Users/jmarian/Desktop/21/5_lvl/IRC_git/Server.hpp
 User.hpp
 /Users/jmarian/Desktop/21/5_lvl/IRC_git/User.hpp
 Channel.hpp

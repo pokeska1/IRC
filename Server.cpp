@@ -297,7 +297,6 @@ void Server::privmisg_work(int num) {
 //                return;
             privmisg_for_one_channel(num, massage, channel);
         }else{
-
             msg = MSG_CANNOTSENDTOCHAN;
             send(arr_user[num]->getFd(), msg.c_str(), msg.length(), 0);
         }
@@ -483,8 +482,8 @@ void Server::join_work(int num) {
     //1*
     std::vector<Channel *>::iterator it_b_channel, it_e_channel, it_b_u_channel, it_e_u_channel;
     std::vector<User *>::iterator it_begin, it_end;
-    std::string msg = "", error = "", topic = "", key = "";
-    int pos = 0, pos2 = 0, nbytes = 0;
+    std::string msg = "", error = "", topic = "", key = "", limit = "";
+    int pos = 0, pos2 = 0, nbytes = 0,have_user = 0;
 
     msg = this->arr_user[num]->getMsgArgs();
     pos = msg.find_first_of(" ");
@@ -497,6 +496,7 @@ void Server::join_work(int num) {
             return;
         }
         topic = msg.substr(1, pos - 1);
+        std::cout << topic <<"\n";
         if (check_invite_join(num, topic) == false)
             return;
         if (pos != -1)
@@ -515,6 +515,12 @@ void Server::join_work(int num) {
                             topic)//3.1.1.1//я так и не нашёл как обрабатывать join в канал в котором ты уже состоишь
                             return;
                         it_b_u_channel++;
+                    }
+                    int limit_int = (*it_b_channel)->getModeParams()->limit, size = (*it_b_channel)->getUsersVector().size();
+                    if (limit_int != -1 &&  size >= limit_int) {
+                        limit += std::to_string((*it_b_channel)->getModeParams()->limit);
+                        errPrint(arr_user[num]->getFd(), MSG_CHANNELISFULL);
+                        return;
                     }
                     if ((*it_b_channel)->getPassword() == "" || (*it_b_channel)->getPassword() == key) {
                         //3.1.1.2  отправляем всем кто присоединился
@@ -915,7 +921,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
             arr_user[num]->setMsgFrom(new_args);
             if (buf_str_bad.find_first_of("\n") != std::string::npos) {
                 arr_user[num]->setFullMassage(true);
-                buf_str = arr_user[num]->getMsgFrom();
+                buf_str = arr_user[num]->getMsgFrom().substr(0, arr_user[num]->getMsgFrom().length() - 1);
             }
         } else {
             arr_user[num]->setFullMassage(true);
