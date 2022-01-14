@@ -928,9 +928,7 @@ int Server::get_old_client_massage(int &fd, fd_set &activfds, fd_set &writefds, 
 ///////////////////
 
 ///////////////////
-//            deleteClient(fd);
             quit_c(num, error, fd);
-			//close(fd);
             perror("\x1b[31;1mServer: meh nbytes == 0, and delete Client byby =^_^=\x1b[0m\n");
         } else if (arr_user[num]->getFullMassage() == true) {
             std::cout << "\n\x1b[36;1mServ got massage: \x1b[0m|" << buf_str << "|\n";
@@ -1583,6 +1581,7 @@ int		Server::quit_c(int num, std::string& args, int fd)
                 part_arg += ","; //не последнее имя канала в списке
         }
     }
+    arr_user[num]->setMsgArgs(part_arg);
     part(num, part_arg, true, fd);
 
 
